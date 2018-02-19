@@ -1,4 +1,4 @@
-package Chronotimer;
+package chronoTimer;
 
 import java.util.Scanner;  
 public class Driver {

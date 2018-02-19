@@ -1,4 +1,4 @@
-package Simulator;
+package chronoSimulator;
 
 import java.util.Scanner;
 

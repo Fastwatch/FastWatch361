@@ -1,4 +1,4 @@
-package Chronotimer;
+package chronoTimer;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
