@@ -2,13 +2,20 @@ package chronoSimulator;
 
 import java.util.Scanner;
 
+/**
+ * 
+ * @author Riley Mahr rwmahr@gmail.com
+ * <p>
+ * This class is used as a "spring board" for file and console simulation
+ * It contains little logic, which should all be handles in other classes
+ */
+
 public class ChronoTimerSimulator {
 	
 	private static FileInput fn;
 	
 	public static void main(String[] args) {
-		// Begin execution of simulator
-		// use command prompt or input file??
+
 		Scanner in = new Scanner(System.in);
 		String input;
 		boolean exit = false;
@@ -19,13 +26,11 @@ public class ChronoTimerSimulator {
 			
 			switch(input.toUpperCase()) {
 				case "F":
-					//do something
 					fn = new FileInput();
 					fn.readFile(in);
 					break;
 				case "C":
-					//do something else
-					System.out.println("C y'all");
+					// Console Input
 					break;
 				case "E":
 					exit = true;

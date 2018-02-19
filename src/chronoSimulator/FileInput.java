@@ -6,8 +6,15 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Scanner;
 
+/**
+ * @author      Riley Mahr rwmahr@gmail.com
+ */
 public class FileInput {
 	
+	/**
+	 * Base class to read in input from a file
+	 * @param in Scanner object passed in from main simulator
+	 */
 	public void readFile(Scanner in) {
 		String fileName;
 		File file = null;
