@@ -2,6 +2,8 @@ package chronoTimer;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+
+import chronoSimulator.ChronoTimerSimulator;
 //other possible imports
 
 
@@ -16,6 +18,7 @@ public class ChronoTimer {
 	//private ArrayList<String> log; //
 	private String currentCommand; //current task to be carried out by execute()
 	private Event currentEvent;
+	private ChronoTimerSimulator sim; // chrono timer simulator
 
 	//field initialization (default constructor);
 	public ChronoTimer(){ 
@@ -108,11 +111,78 @@ public class ChronoTimer {
 //		switch
 //	}
 //
-//	//incomplete
+//	//incomplete, needs implementations in several classes
 //	//return type?
-//	private void execute(String){
-//
-//	}
+	private void execute(String c){
+		if(powerState == true){
+			String[] commands = c.split(" ");
+			switch(commands[0].toUpperCase()){
+				case("EXIT"): // Exit simulator
+					sim.exit(); //*Still need to be implemented in ChronoTimerSimulator class*//
+					break;
+					
+				case("CANCEL"): // Discard current run for racer and place racer back to queue
+					IND.getRunningRacers().getRacer().enqueue //*Still need to be implemented in IND class*//
+					break;
+				
+				case("RESET"): // Reset system to initial state
+					reset();
+					break;
+					
+				case("TIME"): // Set the current time. Default time is host system time.
+					//Time object.setTime(hr,min,sec); or Time object.defaultTime(); //*Still need to be implemented in Time class*//
+					break;
+				
+				case("TOG"): // Toggle the state of the channel TOG<CHANNEL>
+					try{
+						int channel = Integer.parseInt(commands[1]);
+						if(channel < 0 || channel >= 9){
+							System.out.println("Invalid channel to toggle.");
+						}
+						channels[channel].setState(Something?); //*Still need to be implemented in Sensor class*//
+						
+					}catch(NumberFormatException e){
+						System.out.println("Error on parsing Channel to a number.");
+						//e.getStackTrace();
+					}
+					break;
+					
+				case("DNF"): // DNF says the run for the bib number is over, and their end time is DNF
+					IND.getRunningRacers().getRacer().setDNF(true); //*Still need to be implemented in IND class*//
+					break;
+					
+				case("TRIG"): // Trigger channel Trig<NUM>
+					try{
+						int channel = Integer.parseInt(commands[1]);
+						if(channel < 0 || channel >= 9){
+							System.out.println("Invalid channel to toggle.");
+						}
+						channels[channel].trigger(); //*Still need to be implemented in Sensor class*//
+						
+					}catch(NumberFormatException e){
+						System.out.println("Error on parsing Channel to a number.");
+						//e.getStackTrace();
+					}
+					break;
+					
+				case("START"): // Start trigger channel 1 (shorthand for TRIG 1)
+					execute("TRIG 1");
+					break;
+					
+				case("FINISH"): // Finish trigger channel 2 (shorthand for TRIG 2)
+					execute("TRIG 2");
+					break;
+					
+				default:
+					
+			}
+		}
+		else{ // only listen for POWER since the power to the system is off
+			if(c.toUpperCase().equals("POWER")){
+				power(); // power on!!! LETS DO THIS!
+			}
+		}
+	}
 
 	//creates a new run
 	private void newRun(){
