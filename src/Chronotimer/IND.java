@@ -90,15 +90,20 @@ class IND extends Run {
 	protected String standings(LocalTime time){
 		String stand= "";
 		for(Node n = queued.head;n!=null;n=n.next){
-			stand+= Integer.toString(n.Data.getBibNum()) + time.toString()+"\n";
+			stand+= Integer.toString(n.Data.getBibNum()) +" "+ time.toString()+"\n";
 		}
 		for(Node n = running.head;n!=null;n=n.next){
 			n.Data.setFinish(time);
-			stand+= Integer.toString(n.Data.getBibNum()) + n.Data.getTime().toString() +"\n";
+			stand+= Integer.toString(n.Data.getBibNum()) +" "+ n.Data.getTime().toString() +"\n";
 			n.Data.setFinish(null);
 		}
 		for(Node n = complete.head;n!=null;n=n.next){
-			stand+= Integer.toString(n.Data.getBibNum()) + n.Data.getTime().toString() +"\n";
+			if(n.Data.getDNF()){
+				stand+= Integer.toString(n.Data.getBibNum()) +" DNF";
+			}else{
+				stand+= Integer.toString(n.Data.getBibNum()) +" "+ n.Data.getTime().toString() +"\n";
+			}
+			
 		}
 		return stand;
 	}
