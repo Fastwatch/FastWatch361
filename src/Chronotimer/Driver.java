@@ -6,17 +6,21 @@ public class Driver {
 	
 	public static void main(String[] args){
 		
-		Racer r1 = new Racer(1234);
-	
-		//Simple test run on the Racer class, Racer class may subject to change when Time object is implemented.
+		Scanner input = new Scanner(System.in);
 		
+		//Simple test run on the Racer class, Racer class may subject to change when Time object is implemented.
+		/////////////////////////////////////////////////////////
+		
+		//Racer r1 = new Racer(1234);
+		
+		/*
 		r1.startTime();
 		System.out.println("Recorded in military time: HH:mm:ss.sss");
 		System.out.print("Racer: '" + r1.getBibNum() + "' start time is ");
 		System.out.println(r1.getStartTime()); // starts the timer
 		
 		System.out.println("Press ENTER to stop time.");
-		Scanner input = new Scanner(System.in);
+		
 		input.nextLine();
 		r1.endTime();; // stops the timer
 		
@@ -27,6 +31,21 @@ public class Driver {
 		System.out.println(r1.getTime());
 		
 		input.close();
+		*/
+		
+		////////////////////////////////////////////////////////
+		
+		// Test run on ChronoTimer Class execute method, Not fully implemented yet.
+		ChronoTimer ct = new ChronoTimer();
+		System.out.println("ChronoTimer Test");
+		System.out.println("Format is: <Time> <COMMAND> <NUM(if any)> or 'quit' to exit simulator");
+		String in = " ";
+		while(!in.equalsIgnoreCase("quit")){
+			System.out.println("Please enter a command:");
+			in = input.nextLine();
+			ct.execute(in);
+		}
+		System.out.println("Shutting down...");
 	}
 	
 	

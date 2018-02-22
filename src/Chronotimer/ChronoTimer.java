@@ -1,5 +1,7 @@
 package Chronotimer;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -86,25 +88,21 @@ public class ChronoTimer {
 
 	//prints a given run
 	private String print(LocalTime time, Run run){
-		System.out.print(run.standings(time));
+		//System.out.print(run.standings(time));
+		return run.standings(time);
 	}
 
 	//prints out given run to a new file
-	private export(Run run){
+	private void export(Run run){
 		PrintWriter out;
 		try{
-			out= new PrintWriter(new FileWriter("C:\\location\\outputfile.txt"))); 
-			out.print(run.toString())); 
+			out= new PrintWriter(new FileWriter("C:\\location\\outputfile.txt")); 
+			out.print(run.toString()); 
 			out.println("world");
 		}
 		catch (IOException e){
 			//do something?
-		}finally{
-			try{
-				out.close();
-			}catch (Exception e){
-				//do nothing?
-			}
+			System.out.println("Cannot open the file.");
 		}
 	}
 
@@ -116,13 +114,30 @@ public class ChronoTimer {
 //
 //	//incomplete, needs implementations in several classes
 //	//return type?
-	private void execute(String c){
+	protected void execute(String c){
+		String[] commands = c.split(" ");
+		if(commands.length < 2){
+			System.out.println("Not enough arguments. Need atleast 2.");
+			return;
+		}
+		LocalTime time = null;
+		
 		if(powerState == true){
-			String[] commands = c.split(" ");
-			LocalTime time = LocalTime.parse(commands[0]);
+			try{
+				time = LocalTime.parse(commands[0]);
+			}catch(Exception e){
+				System.out.println("Something went wrong when parsing time.\nNote: Time should be the first arg in format of 00:00:00");
+				return;
+			}
 			switch(commands[1].toUpperCase()){
+				case("POWER"):
+					power();
+				if(powerState == false)
+					System.out.println("ChronotTimer is now off.");
+					break;
+				
 				case("EXIT"): // Exit simulator
-					sim.exit(); //*Still need to be implemented in ChronoTimerSimulator class*//
+					//sim.exit(); //*Still need to be implemented in ChronoTimerSimulator class*//
 					break;
 					
 				case("CANCEL"): // Discard current run for racer and place racer back to queue
@@ -141,7 +156,7 @@ public class ChronoTimer {
 					try{
 						int channel = Integer.parseInt(commands[1]);
 						if(channel < 0 || channel >= 9){
-							System.out.println("Invalid channel to toggle.");
+							System.out.println("Invalid channel to set state.");
 						}
 						//channels[channel].setState(Something?); //*Still need to be implemented in Sensor class*//
 						
@@ -157,9 +172,14 @@ public class ChronoTimer {
 					
 				case("TRIG"): // Trigger channel Trig<NUM>
 					try{
-						int channel = Integer.parseInt(commands[1]);
+						if(commands.length <= 2){
+							System.out.println("Need a channel number to trigger. Should be the 3rd arg.");
+							return;
+						}
+						int channel = Integer.parseInt(commands[2]);
 						if(channel < 0 || channel >= 9){
 							System.out.println("Invalid channel to toggle.");
+							return;
 						}
 						currentRun.trig(time, channel); //*Still need to be implemented in Sensor class*//
 						
@@ -178,13 +198,23 @@ public class ChronoTimer {
 					break;
 					
 				default:
-					
+					System.out.println("Invalid command.");
 			}
 		}
 		else{ // only listen for POWER since the power to the system is off
-			if(c.toUpperCase().equals("POWER")){
-				power(); // power on!!! LETS DO THIS!
+			try{
+				time = LocalTime.parse(commands[0]);
+			}catch(Exception e){
+				System.out.println("Something went wrong when parsing time.\nNote: Time should be the first arg in format of 00:00:00");
+				return;
 			}
+			if(commands[1].equalsIgnoreCase("POWER")){
+				power();
+				System.out.println("ChronoTimer is now on.");
+				return;
+			}
+			System.out.println("ChronoTimer is off. Please turn on the power before providing commands. <TIME> <POWER>");
+
 		}
 	}
 
@@ -205,6 +235,7 @@ public class ChronoTimer {
 		}
 		pastRuns.add(currentRun);
 		currentRun = null;
+		return true;
 	}
 
 }
