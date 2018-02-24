@@ -1,4 +1,4 @@
-package Chronotimer;
+package chronoTimer;
 
 import static org.junit.Assert.*;
 

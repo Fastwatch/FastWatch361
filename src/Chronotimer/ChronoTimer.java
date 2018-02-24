@@ -1,4 +1,4 @@
-package Chronotimer;
+package chronoTimer;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -132,8 +132,7 @@ public class ChronoTimer {
 //
 //	//incomplete, needs implementations in several classes
 //	//return type?
-	@SuppressWarnings("static-access")
-	protected boolean execute(String c){
+	public boolean execute(String c){
 		String[] commands = c.split(" ");
 		LocalTime time = null;
 		

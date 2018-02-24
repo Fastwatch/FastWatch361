@@ -1,4 +1,4 @@
-package Chronotimer;
+package chronoTimer;
 
 import java.time.LocalTime;
 

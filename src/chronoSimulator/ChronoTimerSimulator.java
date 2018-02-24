@@ -1,6 +1,7 @@
 package chronoSimulator;
 
 import java.util.Scanner;
+import chronoTimer.ChronoTimer;
 
 /**
  * 
@@ -12,13 +13,20 @@ import java.util.Scanner;
 
 public class ChronoTimerSimulator {
 	
+	private ChronoTimer ct;
+	
 	private static FileInput fn;
 	
-	public static void main(String[] args) {
+	public void start() {
 
 		Scanner in = new Scanner(System.in);
+		
+		ct = new ChronoTimer();
+		
 		String input;
 		boolean exit = false;
+		
+		
 		
 		do {
 			System.out.print("Enter \"F\" for file input, \"C\" for console input or \"E\" for exit: ");
@@ -27,7 +35,7 @@ public class ChronoTimerSimulator {
 			switch(input.toUpperCase()) {
 				case "F":
 					fn = new FileInput();
-					fn.readFile(in);
+					fn.readFile(in, ct);
 					break;
 				case "C":
 					// Console Input
@@ -42,5 +50,9 @@ public class ChronoTimerSimulator {
 		} while (!exit);
 		
 		System.out.println("\nGoodbye..");
+	}
+	
+	public void execute (String s) {
+		
 	}
 }
