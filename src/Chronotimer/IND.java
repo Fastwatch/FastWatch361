@@ -173,6 +173,12 @@ class IND extends Run {
 		}
 		
 		protected Node removeStart(){
+			if(count == 1){
+				Node n = head;
+				head = null;
+				--count;
+				return n;
+			}
 			Node n = head;
 			head = n.next;
 			head.prev = null;

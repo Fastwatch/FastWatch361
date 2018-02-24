@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 
 import chronoSimulator.ChronoTimerSimulator;
@@ -22,6 +23,22 @@ public class ChronoTimer {
 	private String currentCommand; //current task to be carried out by execute()
 	//private Event currentEvent;
 	private ChronoTimerSimulator sim; // chrono timer simulator
+	private boolean gotEvent; // their test text file has a EVENT command so I added the flag since we are only using Run
+	
+	
+	private boolean showMessage = false; //  TRUE - print invalid sysout msg, FALSE - print no invalid sysout msg 
+	/**
+	 * Helper method for printing invalid input messages and always return false. 
+	 * Used in methods that requires a boolean return value of false.
+	 * @param message message to print what was invalid/incorrect
+	 * @return false always
+	 */
+	private boolean invalidInput(String message){
+		if(showMessage == true){
+			System.out.println(message);
+		}
+		return false;
+	}
 
 	//field initialization (default constructor);
 	public ChronoTimer(){ 
@@ -49,6 +66,7 @@ public class ChronoTimer {
 		log = null;
 		currentCommand = null;
 		//currentEvent = null;
+		gotEvent = false;
 	}
 
 	//sets a new sensor to specified channel and returns the previous
@@ -114,34 +132,66 @@ public class ChronoTimer {
 //
 //	//incomplete, needs implementations in several classes
 //	//return type?
-	protected void execute(String c){
+	@SuppressWarnings("static-access")
+	protected boolean execute(String c){
 		String[] commands = c.split(" ");
-		if(commands.length < 2){
-			System.out.println("Not enough arguments. Need atleast 2.");
-			return;
-		}
 		LocalTime time = null;
 		
+		if(commands.length < 2) return invalidInput("Not enough arguments. Need atleast 2.");
+		
 		if(powerState == true){
-			try{
-				time = LocalTime.parse(commands[0]);
-			}catch(Exception e){
-				System.out.println("Something went wrong when parsing time.\nNote: Time should be the first arg in format of 00:00:00");
-				return;
+			time = parseTime(commands[0]);
+			if(time == null) {
+				return false;
 			}
 			switch(commands[1].toUpperCase()){
 				case("POWER"):
 					power();
-				if(powerState == false)
-					System.out.println("ChronotTimer is now off.");
-					break;
+					if(powerState == false) {
+						System.out.println("ChronotTimer is now off.");
+						return false;
+					}
+					break; 
 				
 				case("EXIT"): // Exit simulator
 					//sim.exit(); //*Still need to be implemented in ChronoTimerSimulator class*//
 					break;
 					
 				case("CANCEL"): // Discard current run for racer and place racer back to queue
-					currentRun.cancel(); //*Still need to be implemented in IND class*//
+					if(currentRun == null) return invalidInput("Cannot cancel run, there is currently no run.");
+					try {
+						currentRun.cancel();
+					}catch(IllegalStateException e) {
+						return invalidInput("No racers on course.");
+					}
+					break;
+					
+				case("EVENT"): // Set Run to this particular event <TIME> <EVENT> <TYPE>
+					if(commands.length <= 2) return invalidInput("Need a event type. Should be the 3rd arg.");
+					
+					else if(commands[2].equalsIgnoreCase("IND")) {
+						gotEvent = true;
+						invalidInput("Event set to IND");
+					}	
+					else
+						return invalidInput("Unsupported event type.");
+					break;
+					
+				case("CONN"): // CONN <sensor> <NUM>
+					// Connect a type of sensor to channel <NUM>
+					//			<sensor> = {EYE,GATE,PAD}
+					break;
+				
+				case("NEWRUN"): // Create a new Run (must end a Run first)
+					try {
+						newRun();
+					}catch(IllegalStateException e) {
+						return invalidInput("Cannot create new run. Must end a run first.");
+					}
+					break;
+				
+				case("ENDRUN"): // Done with a Run
+					if(endRun() == false) return invalidInput("There is no current run.");
 					break;
 				
 				case("RESET"): // Reset system to initial state
@@ -149,81 +199,117 @@ public class ChronoTimer {
 					break;
 					
 				case("TIME"): // Set the current time. Default time is host system time.
-					//Time object.setTime(hr,min,sec); or Time object.defaultTime(); //*Still need to be implemented in Time class*//
+					if(commands.length <= 2) return invalidInput("Need a time to set. Should be the 3rd arg.");
+					time = parseTime(commands[2]);
+					if(time == null) return invalidInput("Time is is null");
+					else
+						System.out.println("Time has been set to " + time);
+					break;
+				
+				case("NUM"): // Set	NUM<NUMBER> as the next	competitor to start.
+					if(commands.length <= 2) return invalidInput("Need a bib number to set racer. Should be the 3rd arg.");
+					if(currentRun == null) return invalidInput("Cannot add racer, create a Run first.");
+					try {
+						int bibNum = Integer.parseInt(commands[2]);
+						currentRun.num(bibNum);
+						System.out.println("Racer with bib number " + bibNum + " has been added successfully.") ;
+					}catch(NumberFormatException e) {
+						return invalidInput("Error on parsing bib number to a number.");
+					}
 					break;
 				
 				case("TOG"): // Toggle the state of the channel TOG<CHANNEL>
 					try{
 						int channel = Integer.parseInt(commands[1]);
 						if(channel < 0 || channel >= 9){
-							System.out.println("Invalid channel to set state.");
+							return invalidInput("Channel Not Supported.");
 						}
-						//channels[channel].setState(Something?); //*Still need to be implemented in Sensor class*//
-						
 					}catch(NumberFormatException e){
-						System.out.println("Error on parsing Channel to a number.");
-						//e.getStackTrace();
+						return invalidInput("Error on parsing Channel to a number.");
 					}
 					break;
 					
 				case("DNF"): // DNF says the run for the bib number is over, and their end time is DNF
-					currentRun.dnf(); //*Still need to be implemented in IND class*//
+					if(currentRun == null) return invalidInput("Cannot set run to dnf. There is no run.");
+					try {
+						currentRun.dnf(); 
+					}catch(IllegalStateException e) {
+						return invalidInput("No racers on course");
+					}
 					break;
 					
 				case("TRIG"): // Trigger channel Trig<NUM>
 					try{
-						if(commands.length <= 2){
-							System.out.println("Need a channel number to trigger. Should be the 3rd arg.");
-							return;
-						}
+						if(commands.length <= 2) return invalidInput("Need a channel number to trigger. Should be the 3rd arg.");
 						int channel = Integer.parseInt(commands[2]);
-						if(channel < 0 || channel >= 9){
-							System.out.println("Invalid channel to toggle.");
-							return;
+						if(currentRun == null) return invalidInput("Cannot start/end run. Please create a run first.");
+						try {
+							currentRun.trig(time, channel);
+						}catch(IllegalStateException e) {
+							return invalidInput("No Racers waiting to start.");
 						}
-						currentRun.trig(time, channel); //*Still need to be implemented in Sensor class*//
-						
 					}catch(NumberFormatException e){
-						System.out.println("Error on parsing Channel to a number.");
-						//e.getStackTrace();
+						return invalidInput("Error on parsing Channel to a number.");
 					}
 					break;
 					
 				case("START"): // Start trigger channel 1 (shorthand for TRIG 1)
-					execute(time.toString()+" TRIG 1");
+					if(gotEvent == false) return invalidInput("Cannot start Run. Please choose an event first.");
+					if(execute(time.toString()+" TRIG 1") == false) // recursion, that's why it needs a second return false check
+						return false;
 					break;
 					
 				case("FINISH"): // Finish trigger channel 2 (shorthand for TRIG 2)
-					execute(time.toString()+" TRIG 2");
+					if(execute(time.toString()+" TRIG 2") == false) // recursion, that's why it needs a second return false check
+						return false;
+					break;
+					
+				case("PRINT"): // print <RUN>
+					if(currentRun == null) return invalidInput("Cannot print Run, there is no Run.");
+					else
+						print(time, currentRun);
 					break;
 					
 				default:
 					System.out.println("Invalid command.");
+					return false;
 			}
 		}
 		else{ // only listen for POWER since the power to the system is off
-			try{
-				time = LocalTime.parse(commands[0]);
-			}catch(Exception e){
-				System.out.println("Something went wrong when parsing time.\nNote: Time should be the first arg in format of 00:00:00");
-				return;
-			}
+			time = parseTime(commands[0]);
+			if(time == null)
+				return false;
 			if(commands[1].equalsIgnoreCase("POWER")){
 				power();
 				System.out.println("ChronoTimer is now on.");
-				return;
+				return true;
 			}
 			System.out.println("ChronoTimer is off. Please turn on the power before providing commands. <TIME> <POWER>");
-
+			return false;
 		}
+		
+		return true;
+	}
+
+	// I was duplicating this block of code in execute(), so I decided to make a method for it
+	private LocalTime parseTime(String commands) {
+		LocalTime time = null;
+		try{
+			time = LocalTime.parse(commands);
+		}catch(DateTimeParseException e){
+			invalidInput("Something went wrong when parsing time.\nNote: Time should be the first arg in format of 00:00:00");
+			return null;
+		}
+		return time;
 	}
 
 	//creates a new run
 	private void newRun(){
-		if (currentRun == null){
+		if (currentRun != null){
 			throw new IllegalStateException("run in progress");
 		}
 		currentRun = new IND();
+		System.out.println("Run created.");
 	}
 
 	//adds the current run to past run history and resets
