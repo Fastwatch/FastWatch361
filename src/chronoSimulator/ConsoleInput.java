@@ -11,7 +11,7 @@ import java.util.Scanner;
 import chronoTimer.ChronoTimer;
 /**
  * @author Andrew Krill atkrill@uwm.edu
- */
+ */ 
 public class ConsoleInput {
 	
 	/**
