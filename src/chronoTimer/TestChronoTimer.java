@@ -63,10 +63,9 @@ public class TestChronoTimer {
 		assertFalse("Must turn on the power first.",ct.execute("12:01:02.0 START")); 
 		ct.execute("12:01:02.0 POWER");
 		ct.execute("12:01:02.0 CONN EYE 1");
+		ct.execute("12:01:02.0 TOG 1");
 		assertFalse("Should execute but return false because no Run created.",ct.execute("12:01:20.0 START"));
 		assertTrue("Should of executed, and return true but did not.", ct.execute("12:01:20.0 NEWRUN"));
-		assertFalse("Should execute but return false because no event is chosen.",ct.execute("12:01:20.0 START"));
-		assertTrue("Should of executed, and return true but did not.",ct.execute("12:01:20.0 EVENT IND"));
 		assertFalse("Should execute but return false because no racer is in the Run.",ct.execute("12:01:20.0 START"));
 		assertTrue("Should of executed, and return true but did not.",ct.execute("12:01:20.0 NUM 15"));
 		assertTrue("Should of executed, and return true but did not.",ct.execute("12:01:20.0 START"));

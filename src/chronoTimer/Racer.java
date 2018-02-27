@@ -2,11 +2,31 @@ package chronoTimer;
 
 import java.time.LocalTime;
 
+
+/**
+ *  A racer with a unique bib number that has it's own start and end time (LocalTime class). This class
+ *  is used in racing events.
+ * @author Fue Her
+ *
+ */
 public class Racer {
 
-	private LocalTime startTime; // racer's start time
+	/**
+	 * The racer's start time
+	 */
+	private LocalTime startTime; 
+	/**
+	 * The racer's end time
+	 */
 	private LocalTime endTime; // racer's end time
+	/**
+	 * The racer's bib number
+	 */
 	private int bibNum; // racer's bib number
+	
+	/**
+	 * The racer's did not finish state (True - did not finish) (False - did finish)
+	 */
 	private boolean dnf; // did not finish state
 	
 	//private LocalTime duration; //duration between endTime and start time
@@ -103,16 +123,9 @@ public class Racer {
 		LocalTime duration = endTime.minusHours(startTime.getHour());
 		duration = duration.minusMinutes(startTime.getMinute());
 		duration = duration.minusSeconds(startTime.getSecond());
-		
-		//System.out.println(duration.toString());
-		//this.duration = duration;
+		duration = duration.minusNanos(startTime.getNano());
 
 		return duration;
 	}
-	
-	// Test run to save system time to the racer's time, and will subject to change when Time object is implemented //
-	protected void startTime(){ startTime = java.time.LocalTime.now(); } 
-
-	protected void endTime(){ endTime = java.time.LocalTime.now(); }
 	
 }

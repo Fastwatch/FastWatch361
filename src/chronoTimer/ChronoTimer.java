@@ -10,6 +10,13 @@ import java.util.ArrayList;
 import chronoSimulator.ChronoTimerSimulator;
 //other possible imports
 
+/**
+ *  The Sport Timing system that will perform specific actions provided by certain commands from the simulator (either from
+ *  file or console input). It will record and keep track of racers and runs of multiple sporting racing events. The simulator and hardware will only 
+ *  have access to use the execute method of this system to run and execute.
+ * @authors Isaac Kadera, Philip Sauvey and Fue Her 
+ *
+ */
 
 public class ChronoTimer {
 
@@ -43,8 +50,9 @@ public class ChronoTimer {
 	//private ArrayList<String> log; //
 	//private Event currentEvent;
 	private ChronoTimerSimulator sim; // chrono timer simulator
-	private boolean gotEvent; // their test text file has a EVENT command so I added the flag since we are only using Run
+	private String eventType; // their test text file has a EVENT command 
 	private LocalTime currentTime;
+	
 	// used for testing
 	private boolean showMessage = true; //  TRUE - print invalid sysout msg, FALSE - print no invalid sysout msg 
 	/**
@@ -67,17 +75,24 @@ public class ChronoTimer {
 		pastRuns = new ArrayList<Run>();
 		channels = new Sensor[8];
 		log = "";
+		eventType = "";
 		currentTime = null;
 		//currentEvent = null;
 	}
 
-	//toggles CT power on/off and returns the new power state
+	/**
+	 * Toggles the ChronoTimer power on/off.
+	 * @return True if the ChronoTimer is on and false if the ChronoTimer
+	 * is off.
+	 */
 	private boolean power(){ 
 		powerState = !powerState;
 		return powerState;
 	}
 
-	//CT set to initial state
+	/**
+	 * Set the ChronoTimer to it's initial state
+	 */
 	private void reset(){
 		powerState = false;
 		currentRun = null;
@@ -85,21 +100,27 @@ public class ChronoTimer {
 		channels = new Sensor[8];
 		log = "";
 		//currentEvent = null;
-		gotEvent = false;
+		eventType = "";
 		currentTime = null;
 	}
 
-	//sets a new sensor to specified channel and returns the previous
-	//sensor at that channel
-	
+	/**
+	 * Connect a sensor to the specified channel
+	 * @param newSensorChannel the channel to connect the sensor to
+	 * @param sensorType the sensor type to connect
+	 * @return The previous sensor at that channel, or null if there were no sensor before
+	 */
 	public Sensor conn(int newSensorChannel, String sensorType){
 		Sensor oldInput = channels[newSensorChannel];
 		channels[newSensorChannel] = new Sensor(sensorType);
 		return oldInput;
 	}
 
-	//disconnects a channel and returns the sensor previously
-	//connected to that channel
+	/**
+	 * Disconnect a channel
+	 * @param disabledChannel the channel to be disconnected
+	 * @return The sensor that was previously connected to that channel
+	 */
 	public Sensor disc(int disabledChannel){
 		Sensor oldInput = channels[disabledChannel];
 		channels[disabledChannel] = null;
@@ -123,7 +144,15 @@ public class ChronoTimer {
 	//	return currentEvent;
 	//}
 
-	//prints a given run
+	/**
+	 * Prints the time of all the 
+	 * queued, running, and completed racers of the
+	 * given run.
+	 * 
+	 * @param time time stamp of printing the run
+	 * @param run the run to print
+	 * @return String of all racers time in the run
+	 */
 	private String print(LocalTime time, Run run){
 		//System.out.print(run.standings(time));
 		return run.standings(time);
@@ -143,13 +172,21 @@ public class ChronoTimer {
 		}
 	}*/
 
-//	//incomplete, needs implementations in several classes
-//	//return type?
+	/**
+	 * This will parse the command input and execute accordingly to what the command will have the system perform.
+	 * It will only execute if the command is valid and can be performed depending on the state of the system is
+	 * currently at. eg: You cannot create a new run unless the system is powered on.
+	 * 
+	 * @param c command to be parse and executed by the ChronoTimer
+	 * @return True if the command input is parsed and executed successfully according to the current state of the
+	 * system. It will return false whenever the command input cannot be executed either due to it's power is off
+	 *  , the command cannot be executed at it's current state or invalid commands.
+	 */
 	public boolean execute(String c){
 		String[] commands = c.split("\\s+");
 		LocalTime time = null;
 		
-		if(commands.length < 2) return printMessage("Not enough arguments. Need atleast 2.");
+		if(commands.length < 2) return printMessage("Not enough arguments.");
 		
 		if(powerState == true){
 			log+=c+"\n";
@@ -168,18 +205,11 @@ public class ChronoTimer {
 					power();
 					if(powerState == false) {
 						System.out.println("ChronotTimer is now off.");
-						for(int i = 1;i<=8;i++){
-							if(channels[i-1]!=null && channels[i-1].getState()){
-								channels[i-1].toggle();
-							}
-						}
+						reset();
+						//System.out.println("Command log:\n" + log);
 						return false;
 					}
 					break; 
-				
-				case("EXIT"): // Exit simulator
-					//sim.exit(); //*Still need to be implemented in ChronoTimerSimulator class*//
-					break;
 					
 				case("CANCEL"): // Discard current run for racer and place racer back to queue
 					if(currentRun == null) return printMessage("Cannot cancel run, there is currently no run.");
@@ -191,10 +221,10 @@ public class ChronoTimer {
 					break;
 					
 				case("EVENT"): // Set Run to this particular event <TIME> <EVENT> <TYPE>
-					if(commands.length <= 2) return printMessage("Need a event type. Should be the 3rd arg.");
+					if(commands.length != 3) return printMessage("Need a event type. Should be after the event arg");
 					
 					else if(commands[2].equalsIgnoreCase("IND")) {
-						gotEvent = true;
+						eventType = "IND";
 						printMessage("Event set to IND");
 					}	
 					else
@@ -211,14 +241,17 @@ public class ChronoTimer {
 						return printMessage("Error on parsing Channel to a number.");
 					}
 					break;
+					
 				case("DISC"): // CONN <sensor> <NUM>
-					if(commands.length!=3) return printMessage("Need a channel number. Should be the 3rd arg.");
+					if(commands.length!=3) return printMessage("Need a channel number. Should be after the sensor arg.");
 					
 					try{
 						int channelNum = Integer.parseInt(commands[2]);
 						disc(channelNum-1);
 					}catch(NumberFormatException ex){
 						return printMessage("Error on parsing Channel to a number.");
+					}catch(ArrayIndexOutOfBoundsException e) {
+						return printMessage("Channel is not supported.");
 					}
 					break;
 				
@@ -232,6 +265,7 @@ public class ChronoTimer {
 				
 				case("ENDRUN"): // Done with a Run
 					if(endRun() == false) return printMessage("There is no current run.");
+					printMessage("Ending Run.");
 					break;
 				
 				case("RESET"): // Reset system to initial state
@@ -239,7 +273,7 @@ public class ChronoTimer {
 					break;
 					
 				case("TIME"): // Set the current time. Default time is host system time.
-					if(commands.length <= 2) return printMessage("Need a time to set. Should be the 3rd arg.");
+					if(commands.length != 3) return printMessage("Need a time to set. Should be after the time arg.");
 					time = parseTime(commands[2]);
 					if(time == null) return printMessage("Time is is null");
 					else
@@ -248,7 +282,7 @@ public class ChronoTimer {
 					break;
 				
 				case("NUM"): // Set	NUM<NUMBER> as the next	competitor to start.
-					if(commands.length <= 2) return printMessage("Need a bib number to set racer. Should be the 3rd arg.");
+					if(commands.length != 3) return printMessage("Need a bib number to set racer. Should be after the num arg.");
 					if(currentRun == null) return printMessage("Cannot add racer, create a Run first.");
 					try {
 						int bibNum = Integer.parseInt(commands[2]);
@@ -269,7 +303,6 @@ public class ChronoTimer {
 						}
 						if(channels[channel-1]==null) return printMessage("No Sensor connected to that channel.");
 						channels[channel-1].toggle();
-						
 					}catch(NumberFormatException e){
 						return printMessage("Error on parsing Channel to a number.");
 					}
@@ -278,7 +311,7 @@ public class ChronoTimer {
 				case("DNF"): // DNF says the run for the bib number is over, and their end time is DNF
 					if(currentRun == null) return printMessage("Cannot set run to dnf. There is no run.");
 					try {
-						currentRun.dnf(); 
+						currentRun.dnf();
 					}catch(IllegalStateException e) {
 						return printMessage(e.getMessage());
 					}
@@ -286,7 +319,7 @@ public class ChronoTimer {
 					
 				case("TRIG"): // Trigger channel Trig<NUM>
 					try{
-						if(commands.length <= 2) return printMessage("Need a channel number to trigger. Should be the 3rd arg.");
+						if(commands.length != 3) return printMessage("Need a channel number to trigger. Should be after the trig arg.");
 						int channel = Integer.parseInt(commands[2]);
 						if(currentRun == null) return printMessage("Cannot start/end run. Please create a run first.");
 						try {
@@ -301,26 +334,44 @@ public class ChronoTimer {
 					break;
 					
 				case("START"): // Start trigger channel 1 (shorthand for TRIG 1)
-					if(gotEvent == false) return printMessage("Cannot start Run. Please choose an event first.");
-					if(execute(time.toString()+" TRIG 1") == false) // recursion, that's why it needs a second return false check
-						return false;
-					break;
+					return execute(time.toString()+" TRIG 1");
 					
 				case("FINISH"): // Finish trigger channel 2 (shorthand for TRIG 2)
-					if(execute(time.toString()+" TRIG 2") == false) // recursion, that's why it needs a second return false check
-						return false;
-					break;
+					return execute(time.toString()+" TRIG 2");
 					
 				case("PRINT"): // print <RUN>
-					if(currentRun == null) return printMessage("Cannot print Run, there is no Run.");
-					else
-						printMessage(print(time, currentRun));
+					if(currentRun == null && pastRuns.isEmpty()) 
+						return printMessage("Cannot print Run, there is no Run.");
+				
+					if(commands.length == 2) {
+						if(currentRun == null) {
+							System.out.println("Printing previous run."); // sim.execute(msg)
+							printMessage(print(time, pastRuns.get(pastRuns.size() - 1))); // print the previous run since user didn't specify the run
+						}else {
+							printMessage(print(time, currentRun)); // print current run
+						}
+					}else if(commands.length == 3) {
+						try {
+							int runNumber = Integer.parseInt(commands[2]);
+							if(runNumber <= 0) return printMessage("Cannot print run. Run number starts at 1.");
+							--runNumber; // decrement since we start at index 0
+							printMessage("Printing run " + commands[2] +"\n"+ print(time, pastRuns.get(runNumber))); //print the specified run the user gave us
+						}catch(NumberFormatException e) {
+							return printMessage("Cannot parse string to a number.");
+						}catch(IndexOutOfBoundsException e) {
+							return printMessage("No such run exist in system history.");
+						}
+					}else {
+						return printMessage("Invalid print command. Must be PRINT or PRINT <NUMBER>");
+					}
+						
 					break;
 					
 				default:
 					System.out.println("Invalid command.");
 					return false;
 			}
+			return true; // when a block of code break out of the switch, it will return true.
 		}
 		else{ // only listen for POWER since the power to the system is off
 			time = parseTime(commands[0]);
@@ -332,14 +383,17 @@ public class ChronoTimer {
 				System.out.println("ChronoTimer is now on.");
 				return true;
 			}
-			System.out.println("ChronoTimer is off. Please turn on the power before providing commands. <TIME> <POWER>");
+			System.out.println("ChronoTimer is off. Please turn on the power before providing commands.");
 			return false;
 		}
 		
-		return true;
 	}
 
-	// I was duplicating this block of code in execute(), so I decided to make a method for it
+	/**
+	 * Helper method to parse the given string to time.
+	 * @param commands string to be parsed to time
+	 * @return The time that was provided. It will return null if the time cannot be parsed into a LocalTime object
+	 */
 	private LocalTime parseTime(String commands) {
 		LocalTime time = null;
 		try{
@@ -351,23 +405,36 @@ public class ChronoTimer {
 		return time;
 	}
 
-	//creates a new run
+	/**
+	 * Creates a new run if there is no current run. If no type of event is provided to the run, IND will be the 
+	 * default run event type.
+	 */
 	private void newRun(){
 		if (currentRun != null){
 			throw new IllegalStateException("run in progress");
 		}
-		currentRun = new IND();
-		System.out.println("Run created.");
+		if(eventType.equals("") || eventType.equalsIgnoreCase("IND")) {
+			currentRun = new IND(); // default event and it is the only supported event type at the moment
+		}
+		System.out.println("Run created."); // sim.execute(msg);
 	}
 
-	//adds the current run to past run history and resets
-	//the current run to null
-	//returns false if there is no current run
+	/**
+	 * Add the current run to the past run history and resets
+	 * the current run to null. All racers that are currently running and in queue
+	 * will be set to dnf ("Did Not Finish") state.
+	 * @return False if there is no current run
+	 */
 	private boolean endRun(){
 		if (currentRun == null){
 			return false;
 		}
 		pastRuns.add(currentRun);
+		try {
+			//currentRun.endRun() /*set all racers that are currently running and in queue to dnf state
+		}catch(Exception e) {
+			return printMessage(e.getMessage());
+		}
 		currentRun = null;
 		return true;
 	}
