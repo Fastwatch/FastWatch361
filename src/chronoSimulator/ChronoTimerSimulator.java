@@ -6,7 +6,7 @@ import chronoTimer.ChronoTimer;
 /**
  * 
  * @author Riley Mahr rwmahr@gmail.com
- * <p>
+ * 
  * This class is used as a "spring board" for file and console simulation
  * It contains little logic, which should all be handles in other classes
  */
@@ -25,8 +25,6 @@ public class ChronoTimerSimulator {
 		
 		String input;
 		boolean exit = false;
-		
-		
 		
 		do {
 			System.out.print("Enter \"F\" for file input, \"C\" for console input or \"E\" for exit: ");
@@ -53,6 +51,6 @@ public class ChronoTimerSimulator {
 	}
 	
 	public void execute (String s) {
-		
+		System.out.println(s);
 	}
 }

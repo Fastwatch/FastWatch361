@@ -16,6 +16,7 @@ public class FileInput {
 	/**
 	 * Base class to read in input from a file
 	 * @param in Scanner object passed in from main simulator
+	 * @param ct ChronoTimer reference
 	 */
 	public void readFile(Scanner in, ChronoTimer ct) {
 		String fileName;
