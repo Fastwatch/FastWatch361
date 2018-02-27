@@ -1,6 +1,7 @@
 package chronoSimulator;
 
 import java.util.Scanner;
+
 import chronoTimer.ChronoTimer;
 
 /**
@@ -36,7 +37,8 @@ public class ChronoTimerSimulator {
 					fn.readFile(in, ct);
 					break;
 				case "C":
-					// Console Input
+					ConsoleInput cn = new ConsoleInput();
+					cn.readConsole(ct);
 					break;
 				case "E":
 					exit = true;
