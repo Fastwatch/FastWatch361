@@ -8,6 +8,11 @@ class IND extends Run {
 	LinkedList running;
 	LinkedList complete;
 	
+	/**
+	 * Node Class for use in Linked lists for keeping track of racers
+	 * @author Isshanna
+	 *
+	 */
 	private class Node{
 		Node next;
 		Node prev;
@@ -24,6 +29,13 @@ class IND extends Run {
 		running = new LinkedList();
 		complete = new LinkedList();
 	}
+	
+	/**
+	 * Trigger function for handling sensor input
+	 * 
+	 * @param time current system time trigger takes place
+	 * @param channelNum Channel that is triggered
+	 */
 	@Override
 	protected void trig(LocalTime time, int channelNum) {
 		if(channelNum == 1){
@@ -42,6 +54,9 @@ class IND extends Run {
 
 	}
 
+	/**
+	 * Swap Method for swapping the 2 racers at the front of the running queue
+	 */
 	@Override
 	protected void swap() {
 		if(running.getLength() < 2)throw new IllegalArgumentException("Not Enough Racers to Swap");
@@ -52,6 +67,9 @@ class IND extends Run {
 
 	}
 
+	/**
+	 * Used to trigger DNF for the next racer to finish
+	 */
 	@Override
 	protected void dnf() {
 		if(running.getLength() == 0) throw new IllegalStateException("No racers on course");
@@ -60,6 +78,9 @@ class IND extends Run {
 		complete.addEnd(n);
 	}
 
+	/**
+	 * Function to cancel last start signal and send the racer back to the beginning of the queued list
+	 */
 	@Override
 	protected void cancel() {
 		if(running.getLength() == 0) throw new IllegalStateException("No racers on course");
@@ -68,14 +89,25 @@ class IND extends Run {
 		queued.addStart(n);
 	}
 
+	/**
+	 * num function to generate new racers for this run
+	 * 
+	 * @param bibNum of racer to be added to end of queued racers
+	 */
 	@Override
 	protected void num(int bibNum) {
 		// TODO Auto-generated method stub
-		if(queued.contains(bibNum)||running.contains(bibNum)||complete.contains(bibNum))throw new IllegalStateException("Attempting to create duplicate racer");
+		if(queued.contains(bibNum)||running.contains(bibNum)||complete.contains(bibNum))throw new IllegalArgumentException("Attempting to create duplicate racer");
+		if (bibNum<0 ||bibNum>=1000)throw new IllegalArgumentException("Bib Number must be between 000 and 999.");
 		Node n = new Node(new Racer(bibNum));
 		queued.addEnd(n);
 	}
 
+	/**
+	 * num function to remove racer from this run
+	 * 
+	 * @param bibNum of racer to be removed from run
+	 */
 	protected void clr(int bibNum){
 		if(queued.contains(bibNum)){
 			queued.remove(bibNum);
@@ -86,17 +118,25 @@ class IND extends Run {
 		}else throw new IllegalArgumentException("Runner Not Found");
 	}
 
+	/**
+	 * Returns current status of race including all racers in all 3 stages of the race, Finished, Running, and Waiting to Start
+	 * 
+	 * @param time current system time used to calculate current time of racers
+	 * @return formatted string with all racers bib numbers times and status
+	 */
 	@Override
 	protected String standings(LocalTime time){
-		String stand= "";
+		String stand= "In Queue to Start:\n";
 		for(Node n = queued.head;n!=null;n=n.next){
 			stand+= Integer.toString(n.Data.getBibNum()) +" "+ time.toString()+"\n";
 		}
+		stand+="\nCurrently Racing:\n";
 		for(Node n = running.head;n!=null;n=n.next){
 			n.Data.setFinish(time);
 			stand+= Integer.toString(n.Data.getBibNum()) +" "+ n.Data.getTime().toString() +"\n";
 			n.Data.setFinish(null);
 		}
+		stand+="\nCompleted Race:\n";
 		for(Node n = complete.head;n!=null;n=n.next){
 			if(n.Data.getDNF()){
 				stand+= Integer.toString(n.Data.getBibNum()) +" DNF";
@@ -108,6 +148,13 @@ class IND extends Run {
 		return stand;
 	}
 
+	/**
+	 * Internal Linked list class used for the queued, running, and completed sets
+	 * 
+	 * Supports adding to the head and tail, and removal from head tail or by specific racer number
+	 * @author Isshanna
+	 *
+	 */
 	private class LinkedList{
 		
 		Node head;
@@ -188,6 +235,12 @@ class IND extends Run {
 		}
 		
 		protected Node removeEnd(){
+			if(count == 1){
+				Node n = head;
+				head = null;
+				--count;
+				return n;
+			}
 			Node n = tail;
 			tail = n.prev;
 			tail.next = null;

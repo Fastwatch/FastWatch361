@@ -13,18 +13,38 @@ import chronoSimulator.ChronoTimerSimulator;
 
 public class ChronoTimer {
 
+	private class Sensor{
+		private boolean isActive;
+		private String type;
+		
+		protected Sensor(String type){
+			isActive=false;
+			this.type=type;
+		}
+		
+		protected boolean getState(){
+			return isActive;
+		}
+		
+		protected void toggle(){
+			isActive=!isActive;
+		}
+		
+		protected String getType(){
+			return this.type;
+		}
+	}
 	//fields
 	private boolean powerState; //CT on or off
 	private Run	currentRun; //run in progress
 	private ArrayList<Run> pastRuns; //run history
-	//private Sensor[] channels; //8 sensor inputs
+	private Sensor[] channels; //8 sensor inputs
 	private String log; //text of previous commands
 	//private ArrayList<String> log; //
-	private String currentCommand; //current task to be carried out by execute()
 	//private Event currentEvent;
 	private ChronoTimerSimulator sim; // chrono timer simulator
 	private boolean gotEvent; // their test text file has a EVENT command so I added the flag since we are only using Run
-	
+	private LocalTime currentTime;
 	// used for testing
 	private boolean showMessage = true; //  TRUE - print invalid sysout msg, FALSE - print no invalid sysout msg 
 	/**
@@ -45,9 +65,9 @@ public class ChronoTimer {
 		powerState = false;
 		currentRun = null;
 		pastRuns = new ArrayList<Run>();
-		//channels = new Sensor[8];
-		log = null;
-		currentCommand = null;
+		channels = new Sensor[8];
+		log = "";
+		currentTime = null;
 		//currentEvent = null;
 	}
 
@@ -62,30 +82,29 @@ public class ChronoTimer {
 		powerState = false;
 		currentRun = null;
 		pastRuns = new ArrayList<Run>();
-		//channels = new Sensor[8];
-		log = null;
-		currentCommand = null;
+		channels = new Sensor[8];
+		log = "";
 		//currentEvent = null;
 		gotEvent = false;
+		currentTime = null;
 	}
 
 	//sets a new sensor to specified channel and returns the previous
 	//sensor at that channel
-	/*
-	public Sensor conn(Sensor newInput, int newSensorChannel){
+	
+	public Sensor conn(int newSensorChannel, String sensorType){
 		Sensor oldInput = channels[newSensorChannel];
-		channels[newSensorChannel] = newInput;
+		channels[newSensorChannel] = new Sensor(sensorType);
 		return oldInput;
-	}*/
+	}
 
 	//disconnects a channel and returns the sensor previously
 	//connected to that channel
-	/*
 	public Sensor disc(int disabledChannel){
 		Sensor oldInput = channels[disabledChannel];
 		channels[disabledChannel] = null;
 		return oldInput;
-	}*/
+	}
 
 
 	//	private event(String){
@@ -111,7 +130,7 @@ public class ChronoTimer {
 	}
 
 	//prints out given run to a new file
-	private void export(Run run){
+	/*private void export(Run run){
 		PrintWriter out;
 		try{
 			out= new PrintWriter(new FileWriter("C:\\location\\outputfile.txt")); 
@@ -122,14 +141,8 @@ public class ChronoTimer {
 			//do something?
 			System.out.println("Cannot open the file.");
 		}
-	}
+	}*/
 
-	//still not fully understood
-//	public void setCommand(String command){
-//		execute(command)
-//		switch
-//	}
-//
 //	//incomplete, needs implementations in several classes
 //	//return type?
 	public boolean execute(String c){
@@ -139,15 +152,27 @@ public class ChronoTimer {
 		if(commands.length < 2) return printMessage("Not enough arguments. Need atleast 2.");
 		
 		if(powerState == true){
+			log+=c+"\n";
 			time = parseTime(commands[0]);
 			if(time == null) {
 				return false;
+			}else{
+				if (currentTime==null){
+					currentTime = time;
+				}else if(currentTime.compareTo(time)>0){
+					return printMessage("Time cannot be before current time");
+				}
 			}
 			switch(commands[1].toUpperCase()){
 				case("POWER"):
 					power();
 					if(powerState == false) {
 						System.out.println("ChronotTimer is now off.");
+						for(int i = 1;i<=8;i++){
+							if(channels[i-1]!=null && channels[i-1].getState()){
+								channels[i-1].toggle();
+							}
+						}
 						return false;
 					}
 					break; 
@@ -177,8 +202,24 @@ public class ChronoTimer {
 					break;
 					
 				case("CONN"): // CONN <sensor> <NUM>
-					// Connect a type of sensor to channel <NUM>
-					//			<sensor> = {EYE,GATE,PAD}
+					if(commands.length!=4) return printMessage("Need a sensor type and channel number. Should be args 3 and 4 respectively.");
+					
+					try{
+						int channelNum = Integer.parseInt(commands[3]);
+						conn(channelNum-1, commands[3]);
+					}catch(NumberFormatException ex){
+						return printMessage("Error on parsing Channel to a number.");
+					}
+					break;
+				case("DISC"): // CONN <sensor> <NUM>
+					if(commands.length!=3) return printMessage("Need a channel number. Should be the 3rd arg.");
+					
+					try{
+						int channelNum = Integer.parseInt(commands[2]);
+						disc(channelNum-1);
+					}catch(NumberFormatException ex){
+						return printMessage("Error on parsing Channel to a number.");
+					}
 					break;
 				
 				case("NEWRUN"): // Create a new Run (must end a Run first)
@@ -202,6 +243,7 @@ public class ChronoTimer {
 					time = parseTime(commands[2]);
 					if(time == null) return printMessage("Time is is null");
 					else
+						currentTime = time;
 						System.out.println("Time has been set to " + time);
 					break;
 				
@@ -214,7 +256,7 @@ public class ChronoTimer {
 						System.out.println("Racer with bib number " + bibNum + " has been added successfully.") ;
 					}catch(NumberFormatException e) {
 						return printMessage("Error on parsing bib number to a number.");
-					}catch(IllegalStateException e) {
+					}catch(IllegalArgumentException e) {
 						return printMessage(e.getMessage());
 					}
 					break;
@@ -225,7 +267,8 @@ public class ChronoTimer {
 						if(channel < 0 || channel >= 9){
 							return printMessage("Channel Not Supported.");
 						}
-						// do something here, unsure at this point what to toggle channel for
+						if(channels[channel-1]==null) return printMessage("No Sensor connected to that channel.");
+						channels[channel-1].toggle();
 						
 					}catch(NumberFormatException e){
 						return printMessage("Error on parsing Channel to a number.");
@@ -247,6 +290,7 @@ public class ChronoTimer {
 						int channel = Integer.parseInt(commands[2]);
 						if(currentRun == null) return printMessage("Cannot start/end run. Please create a run first.");
 						try {
+							if(channels[channel-1]==null || !channels[channel-1].getState())  return printMessage("Either no sensor connected to that channel or sensor is inactive");
 							currentRun.trig(time, channel);
 						}catch(IllegalStateException e) {
 							return printMessage(e.getMessage());
@@ -270,7 +314,7 @@ public class ChronoTimer {
 				case("PRINT"): // print <RUN>
 					if(currentRun == null) return printMessage("Cannot print Run, there is no Run.");
 					else
-						print(time, currentRun);
+						printMessage(print(time, currentRun));
 					break;
 					
 				default:
@@ -283,6 +327,7 @@ public class ChronoTimer {
 			if(time == null)
 				return false;
 			if(commands[1].equalsIgnoreCase("POWER")){
+				log+=c+"\n";
 				power();
 				System.out.println("ChronoTimer is now on.");
 				return true;
