@@ -19,9 +19,9 @@ public class TestChronoTimer {
 		assertFalse("Must turn on the power first.",ct.execute("12:01:20.0 EVENT IND")); 
 		ct.execute("12:01:02.0 POWER");
 		assertTrue("Should of executed, and return true but did not.",ct.execute("12:01:20.0 EVENT IND"));
-		ct.execute("12:01:02.0 POWER");
-		assertFalse("Must turn on the power first.",ct.execute("12:01:10.0 NEWRUN")); 
-		ct.execute("12:01:02.0 POWER");
+		ct.execute("12:01:20.0 POWER");
+		assertFalse("Must turn on the power first.",ct.execute("12:01:20.0 NEWRUN")); 
+		ct.execute("12:01:20.0 POWER");
 		assertTrue("Should of executed, and return true but did not.",ct.execute("12:01:20.0 NEWRUN"));
 	}
 	
@@ -59,8 +59,10 @@ public class TestChronoTimer {
 	
 	@Test
 	public void testStart(){
-		assertFalse("Must turn on the power first.",ct.execute("12:01:20.0 START")); 
+		
+		assertFalse("Must turn on the power first.",ct.execute("12:01:02.0 START")); 
 		ct.execute("12:01:02.0 POWER");
+		ct.execute("12:01:02.0 CONN EYE 1");
 		assertFalse("Should execute but return false because no Run created.",ct.execute("12:01:20.0 START"));
 		assertTrue("Should of executed, and return true but did not.", ct.execute("12:01:20.0 NEWRUN"));
 		assertFalse("Should execute but return false because no event is chosen.",ct.execute("12:01:20.0 START"));
