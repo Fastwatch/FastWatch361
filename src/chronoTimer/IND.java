@@ -28,6 +28,7 @@ class IND extends Run {
 		queued = new LinkedList();
 		running = new LinkedList();
 		complete = new LinkedList();
+		active = true;
 	}
 	
 	/**
@@ -37,21 +38,24 @@ class IND extends Run {
 	 * @param channelNum Channel that is triggered
 	 */
 	@Override
-	protected void trig(LocalTime time, int channelNum) {
+	protected String trig(LocalTime time, int channelNum) {
+		String status;
 		if(channelNum == 1){
 			if(queued.getLength() == 0) throw new IllegalStateException("No Racers waiting to start");
 			Node n = queued.removeStart();
 			n.Data.setStart(time);
+			status = "Racer " + n.Data.getBibNum() +" is now racing.\n";
 			running.addEnd(n);
 		}else if(channelNum == 2){
 			if(running.getLength() == 0) throw new IllegalStateException("No racers on course");
 			Node n = running.removeStart();
 			n.Data.setFinish(time);
+			status = "Racer " + n.Data.getBibNum() +" completed their run in: " +n.Data.getTime();
 			complete.addEnd(n);
 		}else{
 			throw new IllegalStateException("Channel Not Supported");
 		}
-
+		return status;
 	}
 
 	/**
@@ -59,7 +63,7 @@ class IND extends Run {
 	 */
 	@Override
 	protected void swap() {
-		if(running.getLength() < 2)throw new IllegalArgumentException("Not Enough Racers to Swap");
+		if(running.getLength() < 2)throw new IllegalArgumentException("Not Enough Racers to Swap. Racers must be on course to swap");
 		Node n1 = running.removeStart();
 		Node n2 = running.removeStart();
 		running.addStart(n1);
@@ -77,7 +81,7 @@ class IND extends Run {
 		n.Data.setDNF(true);
 		complete.addEnd(n);
 	}
-
+	
 	/**
 	 * Function to cancel last start signal and send the racer back to the beginning of the queued list
 	 */
@@ -126,26 +130,66 @@ class IND extends Run {
 	 */
 	@Override
 	protected String standings(LocalTime time){
-		String stand= "In Queue to Start:\n";
-		for(Node n = queued.head;n!=null;n=n.next){
-			stand+= Integer.toString(n.Data.getBibNum()) +" "+ time.toString()+"\n";
+		
+		String stand = "";
+		if(queued.getLength()+running.getLength()+complete.getLength() == 0){
+			return "No Racers Currently In Run";
 		}
-		stand+="\nCurrently Racing:\n";
-		for(Node n = running.head;n!=null;n=n.next){
-			n.Data.setFinish(time);
-			stand+= Integer.toString(n.Data.getBibNum()) +" "+ n.Data.getTime().toString() +"\n";
-			n.Data.setFinish(null);
-		}
-		stand+="\nCompleted Race:\n";
-		for(Node n = complete.head;n!=null;n=n.next){
-			if(n.Data.getDNF()){
-				stand+= Integer.toString(n.Data.getBibNum()) +" DNF";
-			}else{
-				stand+= Integer.toString(n.Data.getBibNum()) +" "+ n.Data.getTime().toString() +"\n";
+		if(active){
+			if(queued.getLength()>0){
+				stand+= "In Queue to Start:\n";
+				for(Node n = queued.head;n!=null;n=n.next){
+					stand+= Integer.toString(n.Data.getBibNum()) +" "+ time.toString()+"\n";
+				}
 			}
-			
+			if(running.getLength() > 0){
+				stand+="\nCurrently Racing:\n";
+				for(Node n = running.head;n!=null;n=n.next){
+					n.Data.setFinish(time);
+					stand+= Integer.toString(n.Data.getBibNum()) +" "+ n.Data.getTime().toString() +"\n";
+					n.Data.setFinish(null);
+				}
+			}
+			if(complete.getLength() > 0){
+				stand+="\nCompleted Race:\n";
+				for(Node n = complete.head;n!=null;n=n.next){
+					if(n.Data.getDNF()){
+						stand+= Integer.toString(n.Data.getBibNum()) +" DNF\n";
+					}else{
+						stand+= Integer.toString(n.Data.getBibNum()) +" "+ n.Data.getTime().toString() +"\n";
+					}
+				}
+			}
+		}else{
+			if(queued.getLength()>0){
+				stand += "Racers who did not start:\n";
+				for(Node n = queued.head;n!=null;n=n.next){
+					stand+= Integer.toString(n.Data.getBibNum())+"\n";
+				}
+			}
+			if(complete.getLength() > 0){
+				stand+="\nCompleted Race:\n";
+				for(Node n = complete.head;n!=null;n=n.next){
+					if(n.Data.getDNF()){
+						stand+= Integer.toString(n.Data.getBibNum()) +" DNF\n";
+					}else{
+						stand+= Integer.toString(n.Data.getBibNum()) +" "+ n.Data.getTime().toString() +"\n";
+					}
+					
+				}
+			}
 		}
 		return stand;
+	}
+	
+	/**
+	 * Function to handle graceful ending of race.
+	 */
+	protected void end(){
+		while(running.getLength()>0){
+			dnf();
+		}
+		active = false;
 	}
 
 	/**
@@ -195,14 +239,26 @@ class IND extends Run {
 			Node n = head;
 			while (n!=null){
 				if(n.Data.getBibNum()==bibNum){
-					n.prev.next = n.next;
-					n.next.prev = n.prev;
+					if(count == 1){
+						head = null;
+						tail = null;
+					}else if(n.equals(tail)){
+						n.prev.next = n.next;
+						tail = n.prev;
+					}else if(n.equals(head)){
+						n.next.prev = n.prev;
+						head = n.next;
+					}else{
+						n.prev.next = n.next;
+						n.next.prev = n.prev;
+					}
 					n.next = null;
 					n.prev = null;
 					n.Data = null;
 					--count;
 					return true;
 				}
+				n=n.next;
 			}
 			return false;
 		}
@@ -223,6 +279,7 @@ class IND extends Run {
 			if(count == 1){
 				Node n = head;
 				head = null;
+				tail = null;
 				--count;
 				return n;
 			}
@@ -238,6 +295,7 @@ class IND extends Run {
 			if(count == 1){
 				Node n = head;
 				head = null;
+				tail = null;
 				--count;
 				return n;
 			}

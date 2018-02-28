@@ -12,7 +12,6 @@ public class Driver {
 		/////////////////////////////////////////////////////////
 		Racer r1 = new Racer(1234);
 
-		r1.startTime();
 		System.out.println("Recorded in military time: HH:mm:ss.sss");
 		System.out.print("Racer: '" + r1.getBibNum() + "' start time is ");
 		System.out.println(r1.getStartTime()); // starts the timer
@@ -20,7 +19,6 @@ public class Driver {
 		System.out.println("Press ENTER to stop time.");
 		
 		input.nextLine();
-		r1.endTime();; // stops the timer
 		
 		System.out.print("Racer: '" + r1.getBibNum() + "' end time is ");
 		System.out.println(r1.getEndTime());

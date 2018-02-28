@@ -4,8 +4,9 @@ import java.time.LocalTime;
 
 public abstract class Run {
 	protected String type;
+	protected boolean active;
 	
-	protected abstract void trig(LocalTime time, int channelNum);
+	protected abstract String trig(LocalTime time, int channelNum);
 	
 	protected abstract void swap();
 	
@@ -18,4 +19,6 @@ public abstract class Run {
 	protected abstract void clr(int bibNum);
 	
 	protected abstract String standings(LocalTime time);
+	
+	protected abstract void end();
 }
