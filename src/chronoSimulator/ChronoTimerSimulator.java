@@ -16,7 +16,7 @@ public class ChronoTimerSimulator {
 	
 	private ChronoTimer ct;
 	
-	private static FileInput fn;
+	private FileInput fn;
 	
 	public void start() {
 
@@ -35,10 +35,12 @@ public class ChronoTimerSimulator {
 				case "F":
 					fn = new FileInput();
 					fn.readFile(in, ct);
+					exit = true;
 					break;
 				case "C":
 					ConsoleInput cn = new ConsoleInput();
 					cn.readConsole(ct);
+					exit = true;
 					break;
 				case "E":
 					exit = true;

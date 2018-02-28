@@ -28,7 +28,7 @@ public class ConsoleInput {
 		
 		while (isRunning) {
 			rawInput = scanner.nextLine();
-			if(rawInput.equals("exit")) {
+			if(rawInput.equalsIgnoreCase("exit")) {
 				isRunning = false;
 				break;
 			}

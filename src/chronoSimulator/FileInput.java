@@ -38,7 +38,13 @@ public class FileInput {
 			while ((line = br.readLine()) != null) {
 				//printing commands for testing
 				System.out.println(line);
-				ct.execute(line);				
+				String[] ex = line.split("\t");
+				
+				if(ex[1].equalsIgnoreCase("exit")) {
+					break;
+				} else {
+					ct.execute(line);				
+				}	
 			}
 		} catch (IOException ex) {
 			System.out.println("error occured in retrieving file");
