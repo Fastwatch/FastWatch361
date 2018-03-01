@@ -23,7 +23,7 @@ public class ChronoTimerSimulator {
 		Scanner in = new Scanner(System.in);
 		
 		ct = new ChronoTimer();
-		
+		ct.setSim(this);
 		String input;
 		boolean exit = false;
 		

@@ -10,7 +10,7 @@ public abstract class Run {
 	
 	protected abstract void swap();
 	
-	protected abstract void dnf();
+	protected abstract String dnf();
 	
 	protected abstract void cancel();
 	

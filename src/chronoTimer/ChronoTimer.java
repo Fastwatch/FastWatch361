@@ -77,8 +77,9 @@ public class ChronoTimer {
 	 * @return false always
 	 */
 	private boolean printMessage(String message){
+		log+=message+"\n";
 		if(showMessage == true){
-			System.out.println(message); 
+			sim.execute(message); 
 		}
 		return false;
 	}
@@ -130,7 +131,7 @@ public class ChronoTimer {
 	public Sensor conn(int newSensorChannel, String sensorType){
 		Sensor oldInput = channels[newSensorChannel].getSensor();
 		channels[newSensorChannel].setSensor(new Sensor(sensorType));
-		printMessage("Connected Sensor of Type " + sensorType + " to channel " +(newSensorChannel+1)+"\n");
+		printMessage("Connected Sensor of Type " + sensorType + " to channel " +(newSensorChannel+1));
 		return oldInput;
 	}
 
@@ -142,9 +143,9 @@ public class ChronoTimer {
 	public Sensor disc(int disabledChannel){
 		Sensor oldInput = channels[disabledChannel].getSensor();
 		if(oldInput == null){
-			printMessage("No sensor connected to that channel\n");
+			printMessage("No sensor connected to that channel");
 		}else{
-			printMessage("Disconnecting " + oldInput.getType()+ " sensor from channel "+ (disabledChannel+1)+"\n");
+			printMessage("Disconnecting " + oldInput.getType()+ " sensor from channel "+ (disabledChannel+1));
 		}
 		channels[disabledChannel].setSensor(null);
 		return oldInput;
@@ -327,9 +328,9 @@ public class ChronoTimer {
 						channels[channel-1].toggle();
 						String message = "Channel " + channel + " is now";
 						if (channels[channel-1].getState()){
-							message += " active\n";
+							message += " active";
 						}else{
-							message += " inactive\n";
+							message += " inactive";
 						}
 						printMessage(message);
 					}catch(NumberFormatException e){
@@ -340,7 +341,8 @@ public class ChronoTimer {
 				case("DNF"): // DNF says the run for the bib number is over, and their end time is DNF
 					if(currentRun == null) return printMessage("Cannot set run to dnf. There is no run.");
 					try {
-						currentRun.dnf();
+						String message = currentRun.dnf();
+						printMessage(message);
 					}catch(IllegalStateException e) {
 						return printMessage(e.getMessage());
 					}
@@ -481,10 +483,9 @@ public class ChronoTimer {
 		if (currentRun == null){
 			return false;
 		}
-		currentRun.end();
 		pastRuns.add(currentRun);
 		try {
-			//currentRun.endRun() /*set all racers that are currently running and in queue to dnf state
+			currentRun.end();
 		}catch(Exception e) {
 			return printMessage(e.getMessage());
 		}
@@ -492,4 +493,7 @@ public class ChronoTimer {
 		return true;
 	}
 
+	public void setSim(ChronoTimerSimulator sim){
+		this.sim = sim;
+	}
 }

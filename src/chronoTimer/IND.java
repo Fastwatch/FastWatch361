@@ -44,7 +44,7 @@ class IND extends Run {
 			if(queued.getLength() == 0) throw new IllegalStateException("No Racers waiting to start");
 			Node n = queued.removeStart();
 			n.Data.setStart(time);
-			status = "Racer " + n.Data.getBibNum() +" is now racing.\n";
+			status = "Racer " + n.Data.getBibNum() +" is now racing.";
 			running.addEnd(n);
 		}else if(channelNum == 2){
 			if(running.getLength() == 0) throw new IllegalStateException("No racers on course");
@@ -75,11 +75,12 @@ class IND extends Run {
 	 * Used to trigger DNF for the next racer to finish
 	 */
 	@Override
-	protected void dnf() {
+	protected String dnf() {
 		if(running.getLength() == 0) throw new IllegalStateException("No racers on course");
 		Node n = running.removeStart();
 		n.Data.setDNF(true);
 		complete.addEnd(n);
+		return "Racer " + n.Data.getBibNum() + " did not finish."; 
 	}
 	
 	/**
@@ -102,7 +103,7 @@ class IND extends Run {
 	protected void num(int bibNum) {
 		// TODO Auto-generated method stub
 		if(queued.contains(bibNum)||running.contains(bibNum)||complete.contains(bibNum))throw new IllegalArgumentException("Attempting to create duplicate racer");
-		if (bibNum<0 ||bibNum>=1000)throw new IllegalArgumentException("Bib Number must be between 000 and 999.");
+		if (bibNum<0 ||bibNum>=100000)throw new IllegalArgumentException("Bib Number must be between 000 and 999.");
 		Node n = new Node(new Racer(bibNum));
 		queued.addEnd(n);
 	}
