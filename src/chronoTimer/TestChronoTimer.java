@@ -2,16 +2,21 @@ package chronoTimer;
 
 import static org.junit.Assert.*;
 
+import chronoSimulator.ChronoTimerSimulator;
+
 import org.junit.Before;
 import org.junit.Test;
 
 public class TestChronoTimer {
 
 	ChronoTimer ct;
+	ChronoTimerSimulator sim; // Needed for chronotimer print
 	
 	@Before
 	public void setUp() throws Exception {
 		ct = new ChronoTimer();
+		sim = new ChronoTimerSimulator();
+		ct.setSim(sim);
 	}
 	
 	@Test
