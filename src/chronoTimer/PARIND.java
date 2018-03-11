@@ -8,6 +8,7 @@ public class PARIND extends Run{
 	IND Lane2;
 	
 	protected PARIND(){
+		this.type = "PARIND";
 		Lane1 = new IND();
 		Lane2 = new IND();
 	}
@@ -53,7 +54,7 @@ public class PARIND extends Run{
 	@Override
 	protected void num(int bibNum) {
 		if(Lane1.contains(bibNum)||Lane2.contains(bibNum)) throw new IllegalArgumentException("Attempting to create duplicate racer");
-		if (Lane1.numRunenrs() <= Lane2.numRunenrs()){
+		if (Lane1.numRunners() <= Lane2.numRunners()){
 			Lane1.num(bibNum);
 		}else{
 			Lane2.num(bibNum);

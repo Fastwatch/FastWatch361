@@ -494,4 +494,28 @@ public class ChronoTimer {
 	public void setSim(ChronoTimerSimulator sim){
 		this.sim = sim;
 	}
+	
+	public void writeFile(){
+		if (pastRuns.isEmpty()) return;
+		Run mostRecentRun = pastRuns.get(pastRuns.size()-1);
+		switch(mostRecentRun.type){
+			case("IND"): 
+				try{
+					PrintWriter pw = new PrintWriter("RUN"+(pastRuns.size()-1)+".txt");
+			//		pw.write(print(pastRuns.get(pastRuns.size()-1), );
+				}catch(Exception e){
+					
+				}
+				break;
+			case("PARIND"):
+				try{
+					PrintWriter pw = new PrintWriter("RUN"+(pastRuns.size()-1)+".txt");
+			//		pw.write(print(pastRuns.get(pastRuns.size()-1), );
+				}catch(Exception e){
+					
+				}
+				break;
+				
+		}
+	}
 }

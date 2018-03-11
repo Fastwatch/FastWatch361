@@ -231,7 +231,7 @@ class IND extends Run {
 		return running.tail.Data;
 	}
 	
-	protected int numRunenrs(){
+	protected int numRunners(){
 		return queued.getLength()+running.getLength()+complete.getLength();
 	}
 }
