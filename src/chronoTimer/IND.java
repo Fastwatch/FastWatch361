@@ -7,12 +7,6 @@ class IND extends Run {
 	LinkedList queued;
 	LinkedList running;
 	LinkedList complete;
-	
-	/**
-	 * Node Class for use in Linked lists for keeping track of racers
-	 * @author Isshanna
-	 *
-	 */
 
 	protected IND(){
 		this.type = "IND";
@@ -93,8 +87,8 @@ class IND extends Run {
 	@Override
 	protected void num(int bibNum) {
 		// TODO Auto-generated method stub
-		if(queued.contains(bibNum)||running.contains(bibNum)||complete.contains(bibNum))throw new IllegalArgumentException("Attempting to create duplicate racer");
-		if (bibNum<0 ||bibNum>=100000)throw new IllegalArgumentException("Bib Number must be between 000 and 999.");
+		if(contains(bibNum))throw new IllegalArgumentException("Attempting to create duplicate racer");
+		if (bibNum<0 ||bibNum>=1000)throw new IllegalArgumentException("Bib Number must be between 000 and 999.");
 		Node n = new Node(new Racer(bibNum));
 		queued.addEnd(n);
 	}
@@ -187,20 +181,57 @@ class IND extends Run {
 
 
 	@Override
-	protected String swap(int laneNum) {
-		throw new IllegalArgumentException("This Method not supported with this type of event");
+	protected void swap(int laneNum) {
+		if (laneNum == 1){
+			swap();
+		}else throw new IllegalArgumentException("Lane " + laneNum + " Not Supported");
 	}
 
 	@Override
 	protected String dnf(int laneNum) {
-		throw new IllegalArgumentException("This Method not supported with this type of event");
+		if (laneNum == 1){
+			return dnf();
+		}else throw new IllegalArgumentException("Lane " + laneNum + " Not Supported");
 	}
 
 	@Override
 	protected String export() {
-		// TODO Auto-generated method stub
-		return null;
+		String output = "{\"type\":\"IND\",";
+		output+= "\"queued\":[";
+		for(Node n = queued.head;n!=null;n=n.next){
+			output+= "{\"bibNum\":"+Integer.toString(n.Data.getBibNum())+",\"startTime\":\"\",\"endTime\":\"\",\"dnf\":"+n.Data.getDNF()+"}";
+			if (n.next!=null) output+=",";
+		}
+		output += "],";
+		output+= "\"running\":[";
+		for(Node n = running.head;n!=null;n=n.next){
+			output+= "{\"bibNum\":"+Integer.toString(n.Data.getBibNum())+",\"startTime\":\""+n.Data.getStartTime()+"\",\"endTime\":\"\",\"dnf\":"+n.Data.getDNF()+"}";
+			if (n.next!=null) output+=",";
+		}
+		output += "],";
+		output+= "\"finished\":[";
+		for(Node n = running.head;n!=null;n=n.next){
+			if (n.Data.getDNF()){
+				output+= "{\"bibNum\":"+Integer.toString(n.Data.getBibNum())+",\"startTime\":\""+n.Data.getStartTime()+"\",\"endTime\":\"\",\"dnf\":"+n.Data.getDNF()+"}";
+			}else{
+				output+= "{\"bibNum\":"+Integer.toString(n.Data.getBibNum())+",\"startTime\":\""+n.Data.getStartTime()+"\",\"endTime\":\""+n.Data.getEndTime()+"\",\"dnf\":"+n.Data.getDNF()+"}";
+			}
+			if (n.next!=null) output+=",";
+		}
+		output += "]}";
+		return output;
 	}
 	
+	protected boolean contains(int bibNum){
+		return (queued.contains(bibNum)||running.contains(bibNum)||complete.contains(bibNum));
+	}
 	
+	protected Racer lastStart(){
+		if (running.tail==null) return null;
+		return running.tail.Data;
+	}
+	
+	protected int numRunenrs(){
+		return queued.getLength()+running.getLength()+complete.getLength();
+	}
 }

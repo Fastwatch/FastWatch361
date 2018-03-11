@@ -466,7 +466,7 @@ public class ChronoTimer {
 		if(eventType.equalsIgnoreCase("IND")) {
 			currentRun = new IND(); 
 		}else if(eventType.equalsIgnoreCase("PARIND")){
-			//currentRun = new PARIND();
+			currentRun = new PARIND();
 		}
 		printMessage("Run event: " + eventType + " created."); // sim.execute(msg);
 	}

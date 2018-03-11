@@ -10,7 +10,7 @@ public abstract class Run {
 	
 	protected abstract void swap();
 	
-	protected abstract String swap(int laneNum);
+	protected abstract void swap(int laneNum);
 	
 	protected abstract String dnf();
 	
@@ -28,6 +28,11 @@ public abstract class Run {
 	
 	protected abstract String export();
 	
+	/**
+	 * Node Class for use in Linked lists for keeping track of racers
+	 * @author Isshanna
+	 *
+	 */
 	protected class Node{
 		Node next;
 		Node prev;
