@@ -339,7 +339,20 @@ public class ChronoTimer {
 				case("DNF"): // DNF says the run for the bib number is over, and their end time is DNF
 					if(currentRun == null) return printMessage("Cannot set run to dnf. There is no run.");
 					try {
-						String message = currentRun.dnf();
+						
+						//if parind pass commands[2]
+						String message = "";
+						if(currentRun.type.equals("PARIND")) {
+							try {
+								int lane = Integer.parseInt(commands[2]);
+								message = currentRun.dnf(lane);
+							} catch (NumberFormatException e) {
+								message = "Cannot read argument";
+							}
+						} else {
+							message = currentRun.dnf();
+						}
+						
 						printMessage(message);
 					}catch(IllegalStateException e) {
 						return printMessage(e.getMessage());

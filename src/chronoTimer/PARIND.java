@@ -2,6 +2,8 @@ package chronoTimer;
 
 import java.time.LocalTime;
 
+import chronoTimer.Run.Node;
+
 public class PARIND extends Run{
 
 	IND Lane1;
