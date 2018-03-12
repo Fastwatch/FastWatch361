@@ -2,8 +2,8 @@ package chronoTimer;
 
 import static org.junit.Assert.*;
 
-import java.time.LocalTime;
 
+import java.time.LocalTime;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -28,10 +28,46 @@ public class TestIND {
 	@Before
 	public void setUp() throws Exception {
 		run = new IND();
+		// minor test for num(). The other tests will fail if num() doesn't work
 		run.num(1);
 		run.num(2);
 		run.num(3);
 		emptyRun = new IND();
+	}
+	
+	@Test
+	public void testStandings(){
+		assertEquals("String is displayed incorrectly for an empty run.","No Racers Currently In Run" , emptyRun.standings(time));
+		//Racers in queue
+		assertEquals("String is displayed incorrectly.",queueStanding + "1 " + time + 
+				  "\n" + "2 " + time + "\n" + "3 " + time + "\n" , run.standings(time));
+	}
+	
+	@Test
+	public void testTrig(){
+		// attempt to trigger each channel in a empty run
+		for(int i = 0; i < 9; i++){
+			try{
+				emptyRun.trig(time,i);
+				assertFalse("Cannot trigger, there are no racer in the run",true);
+			}catch(RuntimeException e){
+				assertTrue("wrong exception thrown: " + e, e instanceof IllegalStateException);
+			}
+		}
+		
+		// trigger finish channel, should not work
+		try{
+			run.trig(time,2);
+			assertFalse("Cannot trigger, there are no racer in the running queue",true);
+		}catch(RuntimeException e){
+			assertTrue("wrong exception thrown: " + e, e instanceof IllegalStateException);
+		}
+		// should work correctly
+		run.trig(time, 1);
+		run.trig(time.plusSeconds(5), 2);
+		assertEquals("String is displayed incorrectly in queue standing.",queueStanding + "2 " + time + "\n3 " 
+	             + time + "\n" + completedStanding + "1 00:00:05\n", run.standings(time));
+		
 	}
 
 	@Test
@@ -42,7 +78,7 @@ public class TestIND {
 		}catch(RuntimeException e){
 			assertTrue("wrong exception thrown: " + e, e instanceof IllegalStateException);
 		}
-		run.trig(time, 1);
+		run.trig(time, 1); //(racer 1)
 		try{
 			run.swap();
 			assertFalse("Cannot swap, there is 1 racer in the running list",true);
@@ -50,13 +86,13 @@ public class TestIND {
 			assertTrue("wrong exception thrown: " + e, e instanceof IllegalStateException);
 		}
 		
-		run.trig(time, 1); //time start is 10:30:00
-		run.trig(time, 1); // time start is 10:30:00
+		run.trig(time, 1); //time start is 10:30:00 (racer 2)
+		run.trig(time, 1); // time start is 10:30:00 (racer 3)
 		run.swap();
 		run.trig(time.plusSeconds(5), 2); // finish at 10:30:05
 		run.trig(time.plusSeconds(10), 2); // finish at 10:30:10
-		assertEquals("String is displayed incorrectly after swapping runners.",queueStanding + "3 " + time + 
-					  "\n" + completedStanding + "2 00:00:05" + "\n"+ "1 00:00:10\n" , run.standings(time));
+		assertEquals("String is displayed incorrectly after swapping runners.",runningStanding + "3 00:00\n" 
+	             + completedStanding + "2 00:00:05" + "\n"+ "1 00:00:10\n" , run.standings(time));
 		
 	}
 	
@@ -149,11 +185,37 @@ public class TestIND {
 		run.dnf();
 		assertEquals("String is displayed incorrectly after DNF on racer 2.",queueStanding + "3 " + time +
 				     "\n" + completedStanding + "1 DNF\n" + "2 DNF\n" , run.standings(time));
+		try{
+			run.dnf(2);
+			assertFalse("Cannot dnf channel 2, not supported in this event",true);
+		}catch(RuntimeException e){
+			assertTrue("wrong exception thrown: " + e, e instanceof IllegalArgumentException);
+		}
+		
+		try{
+			emptyRun.dnf();
+			assertFalse("Cannot dnf racers, there are no racer in the run",true);
+		}catch(RuntimeException e){
+			assertTrue("wrong exception thrown: " + e, e instanceof IllegalStateException);
+		}
+		
 	}
 	
 	@Test
 	public void testExport(){
+		Run run = new IND();
+		run.num(1);
+		//exporting JSON format of a racer in queue
+		String expectedOutput = "{\"type\":\"IND\",\"queued\":[{\"bibNum\":1,\"startTime\":\"\",\"endTime\":\"\",\"dnf\":false}],"
+								+"\"running\":[],\"finished\":[]}";
+		assertEquals("Converted to JSON incorrectly", expectedOutput, run.export());
+		run.trig(time, 1);
 		
+		// racer 1 finish the run
+		run.trig(time.plusSeconds(10), 2);// racer ran for 10 seconds
+		expectedOutput = "{\"type\":\"IND\",\"queued\":[]," + "\"running\":[],\"finished\":[{\"bibNum\":1,\"startTime\":\"10:30\",\"endTime\":"
+							+ "\"00:00:10\",\"dnf\":false}]}";
+		assertEquals("Converted to JSON incorrectly", expectedOutput, run.export());
 	}
 
 }
