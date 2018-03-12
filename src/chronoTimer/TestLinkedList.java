@@ -10,6 +10,12 @@ import org.junit.Test;
 import chronoTimer.Run.LinkedList;
 import chronoTimer.Run.Node;
 
+
+/**
+ * JUnit test on the LinkedList data structure of the abstract class Run.
+ * @author Fue Her
+ *
+ */
 public class TestLinkedList {
 
 	Run run;
