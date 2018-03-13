@@ -1,5 +1,6 @@
 package chronoTimer;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -344,6 +345,7 @@ public class ChronoTimer {
 						String message = "";
 						if(currentRun.type.equals("PARIND")) {
 							try {
+								if(commands.length != 3) return printMessage("Need a lane number to dnf racers.");
 								int lane = Integer.parseInt(commands[2]);
 								message = currentRun.dnf(lane);
 							} catch (NumberFormatException e) {
@@ -362,7 +364,12 @@ public class ChronoTimer {
 				case("SWAP"): // Start trigger channel 1 (shorthand for TRIG 1)
 					if(currentRun == null) return printMessage("Cannot swap racers. There is no run.");
 					try {
-						currentRun.swap();
+						if(currentRun.type.equalsIgnoreCase("PARIND")){
+							if(commands.length != 3) return printMessage("Need a lane number to swap racers.");
+							int lane = Integer.parseInt(commands[2]);
+							currentRun.swap(lane);
+						}else
+							currentRun.swap();
 					}catch(IllegalArgumentException e) {
 						return printMessage(e.getMessage());
 					}
@@ -430,6 +437,27 @@ public class ChronoTimer {
 						return printMessage("Invalid print command. Must be PRINT or PRINT <NUMBER>");
 					}
 						
+					break;
+					
+				case("EXPORT"):
+					if(currentRun == null && pastRuns.isEmpty()) return printMessage("Cannot export. There is no run in system history.");
+					if(commands.length == 2){
+						writeFile();
+					}else if(commands.length == 3){
+						try {
+							int runNumber = Integer.parseInt(commands[2]);
+							if(runNumber <= 0) return printMessage("Cannot export run. Run number starts at 1.");
+							else if(runNumber > pastRuns.size()) return printMessage("Cannot export. No such run exist in system history.");
+							--runNumber; // decrement since we start at index 0
+							writeFile(runNumber);
+						}catch(NumberFormatException e) {
+							return printMessage("Cannot parse string to a number.");
+						}
+					}else {
+						return printMessage("Invalid export command. Must be EXPORT or EXPORT <NUMBER>");
+					}
+					
+				
 					break;
 					
 				default:
@@ -507,7 +535,7 @@ public class ChronoTimer {
 	public void setSim(ChronoTimerSimulator sim){
 		this.sim = sim;
 	}
-	
+	/*
 	public void writeFile(){
 		if (pastRuns.isEmpty()) return;
 		Run mostRecentRun = pastRuns.get(pastRuns.size()-1);
@@ -530,5 +558,48 @@ public class ChronoTimer {
 				break;
 				
 		}
+	}
+	*/
+	
+	private void writeFile(){
+		String destination = System.getProperty("user.home") + "\\desktop\\";
+		File file;
+		if(currentRun == null)
+			file = new File(destination + "RUN" + pastRuns.size() + ".txt");
+		else
+			file = new File(destination + "currentRun.txt");
+		PrintWriter pw;
+		try{
+			pw = new PrintWriter(file);
+			if (pastRuns.isEmpty() && currentRun != null){
+				printMessage("Beginning to export current run...");
+				pw.write(currentRun.export());
+			}else{
+				printMessage("Attempting to export previous run in system history...");
+				Run mostRecentRun = pastRuns.get(pastRuns.size()-1);
+				pw.write(mostRecentRun.export());
+			}
+			pw.close();
+		}catch(Exception e){
+			printMessage("Cannot write to file.");
+			return;
+		}
+		printMessage("Data has been exported successfully to " + destination);
+	}
+	
+	private void writeFile(int runNumber) {
+		int rn = runNumber + 1; // user enter this number but we decrement it earlier before calling this method
+		String destination = System.getProperty("user.home") + "\\desktop\\";
+		File file = new File(destination + "RUN"+(rn)+".txt");
+		try {
+			PrintWriter pw = new PrintWriter(file);
+			printMessage("Attempting to export run " + rn + " from system history...");
+			pw.write(pastRuns.get(runNumber).export());
+			pw.close();
+		} catch (Exception e) {
+			printMessage("Cannot write to file.");
+			return;
+		}
+		printMessage("Data has been exported successfully to " + destination);
 	}
 }
