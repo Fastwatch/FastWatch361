@@ -182,16 +182,12 @@ class IND extends Run {
 
 	@Override
 	protected void swap(int laneNum) {
-		if (laneNum == 1){
-			swap();
-		}else throw new IllegalArgumentException("Lane " + laneNum + " Not Supported");
+		swap();
 	}
 
 	@Override
 	protected String dnf(int laneNum) {
-		if (laneNum == 1){
-			return dnf();
-		}else throw new IllegalArgumentException("Lane " + laneNum + " Not Supported");
+		return dnf();
 	}
 
 	@Override
@@ -210,7 +206,7 @@ class IND extends Run {
 		}
 		output += "],";
 		output+= "\"finished\":[";
-		for(Node n = running.head;n!=null;n=n.next){
+		for(Node n = complete.head;n!=null;n=n.next){
 			if (n.Data.getDNF()){
 				output+= "{\"bibNum\":"+Integer.toString(n.Data.getBibNum())+",\"startTime\":\""+n.Data.getStartTime()+"\",\"endTime\":\"\",\"dnf\":"+n.Data.getDNF()+"}";
 			}else{
@@ -229,9 +225,5 @@ class IND extends Run {
 	protected Racer lastStart(){
 		if (running.tail==null) return null;
 		return running.tail.Data;
-	}
-	
-	protected int numRunners(){
-		return queued.getLength()+running.getLength()+complete.getLength();
 	}
 }

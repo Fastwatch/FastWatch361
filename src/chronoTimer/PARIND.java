@@ -2,17 +2,17 @@ package chronoTimer;
 
 import java.time.LocalTime;
 
-import chronoTimer.Run.Node;
-
 public class PARIND extends Run{
 
 	IND Lane1;
 	IND Lane2;
+	Boolean addToOne;
 	
 	protected PARIND(){
 		this.type = "PARIND";
 		Lane1 = new IND();
 		Lane2 = new IND();
+		addToOne = true;
 	}
 	
 	
@@ -56,11 +56,12 @@ public class PARIND extends Run{
 	@Override
 	protected void num(int bibNum) {
 		if(Lane1.contains(bibNum)||Lane2.contains(bibNum)) throw new IllegalArgumentException("Attempting to create duplicate racer");
-		if (Lane1.numRunners() <= Lane2.numRunners()){
+		if (addToOne){
 			Lane1.num(bibNum);
 		}else{
 			Lane2.num(bibNum);
 		}
+		addToOne = !addToOne;
 	}
 
 	@Override

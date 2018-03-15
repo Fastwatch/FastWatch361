@@ -111,7 +111,6 @@ public class ChronoTimer {
 	 * Set the ChronoTimer to it's initial state
 	 */
 	private void reset(){
-		powerState = false;
 		currentRun = null;
 		pastRuns = new ArrayList<Run>();
 		channels = new Channel[8];
@@ -213,8 +212,15 @@ public class ChronoTimer {
 		if(powerState == true){
 			log+=c+"\n";
 			time = parseTime(commands[0]);
-			if(time == null) {
-				return false;
+			if (commands[1].equalsIgnoreCase("TIME")){
+				if(commands.length != 3) return printMessage("Need a time to set. Should be after the time arg.");
+				time = parseTime(commands[2]);
+				if(time == null) return printMessage("Time is null");
+					currentTime = time;
+					return printMessage("Time has been set to " + time);
+			}
+			if (currentTime != null && currentTime.compareTo(time) > 0){
+				return printMessage("Current Time is before system time. Use \"TIME\" command to set system time");
 			}
 			currentTime = time;
 			switch(commands[1].toUpperCase()){
@@ -292,17 +298,6 @@ public class ChronoTimer {
 				case("RESET"): // Reset system to initial state
 					reset();
 					break;
-					
-				case("TIME"): // Set the current time. Default time is host system time.
-					if(commands.length != 3) return printMessage("Need a time to set. Should be after the time arg.");
-					time = parseTime(commands[2]);
-					if(time == null) return printMessage("Time is null");
-					else if(time.compareTo(currentTime) <= 0){
-						return printMessage("The given time cannot be before the current time.");
-					}
-						currentTime = time;
-						printMessage("Time has been set to " + time);
-					break;
 				
 				case("NUM"): // Set	NUM<NUMBER> as the next	competitor to start.
 					if(commands.length != 3) return printMessage("Need a bib number to set racer. Should be after the num arg.");
@@ -356,7 +351,7 @@ public class ChronoTimer {
 						}
 						
 						printMessage(message);
-					}catch(IllegalStateException e) {
+					}catch(IllegalArgumentException e) {
 						return printMessage(e.getMessage());
 					}
 					break;
