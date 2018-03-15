@@ -96,16 +96,6 @@ public class TestLinkedList {
 		list.removeStart();
 		assertFalse("List should not have racer 1", list.contains(5));
 	}
-	
-	@Test
-	public void testRemoveStart(){
-		try{
-			list.removeStart();
-			assertFalse("The list is empty. Invalid state to remove a racer",true);
-		}catch(RuntimeException e){
-			assertTrue("wrong exception thrown: " + e, e instanceof IllegalStateException);
-		}
-		list.addEnd(nodes.get(0));
-	}
+
 
 }

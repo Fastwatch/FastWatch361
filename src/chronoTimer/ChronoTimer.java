@@ -314,6 +314,7 @@ public class ChronoTimer {
 					break;
 				
 				case("TOG"): // Toggle the state of the channel TOG<CHANNEL>
+					if(commands.length != 3) return printMessage("Need a channel number to toggle.");
 					try{
 						int channel = Integer.parseInt(commands[2]);
 						if(channel < 0 || channel >= 9){
@@ -557,12 +558,12 @@ public class ChronoTimer {
 	*/
 	
 	private void writeFile(){
-		String destination = System.getProperty("user.home") + "\\desktop\\";
+		;
 		File file;
 		if(currentRun == null)
-			file = new File(destination + "RUN" + pastRuns.size() + ".txt");
+			file = new File("RUN" + pastRuns.size() + ".txt");
 		else
-			file = new File(destination + "currentRun.txt");
+			file = new File("currentRun.txt");
 		PrintWriter pw;
 		try{
 			pw = new PrintWriter(file);
@@ -576,25 +577,24 @@ public class ChronoTimer {
 			}
 			pw.close();
 		}catch(Exception e){
-			printMessage("Cannot write to file.");
+			printMessage("Cannot write to file.\n" + e.getMessage());
 			return;
 		}
-		printMessage("Data has been exported successfully to " + destination);
+		printMessage("Data has been exported successfully to " + file.getAbsolutePath());
 	}
 	
 	private void writeFile(int runNumber) {
 		int rn = runNumber + 1; // user enter this number but we decrement it earlier before calling this method
-		String destination = System.getProperty("user.home") + "\\desktop\\";
-		File file = new File(destination + "RUN"+(rn)+".txt");
+		File file = new File("RUN"+(rn)+".txt");
 		try {
 			PrintWriter pw = new PrintWriter(file);
 			printMessage("Attempting to export run " + rn + " from system history...");
 			pw.write(pastRuns.get(runNumber).export());
 			pw.close();
 		} catch (Exception e) {
-			printMessage("Cannot write to file.");
+			printMessage("Cannot write to file.\n" + e.getMessage());
 			return;
 		}
-		printMessage("Data has been exported successfully to " + destination);
+		printMessage("Data has been exported successfully to " + file.getAbsolutePath());
 	}
 }

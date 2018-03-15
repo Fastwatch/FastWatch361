@@ -171,7 +171,7 @@ public class TestIND {
 			run.dnf();
 			assertFalse("Cannot dnf racers, there are no racer in the running list",true);
 		}catch(RuntimeException e){
-			assertTrue("wrong exception thrown: " + e, e instanceof IllegalStateException);
+			assertTrue("wrong exception thrown: " + e, e instanceof IllegalArgumentException);
 		}
 		// all racers in queue
 		assertEquals("String is displayed incorrectly in queue standing.",queueStanding + "1 " + time + 
@@ -186,17 +186,10 @@ public class TestIND {
 		assertEquals("String is displayed incorrectly after DNF on racer 2.",queueStanding + "3 " + time +
 				     "\n" + completedStanding + "1 DNF\n" + "2 DNF\n" , run.standings(time));
 		try{
-			run.dnf(2);
-			assertFalse("Cannot dnf channel 2, not supported in this event",true);
-		}catch(RuntimeException e){
-			assertTrue("wrong exception thrown: " + e, e instanceof IllegalArgumentException);
-		}
-		
-		try{
 			emptyRun.dnf();
 			assertFalse("Cannot dnf racers, there are no racer in the run",true);
 		}catch(RuntimeException e){
-			assertTrue("wrong exception thrown: " + e, e instanceof IllegalStateException);
+			assertTrue("wrong exception thrown: " + e, e instanceof IllegalArgumentException);
 		}
 		
 	}
@@ -214,7 +207,7 @@ public class TestIND {
 		// racer 1 finish the run
 		run.trig(time.plusSeconds(10), 2);// racer ran for 10 seconds
 		expectedOutput = "{\"type\":\"IND\",\"queued\":[]," + "\"running\":[],\"finished\":[{\"bibNum\":1,\"startTime\":\"10:30\",\"endTime\":"
-							+ "\"00:00:10\",\"dnf\":false}]}";
+							+ "\"10:30:10\",\"dnf\":false}]}";
 		assertEquals("Converted to JSON incorrectly", expectedOutput, run.export());
 	}
 
