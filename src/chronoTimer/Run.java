@@ -1,6 +1,7 @@
 package chronoTimer;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
 
 public abstract class Run {
 	protected String type;
@@ -27,6 +28,10 @@ public abstract class Run {
 	protected abstract void end();
 	
 	protected abstract String export();
+	
+	protected abstract boolean raceInProgress();
+	
+	protected abstract ArrayList<Racer> getQueue();
 	
 	/**
 	 * Node Class for use in Linked lists for keeping track of racers

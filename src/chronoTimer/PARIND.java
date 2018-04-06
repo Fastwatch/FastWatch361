@@ -1,6 +1,9 @@
 package chronoTimer;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
+
+import chronoTimer.Run.Node;
 
 public class PARIND extends Run{
 
@@ -111,6 +114,49 @@ public class PARIND extends Run{
 		output += "\"Lane1\":"+Lane1.export()+",";		
 		output += "\"Lane2\":"+Lane2.export()+"}";	
 		return output;
+	}
+
+
+	@Override
+	protected boolean raceInProgress() {
+		if(Lane1.raceInProgress() == true || Lane2.raceInProgress() == true)
+			return true;
+		return false;
+	}
+
+
+	@Override
+	protected ArrayList<Racer> getQueue() {
+		if(Lane1.queued.getLength() == 0)
+			throw new IllegalStateException("There are no queued racers to add to the new run");
+		
+		boolean addedLane1 = false;
+		ArrayList<Racer> queue = new ArrayList<>();
+		Node lane1 = Lane1.queued.head;
+		Node lane2 = Lane2.queued.head;
+		
+		while(lane1 != null && lane2 != null) {
+			if (addedLane1 == false) {
+				if (lane1 != null)
+					queue.add(lane1.Data);
+
+				lane1 = lane1.next;
+				addedLane1 = true;
+			} else {
+				if (lane2 != null)
+					queue.add(lane2.Data);
+
+				lane2 = lane2.next;
+				addedLane1 = false;
+			}
+		}
+		
+		if(lane1 != null)
+			queue.add(lane1.Data);
+		else if(lane2 != null)
+			queue.add(lane2.Data);
+		
+		return queue;
 	}
 
 }

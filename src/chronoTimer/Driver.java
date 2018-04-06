@@ -10,7 +10,7 @@ public class Driver {
 		
 		//Simple test run on the Racer class, Racer class may subject to change when Time object is implemented.
 		/////////////////////////////////////////////////////////
-		Racer r1 = new Racer(1234);
+		/*Racer r1 = new Racer(1234);
 
 		System.out.println("Recorded in military time: HH:mm:ss.sss");
 		System.out.print("Racer: '" + r1.getBibNum() + "' start time is ");
@@ -26,7 +26,7 @@ public class Driver {
 		System.out.print("\nRacer: '" + r1.getBibNum() + "' duration time is ");
 		System.out.println(r1.getTime());
 		
-		input.close();
+		input.close();*/
 		
 		
 		////////////////////////////////////////////////////////

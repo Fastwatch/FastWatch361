@@ -68,6 +68,7 @@ public class ChronoTimer {
 	private ChronoTimerSimulator sim; // Chronotimer simulator
 	private String eventType; // their test text file has a EVENT command 
 	private LocalTime currentTime;
+	private ArrayList<Racer> queuedRacers;
 	
 	// used for testing
 	private boolean showMessage = true; //  TRUE - print invalid sysout msg, FALSE - print no invalid sysout msg 
@@ -245,8 +246,9 @@ public class ChronoTimer {
 				case("EVENT"): // Set Run to this particular event <TIME> <EVENT> <TYPE>
 					if(commands.length != 3) return printMessage("Need a event type. Should be after the event arg");
 				
-					if(currentRun != null) return printMessage("Must end the current run before assiging a event type.");
+					if(currentRun != null && currentRun.raceInProgress() == true) return printMessage("Must end the current run before assiging a event type.");
 					
+					String prevEvent = eventType;
 					if(commands[2].equalsIgnoreCase("IND")) {
 						eventType = "IND";
 					}else if(commands[2].equalsIgnoreCase("PARIND")){
@@ -255,7 +257,19 @@ public class ChronoTimer {
 					else{
 						return printMessage("Unsupported event type.");
 					}
-						printMessage("Event set to " + eventType);
+					if(currentRun != null && !eventType.equalsIgnoreCase(prevEvent)) {
+						printMessage("Converting run to " + eventType + " event");
+						try {
+							queuedRacers = currentRun.getQueue();
+							newRun();
+							for(int i = 0; i < queuedRacers.size(); i++) {
+								currentRun.num(queuedRacers.get(i).getBibNum());
+							}
+						}catch(IllegalStateException e) {
+							printMessage(e.getMessage());
+						}
+					}
+					printMessage("Event set to " + eventType);
 					break;
 					
 				case("CONN"): // CONN <sensor> <NUM>
@@ -497,7 +511,7 @@ public class ChronoTimer {
 	 * default run event type.
 	 */
 	private void newRun(){
-		if (currentRun != null){
+		if (currentRun != null && currentRun.raceInProgress() == true){
 			throw new IllegalStateException("run in progress");
 		}
 		if(eventType.equalsIgnoreCase("IND")) {
@@ -567,7 +581,7 @@ public class ChronoTimer {
 		PrintWriter pw;
 		try{
 			pw = new PrintWriter(file);
-			if (pastRuns.isEmpty() && currentRun != null){
+			if (pastRuns.isEmpty() && currentRun != null || !pastRuns.isEmpty() && currentRun != null){
 				printMessage("Beginning to export current run...");
 				pw.write(currentRun.export());
 			}else{
