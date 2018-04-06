@@ -257,6 +257,8 @@ public class ChronoTimer {
 					else{
 						return printMessage("Unsupported event type.");
 					}
+					
+					printMessage("Event set to " + eventType);
 					if(currentRun != null && !eventType.equalsIgnoreCase(prevEvent)) {
 						printMessage("Converting run to " + eventType + " event");
 						try {
@@ -266,10 +268,9 @@ public class ChronoTimer {
 								currentRun.num(queuedRacers.get(i).getBibNum());
 							}
 						}catch(IllegalStateException e) {
-							printMessage(e.getMessage());
+							return printMessage(e.getMessage());
 						}
 					}
-					printMessage("Event set to " + eventType);
 					break;
 					
 				case("CONN"): // CONN <sensor> <NUM>
@@ -511,7 +512,7 @@ public class ChronoTimer {
 	 * default run event type.
 	 */
 	private void newRun(){
-		if (currentRun != null && currentRun.raceInProgress() == true){
+		if (currentRun != null){
 			throw new IllegalStateException("run in progress");
 		}
 		if(eventType.equalsIgnoreCase("IND")) {
