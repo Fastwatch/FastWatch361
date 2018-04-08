@@ -2,6 +2,8 @@ package chronoSimulator;
 
 import javafx.application.Application;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -10,10 +12,11 @@ import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.control.Button;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 public class ChronoTimerGUI extends Application {
-	
+		
 	public static void main(String args[]) {
 		launch();
 		//javafx lifecycle
@@ -23,7 +26,46 @@ public class ChronoTimerGUI extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		
+		// we'll need a pane per area
+		
+		GridPane numPad = new GridPane();
+		numPad.setAlignment(Pos.CENTER);
+		numPad.setVgap(0);
+		numPad.setHgap(0);
+		Button num1 = createNumberButton(1);
+		Button num2 = createNumberButton(2);
+		Button num3 = createNumberButton(3);
+		Button num4 = createNumberButton(4);
+		Button num5 = createNumberButton(5);
+		Button num6 = createNumberButton(6);
+		Button num7 = createNumberButton(7);
+		Button num8 = createNumberButton(8);
+		Button num9 = createNumberButton(9);
+		Button numStar = new Button("*");
+		Button num0 = createNumberButton(0);
+		Button numPound = new Button("#");
+				
+		numPad.add(num1, 0, 0);
+		numPad.add(num2, 1, 0);
+		numPad.add(num3, 2, 0);
+		numPad.add(num4, 0, 1);
+		numPad.add(num5, 1, 1);
+		numPad.add(num6, 2, 1);
+		numPad.add(num7, 0, 2);
+		numPad.add(num8, 1, 2);
+		numPad.add(num9, 2, 2);
+		numPad.add(numStar, 0, 3);
+		numPad.add(num0, 1, 3);
+		numPad.add(numPound, 2, 3);
+		
 		Button powerButton = new Button("Power");
+			
+		powerButton.setOnMouseClicked((new EventHandler<MouseEvent>() { 
+				public void handle(MouseEvent event) { 
+					System.out.println("POWER");
+					// TODO powerButton clicked
+				} 
+		}));
 		
 		GridPane gridPane = new GridPane();
 		gridPane.setMinSize(400, 600);
@@ -35,10 +77,9 @@ public class ChronoTimerGUI extends Application {
 		gridPane.setAlignment(Pos.CENTER);
 		
 		gridPane.add(powerButton, 0, 0);
-		
-		powerButton.setStyle("-fx-background-color: darkslateblue; -fx-text-fill: white;");
-		
-		gridPane.setStyle("-fx-background-color: RED;");
+		gridPane.add(numPad, 2, 1);
+				
+		gridPane.setStyle("-fx-background-color: GREY;");
 		
 		
 		
@@ -68,4 +109,12 @@ public class ChronoTimerGUI extends Application {
 		primaryStage.show();
 		
 	}
+	
+	private Button createNumberButton(int number) {
+        Button button = new Button(Integer.toString(number));
+        button.setOnAction(new NumberButtonHandler(number));
+        return button ;
+    }
+	
+	
 }
