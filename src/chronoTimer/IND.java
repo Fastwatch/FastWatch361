@@ -227,16 +227,14 @@ class IND extends Run {
 		if (running.tail==null) return null;
 		return running.tail.Data;
 	}
-
 	@Override
 	protected boolean raceInProgress() {
 		if(this.running.getLength() > 0 || this.complete.getLength() > 0)
 			return true;
 		return false;
 	}
-
+	@Override
 	protected ArrayList<Racer> getQueue() {
-		if(queued.getLength() == 0) throw new IllegalStateException("There are no queued racers to add to the new run");
 		ArrayList<Racer> queue = new ArrayList<>();
 		for(Node n = queued.head; n != null; n = n.next) {
 			queue.add(n.Data);

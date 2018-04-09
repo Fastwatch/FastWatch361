@@ -117,7 +117,7 @@ public class PARIND extends Run{
 	}
 
 
-	@Override
+	
 	protected boolean raceInProgress() {
 		if(Lane1.raceInProgress() == true || Lane2.raceInProgress() == true)
 			return true;
@@ -125,11 +125,8 @@ public class PARIND extends Run{
 	}
 
 
-	@Override
+	
 	protected ArrayList<Racer> getQueue() {
-		if(Lane1.queued.getLength() == 0)
-			throw new IllegalStateException("There are no queued racers to add to the new run");
-		
 		boolean addedLane1 = false;
 		ArrayList<Racer> queue = new ArrayList<>();
 		Node lane1 = Lane1.queued.head;

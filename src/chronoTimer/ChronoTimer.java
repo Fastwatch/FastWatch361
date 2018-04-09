@@ -260,7 +260,7 @@ public class ChronoTimer {
 					
 					printMessage("Event set to " + eventType);
 					if(currentRun != null && !eventType.equalsIgnoreCase(prevEvent)) {
-						printMessage("Converting run to " + eventType + " event");
+						printMessage("Converting " + prevEvent + " run to " + eventType + " run");
 						try {
 							queuedRacers = currentRun.getQueue();
 							newRun();
@@ -268,7 +268,7 @@ public class ChronoTimer {
 								currentRun.num(queuedRacers.get(i).getBibNum());
 							}
 						}catch(IllegalStateException e) {
-							return printMessage(e.getMessage());
+							return printMessage("Error on converting run: " + e.getMessage());
 						}
 					}
 					break;
@@ -512,7 +512,7 @@ public class ChronoTimer {
 	 * default run event type.
 	 */
 	private void newRun(){
-		if (currentRun != null){
+		if (currentRun != null && currentRun.raceInProgress() == true){
 			throw new IllegalStateException("run in progress");
 		}
 		if(eventType.equalsIgnoreCase("IND")) {
