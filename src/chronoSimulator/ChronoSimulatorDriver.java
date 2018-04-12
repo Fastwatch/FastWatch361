@@ -1,5 +1,8 @@
 package chronoSimulator;
 
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+
 /**
  * 
  * @author Riley Mahr
@@ -8,7 +11,25 @@ package chronoSimulator;
 
 public class ChronoSimulatorDriver {
 	public static void main(String[] args) {
-		ChronoTimerSimulator sim = new ChronoTimerSimulator();
-		sim.start();
+		try {
+            // Set cross-platform Java L&F (also called "Metal")
+        UIManager.setLookAndFeel(
+            UIManager.getSystemLookAndFeelClassName());
+    } 
+    catch (UnsupportedLookAndFeelException e) {
+       // handle exception
+    }
+    catch (ClassNotFoundException e) {
+       // handle exception
+    }
+    catch (InstantiationException e) {
+       // handle exception
+    }
+    catch (IllegalAccessException e) {
+       // handle exception
+    }
+	      new ChronoTimerGUI();
+	      
+	      
 	}
 }
