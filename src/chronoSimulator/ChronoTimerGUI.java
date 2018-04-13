@@ -27,48 +27,112 @@ import java.awt.SystemColor;
 import java.awt.Font;
 import javax.swing.border.BevelBorder;
 import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
 import javax.swing.Action;
 
 public class ChronoTimerGUI {
 	// Frame and rootPanel
-	JFrame f;
-	JPanel upperPanel;
+	private JFrame f;
+	private JPanel upperPanel;
 	
 	// Power Panel
-	JPanel powerPanel;
-	JButton btnPower;
+	private JPanel powerPanel;
+	private JButton btnPower;
 	
 	// Sensor Panel
-	JPanel sensorPanel;
-	JLabel lblNewLabel; // label for application title
-	JPanel startSensorPanel;
-	JPanel startPanel;
-	JTextArea startText;
+	private JPanel sensorPanel;
+	private JLabel lblNewLabel; // label for application title
 	
-	JButton trig1;
-	JButton trig2;
-	JButton trig3;
-	JButton trig4;
-	JButton trig5;
-	JButton trig6;
-	JButton trig7;
-	JButton trig8;
+	private JButton trig1;
+	private JButton trig2;
+	private JButton trig3;
+	private JButton trig4;
+	private JButton trig5;
+	private JButton trig6;
+	private JButton trig7;
+	private JButton trig8;
 	
+	private JRadioButton enable1;
+	private JRadioButton enable2;
+	private JRadioButton enable3;
+	private JRadioButton enable4;
+	private JRadioButton enable5;
+	private JRadioButton enable6;
+	private JRadioButton enable7;
+	private JRadioButton enable8;
+	
+	private JTextArea startText;
+	private JTextArea startActive;
+	private JTextArea finishText;
+	private JTextArea finishActive;
+	
+	private JPanel startPanel;
+	private JPanel startSensorPanel;
+	private JPanel startActivePanel;
+	private JPanel finishPanel;
+	private JPanel finishSensorPanel;
+	private JPanel finishActivePanel;
+	
+	// Printer Panel - Top Right
+	private JPanel printerPanel;
+	private JPanel printerPowerPanel;
+	
+	private JButton btnPrinterPower;
+	
+	private JTextArea printerText;
 	
 	// NumberPad
-	JPanel numPad;
-	JButton num1;
-	JButton num2;
-	JButton num3;
-	JButton num4;
-	JButton num5;
-	JButton num6;
-	JButton num7;
-	JButton num8;
-	JButton num9;
-	JButton num0;
-	JButton numPound;
-	JButton numStar;
+	private JPanel numPad;
+	private JButton num1;
+	private JButton num2;
+	private JButton num3;
+	private JButton num4;
+	private JButton num5;
+	private JButton num6;
+	private JButton num7;
+	private JButton num8;
+	private JButton num9;
+	private JButton num0;
+	private JButton numPound;
+	private JButton numStar;
+	
+	private JPanel functionPanel;
+	private JPanel functionContainer;
+	private JButton btnFunction;
+	private JPanel arrowContainer;
+	private JButton btnLeft;
+	private JButton btnRight;
+	private JButton btnDown;
+	private JButton btnUp;
+	private JPanel swapContainer;
+	private JPanel displayPanel;
+	private JTextPane displayText;
+	private JLabel displayLabel;
+	private JPanel lowerPanel;
+	private JPanel channelPanel;
+	private JPanel channelTextPanel;
+	private JLabel chanLabel;
+	private JPanel channelButtonPanel;
+	private JPanel chanPanelUpper;
+	private JLabel chanLabel1;
+	private JLabel chanLabel3;
+	private JLabel chanLabel5;
+	private JLabel chanLabel7;
+	private JRadioButton chan1;
+	private JRadioButton chan3;
+	private JRadioButton chan5;
+	private JRadioButton chan7;
+	private JPanel chanPanelLower;
+	private JLabel chanLabel2;
+	private JLabel chanLabel4;
+	private JLabel chanLabel6;
+	private JLabel chanLabel8;
+	private JRadioButton chan2;
+	private JRadioButton chan4;
+	private JRadioButton chan6;
+	private JRadioButton chan8;
+	private JPanel usbPanel;
+	private JLabel usbLabel;
 	
 	
 	public ChronoTimerGUI() {
@@ -86,15 +150,15 @@ public class ChronoTimerGUI {
 	    upperPanel.setLayout(new GridLayout(2, 3, 1, 0));
 	    f.getContentPane().add(upperPanel);
 	    
+	    // Power Panel - Top Left -------------------------------------------------------------------
+	    
 	    powerPanel = new JPanel();
-	    
-	    
 	    btnPower = new JButton("POWER");
 	    btnPower.addActionListener(new PowerClickListener());
-	    
 	    powerPanel.add(btnPower);
-	    
 	    upperPanel.add(powerPanel);
+	    
+	    // Sensor Panel - Top Middle -------------------------------------------------------------------
 	    
 	    sensorPanel = new JPanel();
 	    upperPanel.add(sensorPanel);
@@ -118,138 +182,175 @@ public class ChronoTimerGUI {
 	    startPanel.add(startText);
 	    
 	    trig1 = new JButton("1");
+	    trig1.addActionListener(new TrigClickListener());
+	    trig1.setActionCommand("trig 1");
 	    startPanel.add(trig1);
 	    
 	    trig3 = new JButton("3");
+	    trig3.addActionListener(new TrigClickListener());
+	    trig3.setActionCommand("trig 3");
 	    startPanel.add(trig3);
 	    
 	    trig5 = new JButton("5");
+	    trig5.addActionListener(new TrigClickListener());
+	    trig5.setActionCommand("trig 5");
 	    startPanel.add(trig5);
 	    
 	    trig7 = new JButton("7");
+	    trig7.addActionListener(new TrigClickListener());
+	    trig7.setActionCommand("trig 7");
 	    startPanel.add(trig7);
 	    
-	    JPanel startActivePanel = new JPanel();
+	    startActivePanel = new JPanel();
 	    startSensorPanel.add(startActivePanel);
 	    startActivePanel.setLayout(new GridLayout(0, 5, 0, 0));
 	    
-	    JTextArea startEnableDisable = new JTextArea();
-	    startEnableDisable.setBackground(SystemColor.control);
-	    startEnableDisable.setText("Active");
-	    startActivePanel.add(startEnableDisable);
+	    startActive = new JTextArea();
+	    startActive.setBackground(SystemColor.control);
+	    startActive.setText("Active");
+	    startActivePanel.add(startActive);
 	    
-	    JRadioButton enable1 = new JRadioButton("");
+	    enable1 = new JRadioButton("");
 	    enable1.setHorizontalAlignment(SwingConstants.CENTER);
-	    JRadioButton enable3 = new JRadioButton("");
+	    enable1.addActionListener(new EnableClickListener());
+	    enable1.setActionCommand("enable 1");
+	    enable3 = new JRadioButton("");
 	    enable3.setHorizontalAlignment(SwingConstants.CENTER);
-	    JRadioButton enable5 = new JRadioButton("");
+	    enable3.addActionListener(new EnableClickListener());
+	    enable3.setActionCommand("enable 3");
+	    enable5 = new JRadioButton("");
 	    enable5.setHorizontalAlignment(SwingConstants.CENTER);
-	    JRadioButton enable7 = new JRadioButton("");
+	    enable5.addActionListener(new EnableClickListener());
+	    enable5.setActionCommand("enable 5");
+	    enable7 = new JRadioButton("");
 	    enable7.setHorizontalAlignment(SwingConstants.CENTER);
+	    enable7.addActionListener(new EnableClickListener());
+	    enable7.setActionCommand("enable 7");
 	    startActivePanel.add(enable1);
 	    startActivePanel.add(enable3);
 	    startActivePanel.add(enable5);
 	    startActivePanel.add(enable7);
 	    
-	    JPanel finishSensorPanel = new JPanel();
+	    finishSensorPanel = new JPanel();
 	    sensorPanel.add(finishSensorPanel);
 	    finishSensorPanel.setLayout(new GridLayout(2, 1, 0, 0));
 	    
-	    JPanel finishPanel = new JPanel();
+	    finishPanel = new JPanel();
 	    finishSensorPanel.add(finishPanel);
 	    finishPanel.setLayout(new GridLayout(0, 5, 0, 0));
 	    
-	    JTextArea finishText = new JTextArea();
+	    finishText = new JTextArea();
 	    finishText.setBackground(SystemColor.control);
 	    finishText.setText("Finish");
 	    finishPanel.add(finishText);
 	    
 	    trig2 = new JButton("2");
+	    trig2.addActionListener(new TrigClickListener());
+	    trig2.setActionCommand("trig 2");
 	    finishPanel.add(trig2);
 	    
 	    trig4 = new JButton("4");
+	    trig4.addActionListener(new TrigClickListener());
+	    trig4.setActionCommand("trig 4");
 	    finishPanel.add(trig4);
 	    
 	    trig6 = new JButton("6");
+	    trig6.addActionListener(new TrigClickListener());
+	    trig6.setActionCommand("trig 6");
 	    finishPanel.add(trig6);
 	    
 	    trig8 = new JButton("8");
+	    trig8.addActionListener(new TrigClickListener());
+	    trig8.setActionCommand("trig 8");
 	    finishPanel.add(trig8);
 	    
-	    JPanel finishActivePanel = new JPanel();
+	    finishActivePanel = new JPanel();
 	    finishSensorPanel.add(finishActivePanel);
 	    finishActivePanel.setLayout(new GridLayout(0, 5, 0, 0));
 	    
-	    JTextArea textArea_1 = new JTextArea();
-	    textArea_1.setBackground(SystemColor.control);
-	    textArea_1.setText("Active");
-	    finishActivePanel.add(textArea_1);
+	    finishActive = new JTextArea();
+	    finishActive.setBackground(SystemColor.control);
+	    finishActive.setText("Active");
+	    finishActivePanel.add(finishActive);
 	    
-	    JRadioButton radioButton = new JRadioButton("");
-	    radioButton.setHorizontalAlignment(SwingConstants.CENTER);
-	    finishActivePanel.add(radioButton);
+	    enable2 = new JRadioButton("");
+	    enable2.setHorizontalAlignment(SwingConstants.CENTER);
+	    enable2.addActionListener(new EnableClickListener());
+	    enable2.setActionCommand("enable 2");
+	    finishActivePanel.add(enable2);
 	    
-	    JRadioButton radioButton_1 = new JRadioButton("");
-	    radioButton_1.setHorizontalAlignment(SwingConstants.CENTER);
-	    finishActivePanel.add(radioButton_1);
+	    enable4 = new JRadioButton("");
+	    enable4.setHorizontalAlignment(SwingConstants.CENTER);
+	    enable4.addActionListener(new EnableClickListener());
+	    enable4.setActionCommand("enable 4");
+	    finishActivePanel.add(enable4);
 	    
-	    JRadioButton radioButton_2 = new JRadioButton("");
-	    radioButton_2.setHorizontalAlignment(SwingConstants.CENTER);
-	    finishActivePanel.add(radioButton_2);
+	    enable6 = new JRadioButton("");
+	    enable6.setHorizontalAlignment(SwingConstants.CENTER);
+	    enable6.addActionListener(new EnableClickListener());
+	    enable6.setActionCommand("enable 6");
+	    finishActivePanel.add(enable6);
 	    
-	    JRadioButton radioButton_3 = new JRadioButton("");
-	    radioButton_3.setHorizontalAlignment(SwingConstants.CENTER);
-	    finishActivePanel.add(radioButton_3);
+	    enable8 = new JRadioButton("");
+	    enable8.setHorizontalAlignment(SwingConstants.CENTER);
+	    enable8.addActionListener(new EnableClickListener());
+	    enable8.setActionCommand("enable 8");
+	    finishActivePanel.add(enable8);
 	    
-	    JPanel printerPanel = new JPanel();
+	    // Printer Panel - Top Right -------------------------------------------------------------------
+	    
+	    printerPanel = new JPanel();
 	    upperPanel.add(printerPanel);
 	    printerPanel.setLayout(new BorderLayout(5, 5));
 	    
-	    JPanel printerPowerPanel = new JPanel();
+	    printerPowerPanel = new JPanel();
 	    printerPanel.add(printerPowerPanel, BorderLayout.NORTH);
 	    
-	    JButton btnPrinterPower = new JButton("PRINTER POWER");
+	    btnPrinterPower = new JButton("PRINTER POWER");
+	    btnPrinterPower.addActionListener(new PrinterPowerClickListener());
 	    printerPowerPanel.add(btnPrinterPower);
 	    btnPrinterPower.addActionListener(new ActionListener() {
 	    	public void actionPerformed(ActionEvent arg0) {
 	    	}
 	    });
 	    
-	    JTextArea printerText = new JTextArea();
+	    printerText = new JTextArea();
 	    printerText.setText("Something from printer");
 	    printerPanel.add(printerText, BorderLayout.CENTER);
 	    
-	    JPanel functionPanel = new JPanel();
+	    // Function Panel - Bottom Left -------------------------------------------------------------------
+	    
+	    functionPanel = new JPanel();
 	    upperPanel.add(functionPanel);
 	    functionPanel.setLayout(new GridLayout(4, 1, 5, 5));
 	    
-	    JPanel functionContainer = new JPanel();
+	    functionContainer = new JPanel();
 	    FlowLayout flowLayout = (FlowLayout) functionContainer.getLayout();
 	    flowLayout.setAlignment(FlowLayout.LEFT);
 	    functionPanel.add(functionContainer);
 	    
-	    JButton btnFunction = new JButton("FUNCTION");
+	    btnFunction = new JButton("FUNCTION");
 	    functionContainer.add(btnFunction);
 	    
-	    JPanel arrowContainer = new JPanel();
+	    arrowContainer = new JPanel();
 	    FlowLayout flowLayout_2 = (FlowLayout) arrowContainer.getLayout();
 	    flowLayout_2.setAlignment(FlowLayout.RIGHT);
 	    
 	    functionPanel.add(arrowContainer);
 	    
-	    JButton btnLeft = new JButton(String.valueOf('\u25C0'));
+	    btnLeft = new JButton(String.valueOf('\u25C0'));
 	    arrowContainer.add(btnLeft);
 	    
-	    JButton btnRight = new JButton(String.valueOf('\u25B6'));
+	    btnRight = new JButton(String.valueOf('\u25B6'));
 	    arrowContainer.add(btnRight);
 	    
-	    JButton btnDown = new JButton(String.valueOf('\u25BC'));
+	    btnDown = new JButton(String.valueOf('\u25BC'));
 	    arrowContainer.add(btnDown);
 	    
-	    JButton btnUp = new JButton(String.valueOf('\u25B2'));
+	    btnUp = new JButton(String.valueOf('\u25B2'));
 	    arrowContainer.add(btnUp);
 	    
-	    JPanel swapContainer = new JPanel();
+	    swapContainer = new JPanel();
 	    FlowLayout flowLayout_1 = (FlowLayout) swapContainer.getLayout();
 	    flowLayout_1.setAlignment(FlowLayout.LEFT);
 	    functionPanel.add(swapContainer);
@@ -257,19 +358,23 @@ public class ChronoTimerGUI {
 	    JButton btnSwap = new JButton("SWAP");
 	    swapContainer.add(btnSwap);
 	    
-	    JPanel displayPanel = new JPanel();
+	    // Display Panel - Bottom Middle -------------------------------------------------------------------
+	    
+	    displayPanel = new JPanel();
 	    upperPanel.add(displayPanel);
 	    displayPanel.setLayout(new BorderLayout(5, 5));
 	    
-	    JTextPane displayText = new JTextPane();
+	    displayText = new JTextPane();
 	    displayText.setText("Something from racer queue");
 	    displayText.setEditable(false);
 	    displayPanel.add(displayText, BorderLayout.CENTER);
 	    
-	    JLabel displayLabel = new JLabel("Queue / Running / Final Time");
+	    displayLabel = new JLabel("Queue / Running / Final Time");
 	    displayLabel.setHorizontalAlignment(SwingConstants.CENTER);
 	    displayLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
 	    displayPanel.add(displayLabel, BorderLayout.SOUTH);
+	    
+	    // Number Panel - Bottom Left -------------------------------------------------------------------
 	    
 	    numPad = new JPanel();
 	    upperPanel.add(numPad);
@@ -277,138 +382,187 @@ public class ChronoTimerGUI {
 	    
 	    //Number Pad
 	    num1 = new JButton("1");
+	    num1.addActionListener(new NumpadClickListener());
+	    num1.setActionCommand("1");
 	    numPad.add(num1);
 	    
 	    num2 = new JButton("2");
+	    num2.addActionListener(new NumpadClickListener());
+	    num2.setActionCommand("2");
 	    numPad.add(num2);
 	    
 	    num3 = new JButton("3");
+	    num3.addActionListener(new NumpadClickListener());
+	    num3.setActionCommand("3");
 	    numPad.add(num3);
 	    
 	    num4 = new JButton("4");
+	    num4.addActionListener(new NumpadClickListener());
+	    num4.setActionCommand("4");
 	    numPad.add(num4);
 	    
 	    num5 = new JButton("5");
+	    num5.addActionListener(new NumpadClickListener());
+	    num5.setActionCommand("5");
 	    numPad.add(num5);
 	    
 	    num6 = new JButton("6");
+	    num6.addActionListener(new NumpadClickListener());
+	    num6.setActionCommand("6");
 	    numPad.add(num6);
 	    
 	    num7 = new JButton("7");
+	    num7.addActionListener(new NumpadClickListener());
+	    num7.setActionCommand("7");
 	    numPad.add(num7);
 	    
 	    num8 = new JButton("8");
+	    num8.addActionListener(new NumpadClickListener());
+	    num8.setActionCommand("8");
 	    numPad.add(num8);
 	    
 	    num9 = new JButton("9");
+	    num9.addActionListener(new NumpadClickListener());
+	    num9.setActionCommand("9");
 	    numPad.add(num9);
 	    
 	    numPound = new JButton("#");
+	    numPound.addActionListener(new NumpadClickListener());
+	    numPound.setActionCommand("#");
 	    numPad.add(numPound);
 	    
 	    num0 = new JButton("0");
+	    num0.addActionListener(new NumpadClickListener());
+	    num0.setActionCommand("0");
 	    numPad.add(num0);
 	    
 	    numStar = new JButton("*");
+	    numStar.addActionListener(new NumpadClickListener());
+	    numStar.setActionCommand("*");
 	    numPad.add(numStar);
 	    
-	    JPanel lowerPanel = new JPanel();
+	    // Lower Panel for connections and usb -------------------------------------------------------------------
+	    
+	    lowerPanel = new JPanel();
 	    lowerPanel.setBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null));
 	    f.getContentPane().add(lowerPanel, BorderLayout.SOUTH);
 	    lowerPanel.setLayout(new GridLayout(0, 3, 0, 0));
 	    
-	    JPanel channelPanel = new JPanel();
+	    // Channel Connection - Lower Left -------------------------------------------------------------------
+	    
+	    channelPanel = new JPanel();
 	    lowerPanel.add(channelPanel);
 	    channelPanel.setLayout(new BorderLayout(0, 0));
 	    
-	    JPanel channelTextPanel = new JPanel();
+	    channelTextPanel = new JPanel();
 	    channelPanel.add(channelTextPanel, BorderLayout.WEST);
 	    
-	    JLabel chanLabel = new JLabel("CHAN");
+	    chanLabel = new JLabel("CHAN");
 	    channelTextPanel.add(chanLabel);
 	    
-	    JPanel channelButtonPanel = new JPanel();
+	    channelButtonPanel = new JPanel();
 	    channelPanel.add(channelButtonPanel, BorderLayout.CENTER);
 	    channelButtonPanel.setLayout(new GridLayout(2, 0, 0, 0));
 	    
-	    JPanel chanPanelUpper = new JPanel();
+	    chanPanelUpper = new JPanel();
 	    channelButtonPanel.add(chanPanelUpper);
 	    chanPanelUpper.setLayout(new GridLayout(2, 4, 0, 0));
 	    
-	    JLabel chanLabel1 = new JLabel("1");
+	    chanLabel1 = new JLabel("1");
 	    chanLabel1.setHorizontalAlignment(SwingConstants.CENTER);
 	    chanPanelUpper.add(chanLabel1);
 	    
-	    JLabel chanLabel3 = new JLabel("3");
+	    chanLabel3 = new JLabel("3");
 	    chanLabel3.setHorizontalAlignment(SwingConstants.CENTER);
 	    chanPanelUpper.add(chanLabel3);
 	    
-	    JLabel chanLabel5 = new JLabel("5");
+	    chanLabel5 = new JLabel("5");
 	    chanLabel5.setHorizontalAlignment(SwingConstants.CENTER);
 	    chanPanelUpper.add(chanLabel5);
 	    
-	    JLabel chanLabel7 = new JLabel("7");
+	    chanLabel7 = new JLabel("7");
 	    chanLabel7.setHorizontalAlignment(SwingConstants.CENTER);
 	    chanPanelUpper.add(chanLabel7);
 	    
-	    JRadioButton chan1 = new JRadioButton("");
+	    chan1 = new JRadioButton("");
 	    chan1.setHorizontalAlignment(SwingConstants.CENTER);
+	    chan1.addActionListener(new ChannelClickListener());
+	    chan1.setActionCommand("chan 1");
 	    chanPanelUpper.add(chan1);
 	    
-	    JRadioButton chan3 = new JRadioButton("");
+	    chan3 = new JRadioButton("");
 	    chan3.setHorizontalAlignment(SwingConstants.CENTER);
+	    chan3.addActionListener(new ChannelClickListener());
+	    chan3.setActionCommand("chan 3");
 	    chanPanelUpper.add(chan3);
 	    
-	    JRadioButton chan5 = new JRadioButton("");
+	    chan5 = new JRadioButton("");
 	    chan5.setHorizontalAlignment(SwingConstants.CENTER);
+	    chan5.addActionListener(new ChannelClickListener());
+	    chan5.setActionCommand("chan 5");
 	    chanPanelUpper.add(chan5);
 	    
-	    JRadioButton chan7 = new JRadioButton("");
+	    chan7 = new JRadioButton("");
 	    chan7.setHorizontalAlignment(SwingConstants.CENTER);
+	    chan7.addActionListener(new ChannelClickListener());
+	    chan7.setActionCommand("chan 7");
 	    chanPanelUpper.add(chan7);
 	    
-	    JPanel chanPanelLower = new JPanel();
+	    chanPanelLower = new JPanel();
 	    channelButtonPanel.add(chanPanelLower);
 	    chanPanelLower.setLayout(new GridLayout(2, 4, 0, 0));
 	    
-	    JLabel chanLabel2 = new JLabel("2");
+	    chanLabel2 = new JLabel("2");
 	    chanLabel2.setHorizontalAlignment(SwingConstants.CENTER);
 	    chanPanelLower.add(chanLabel2);
 	    
-	    JLabel chanLabel4 = new JLabel("4");
+	    chanLabel4 = new JLabel("4");
 	    chanLabel4.setHorizontalAlignment(SwingConstants.CENTER);
 	    chanPanelLower.add(chanLabel4);
 	    
-	    JLabel chanLabel6 = new JLabel("6");
+	    chanLabel6 = new JLabel("6");
 	    chanLabel6.setHorizontalAlignment(SwingConstants.CENTER);
 	    chanPanelLower.add(chanLabel6);
 	    
-	    JLabel chanLabel8 = new JLabel("8");
+	    chanLabel8 = new JLabel("8");
 	    chanLabel8.setHorizontalAlignment(SwingConstants.CENTER);
 	    chanPanelLower.add(chanLabel8);
 	    
-	    JRadioButton chan2 = new JRadioButton("");
+	    chan2 = new JRadioButton("");
 	    chan2.setHorizontalAlignment(SwingConstants.CENTER);
+	    chan2.addActionListener(new ChannelClickListener());
+	    chan2.setActionCommand("chan 2");
 	    chanPanelLower.add(chan2);
 	    
-	    JRadioButton chan4 = new JRadioButton("");
+	    chan4 = new JRadioButton("");
 	    chan4.setHorizontalAlignment(SwingConstants.CENTER);
+	    chan4.addActionListener(new ChannelClickListener());
+	    chan4.setActionCommand("chan 4");
 	    chanPanelLower.add(chan4);
 	    
-	    JRadioButton chan6 = new JRadioButton("");
+	    chan6 = new JRadioButton("");
 	    chan6.setHorizontalAlignment(SwingConstants.CENTER);
+	    chan6.addActionListener(new ChannelClickListener());
+	    chan6.setActionCommand("chan 6");
 	    chanPanelLower.add(chan6);
 	    
-	    JRadioButton chan8 = new JRadioButton("");
+	    chan8 = new JRadioButton("");
 	    chan8.setHorizontalAlignment(SwingConstants.CENTER);
+	    chan8.addActionListener(new ChannelClickListener());
+	    chan8.setActionCommand("chan 8");
 	    chanPanelLower.add(chan8);
 	    
-	    JPanel usbPanel = new JPanel();
+	    // USB port - Lower Middle -------------------------------------------------------------------
+	    
+	    usbPanel = new JPanel();
 	    lowerPanel.add(usbPanel);
 	    
-	    JLabel usbLabel = new JLabel("USB PORT");
+	    usbLabel = new JLabel("USB PORT");
 	    usbLabel.setHorizontalAlignment(SwingConstants.CENTER);
 	    usbPanel.add(usbLabel);
+	    
+	    // end -------------------------------------------------------------------------------------------
+	    
 	    f.setVisible(true);
 	}
 	//for submit and exit
@@ -416,14 +570,51 @@ public class ChronoTimerGUI {
    		@Override
    		public void actionPerformed(ActionEvent e) {
 	         //TODO power button functionality
+   			System.out.println("power");
 	     }		
 	}
    	
    	private class TrigClickListener implements ActionListener{
    		@Override
    		public void actionPerformed(ActionEvent e) {
-	         //TODO power button functionality
+	         //TODO trigger button functionality
    			String command = e.getActionCommand();
+   			System.out.println(command);
+	     }		
+	}
+   	
+   	private class EnableClickListener implements ActionListener{
+   		@Override
+   		public void actionPerformed(ActionEvent e) {
+	         //TODO enable/disable functionality
+   			String command = e.getActionCommand();
+   			System.out.println(command);
+	     }		
+	}
+   	
+   	private class PrinterPowerClickListener implements ActionListener{
+   		@Override
+   		public void actionPerformed(ActionEvent e) {
+	         //TODO numpad functionality - recieve either number, # or *
+   			System.out.println("Printer Power");
+	     }		
+	}
+   	
+   	private class NumpadClickListener implements ActionListener{
+   		@Override
+   		public void actionPerformed(ActionEvent e) {
+	         //TODO numpad functionality - recieve either number, # or *
+   			String command = e.getActionCommand();
+   			System.out.println(command);
+	     }		
+	}
+   	
+   	private class ChannelClickListener implements ActionListener{
+   		@Override
+   		public void actionPerformed(ActionEvent e) {
+	         //TODO numpad functionality - recieve either number, # or *
+   			String command = e.getActionCommand();
+   			System.out.println(command);
 	     }		
 	}
 }
