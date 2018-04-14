@@ -65,17 +65,8 @@ public class Racer {
 	 * @return True if this racer has been assign to the bib number and false if
 	 * the there is a racer with the bib number already. 
 	 */
-	protected boolean setBib(int bibNum, Racer[] racers){
-		if(bibNum < 0) throw new IllegalArgumentException("Cannot assign negative number to racer.");
-		if(racers != null){
-			for(Racer r: racers){
-				if(r.bibNum == bibNum)
-					return false;
-			}
-		}
-		
+	protected void setBib(int bibNum){
 		this.bibNum = bibNum;
-		return true;
 	}
 	
 	/**

@@ -253,6 +253,8 @@ public class ChronoTimer {
 						eventType = "IND";
 					}else if(commands[2].equalsIgnoreCase("PARIND")){
 						eventType = "PARIND";
+					}else if(commands[2].equalsIgnoreCase("GRP")){
+						eventType = "GRP";
 					}
 					else{
 						return printMessage("Unsupported event type.");
@@ -519,6 +521,8 @@ public class ChronoTimer {
 			currentRun = new IND(); 
 		}else if(eventType.equalsIgnoreCase("PARIND")){
 			currentRun = new PARIND();
+		}else if(eventType.equalsIgnoreCase("GRP")){
+			currentRun = new GRP();
 		}
 		printMessage("Run event: " + eventType + " created."); // sim.execute(msg);
 	}
