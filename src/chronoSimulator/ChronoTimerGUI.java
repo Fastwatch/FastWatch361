@@ -14,6 +14,7 @@ import javax.swing.plaf.basic.BasicArrowButton;
 
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextField;
@@ -37,6 +38,7 @@ import chronoTimer.ChronoTimer;
 public class ChronoTimerGUI {
 	
 	private ChronoTimer ct;
+	private boolean powerToggled = false;
 	// Frame and rootPanel
 	private JFrame f;
 	private JPanel upperPanel;
@@ -140,6 +142,8 @@ public class ChronoTimerGUI {
 	private JPanel usbPanel;
 	private JLabel usbLabel;
 	
+	private ArrayList<JRadioButton> channels = new ArrayList<>();
+	private ArrayList<JButton> trigButtons = new ArrayList<>();
 	
 	public ChronoTimerGUI( ChronoTimer ct) {
 		this.ct = ct;
@@ -449,6 +453,8 @@ public class ChronoTimerGUI {
 	    numStar.setActionCommand("*");
 	    numPad.add(numStar);
 	    
+	    
+	    
 	    // Lower Panel for connections and usb -------------------------------------------------------------------
 	    
 	    lowerPanel = new JPanel();
@@ -495,25 +501,25 @@ public class ChronoTimerGUI {
 	    chan1 = new JRadioButton("");
 	    chan1.setHorizontalAlignment(SwingConstants.CENTER);
 	    chan1.addActionListener(new ChannelClickListener());
-	    chan1.setActionCommand("chan 1");
+	    chan1.setActionCommand("TOG 1");
 	    chanPanelUpper.add(chan1);
 	    
 	    chan3 = new JRadioButton("");
 	    chan3.setHorizontalAlignment(SwingConstants.CENTER);
 	    chan3.addActionListener(new ChannelClickListener());
-	    chan3.setActionCommand("chan 3");
+	    chan3.setActionCommand("TOG 3");
 	    chanPanelUpper.add(chan3);
 	    
 	    chan5 = new JRadioButton("");
 	    chan5.setHorizontalAlignment(SwingConstants.CENTER);
 	    chan5.addActionListener(new ChannelClickListener());
-	    chan5.setActionCommand("chan 5");
+	    chan5.setActionCommand("TOG 5");
 	    chanPanelUpper.add(chan5);
 	    
 	    chan7 = new JRadioButton("");
 	    chan7.setHorizontalAlignment(SwingConstants.CENTER);
 	    chan7.addActionListener(new ChannelClickListener());
-	    chan7.setActionCommand("chan 7");
+	    chan7.setActionCommand("TOG 7");
 	    chanPanelUpper.add(chan7);
 	    
 	    chanPanelLower = new JPanel();
@@ -539,26 +545,56 @@ public class ChronoTimerGUI {
 	    chan2 = new JRadioButton("");
 	    chan2.setHorizontalAlignment(SwingConstants.CENTER);
 	    chan2.addActionListener(new ChannelClickListener());
-	    chan2.setActionCommand("chan 2");
+	    chan2.setActionCommand("TOG 2");
 	    chanPanelLower.add(chan2);
 	    
 	    chan4 = new JRadioButton("");
 	    chan4.setHorizontalAlignment(SwingConstants.CENTER);
 	    chan4.addActionListener(new ChannelClickListener());
-	    chan4.setActionCommand("chan 4");
+	    chan4.setActionCommand("TOG 4");
 	    chanPanelLower.add(chan4);
 	    
 	    chan6 = new JRadioButton("");
 	    chan6.setHorizontalAlignment(SwingConstants.CENTER);
 	    chan6.addActionListener(new ChannelClickListener());
-	    chan6.setActionCommand("chan 6");
+	    chan6.setActionCommand("TOG 6");
 	    chanPanelLower.add(chan6);
 	    
 	    chan8 = new JRadioButton("");
 	    chan8.setHorizontalAlignment(SwingConstants.CENTER);
 	    chan8.addActionListener(new ChannelClickListener());
-	    chan8.setActionCommand("chan 8");
+	    chan8.setActionCommand("TOG 8");
 	    chanPanelLower.add(chan8);
+	    
+	    // Array list of channels
+	    channels.add(chan1);
+	    channels.add(chan2);
+	    channels.add(chan3);
+	    channels.add(chan4);
+	    channels.add(chan5);
+	    channels.add(chan6);
+	    channels.add(chan7);
+	    channels.add(chan8);
+	    
+	    // Array list of trigger buttons
+	    trigButtons.add(trig1);
+	    trigButtons.add(trig2);
+	    trigButtons.add(trig3);
+	    trigButtons.add(trig4);
+	    trigButtons.add(trig5);
+	    trigButtons.add(trig6);
+	    trigButtons.add(trig7);
+	    trigButtons.add(trig8);
+	   
+	    
+	    //Disable all buttons until power is turned on
+	    for(JRadioButton j: channels){
+	    	j.setEnabled(false);
+	    }
+	    for(JButton j: trigButtons){
+	    	j.setEnabled(false);
+	    }
+	    
 	    
 	    // USB port - Lower Middle -------------------------------------------------------------------
 	    
@@ -579,6 +615,25 @@ public class ChronoTimerGUI {
    		public void actionPerformed(ActionEvent e) {
 	         //TODO power button functionality
    			ct.execute(getTime() + " POWER");
+   			powerToggled = !powerToggled;
+   			if(powerToggled == true){
+   				for(JRadioButton j: channels){
+   			    	j.setEnabled(true);
+   			    }
+   			 for(JButton j: trigButtons){
+   		    	j.setEnabled(true);
+   		    }
+   			}else{
+   				for(JRadioButton j: channels){
+   					if(j.isSelected()){
+   						j.setSelected(false);
+   					}
+   			    	j.setEnabled(false);
+   			    }
+   				for(JButton j: trigButtons){
+   					j.setEnabled(false);
+   				}
+   			}
 	     }		
 	}
    	
@@ -587,7 +642,7 @@ public class ChronoTimerGUI {
    		public void actionPerformed(ActionEvent e) {
 	         //TODO trigger button functionality
    			String command = e.getActionCommand();
-   			System.out.println(command);
+   			ct.execute(getTime() + " " + command);
 	     }		
 	}
    	
@@ -613,6 +668,7 @@ public class ChronoTimerGUI {
    		public void actionPerformed(ActionEvent e) {
 	         //TODO numpad functionality - recieve either number, # or *
    			String command = e.getActionCommand();
+   			
    			System.out.println(command);
 	     }		
 	}
@@ -622,14 +678,14 @@ public class ChronoTimerGUI {
    		public void actionPerformed(ActionEvent e) {
 	         //TODO numpad functionality - recieve either number, # or *
    			String command = e.getActionCommand();
-   			System.out.println(command);
+   			ct.execute(getTime() + " " + command);
 	     }		
 	}
    	
    	private String getTime() {
 		//Time Formated as HH:hh:ss
 		//That is, Hour:Min:sec 
-		String timeStamp = new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
+		String timeStamp = new SimpleDateFormat("HH:mm:ss.sss").format(Calendar.getInstance().getTime());
 		return timeStamp;
 	}
 }
