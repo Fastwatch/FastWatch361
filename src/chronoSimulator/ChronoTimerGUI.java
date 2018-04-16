@@ -13,6 +13,8 @@ import javax.swing.SwingConstants;
 import javax.swing.plaf.basic.BasicArrowButton;
 
 import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextField;
 import java.awt.Color;
@@ -30,7 +32,11 @@ import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 
+import chronoTimer.ChronoTimer;
+
 public class ChronoTimerGUI {
+	
+	private ChronoTimer ct;
 	// Frame and rootPanel
 	private JFrame f;
 	private JPanel upperPanel;
@@ -135,7 +141,9 @@ public class ChronoTimerGUI {
 	private JLabel usbLabel;
 	
 	
-	public ChronoTimerGUI() {
+	public ChronoTimerGUI( ChronoTimer ct) {
+		this.ct = ct;
+		
 		f = new JFrame("A JFrame");
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    f.setTitle("FastWatch");
@@ -570,7 +578,7 @@ public class ChronoTimerGUI {
    		@Override
    		public void actionPerformed(ActionEvent e) {
 	         //TODO power button functionality
-   			System.out.println("power");
+   			ct.execute(getTime() + " POWER");
 	     }		
 	}
    	
@@ -616,5 +624,12 @@ public class ChronoTimerGUI {
    			String command = e.getActionCommand();
    			System.out.println(command);
 	     }		
+	}
+   	
+   	private String getTime() {
+		//Time Formated as HH:hh:ss
+		//That is, Hour:Min:sec 
+		String timeStamp = new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
+		return timeStamp;
 	}
 }

@@ -26,6 +26,8 @@ public class ChronoTimerSimulator {
 		ct.setSim(this);
 		String input;
 		boolean exit = false;
+		System.out.println("running");
+		new ChronoTimerGUI(ct);
 		
 		do {
 			System.out.print("Enter \"F\" for file input, \"C\" for console input or \"E\" for exit: ");
