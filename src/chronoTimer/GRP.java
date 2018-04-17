@@ -18,6 +18,7 @@ public class GRP extends Run{
 		queued = new LinkedList();
 		tempNum=0;
 		pointer=null;
+		active = true;
 	}
 
 	@Override
@@ -28,6 +29,7 @@ public class GRP extends Run{
 			start = time;
 			status = "Group Race has now started";
 		}else if(channelNum == 2){
+			if (start==null) throw new IllegalStateException("Race has not started.");
 			if (queued.getLength() == 0){		
 				Node n = new Node(new Racer(tempNum,start,time));
 				status = "Temp Racer " + tempNum +" completed their run in: " +n.Data.getTime();
@@ -108,10 +110,10 @@ public class GRP extends Run{
 	@Override
 	protected String standings(LocalTime time) {
 		if (start==null)return "Race has not started\n";
-		String stand = "Group Start: " + start.toString()+"\n";
+		String stand = "Group Start Time: " + start.toString()+"\n";
 		
 		if(queued.getLength()+finished.getLength() == 0){
-			return "No Racers queued or finished\n";
+			return stand + "No Racers queued or finished\n";
 		}
 		if(active){
 			if(queued.getLength()>0){
