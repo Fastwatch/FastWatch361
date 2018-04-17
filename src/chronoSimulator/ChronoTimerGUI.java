@@ -13,6 +13,8 @@ import javax.swing.SwingConstants;
 import javax.swing.plaf.basic.BasicArrowButton;
 
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -142,7 +144,8 @@ public class ChronoTimerGUI {
 	private JPanel usbPanel;
 	private JLabel usbLabel;
 	
-	private ArrayList<JRadioButton> channels = new ArrayList<>();
+	private ArrayList<JRadioButton> connectChannels = new ArrayList<>();
+	private ArrayList<JRadioButton> toggledChannels = new ArrayList<>();
 	private ArrayList<JButton> trigButtons = new ArrayList<>();
 	
 	public ChronoTimerGUI( ChronoTimer ct) {
@@ -219,25 +222,25 @@ public class ChronoTimerGUI {
 	    
 	    startActive = new JTextArea();
 	    startActive.setBackground(SystemColor.control);
-	    startActive.setText("Active");
+	    startActive.setText("Enable/Disable");
 	    startActivePanel.add(startActive);
 	    
 	    enable1 = new JRadioButton("");
 	    enable1.setHorizontalAlignment(SwingConstants.CENTER);
 	    enable1.addActionListener(new EnableClickListener());
-	    enable1.setActionCommand("enable 1");
+	    enable1.setActionCommand("TOG 1");
 	    enable3 = new JRadioButton("");
 	    enable3.setHorizontalAlignment(SwingConstants.CENTER);
 	    enable3.addActionListener(new EnableClickListener());
-	    enable3.setActionCommand("enable 3");
+	    enable3.setActionCommand("TOG 3");
 	    enable5 = new JRadioButton("");
 	    enable5.setHorizontalAlignment(SwingConstants.CENTER);
 	    enable5.addActionListener(new EnableClickListener());
-	    enable5.setActionCommand("enable 5");
+	    enable5.setActionCommand("TOG 5");
 	    enable7 = new JRadioButton("");
 	    enable7.setHorizontalAlignment(SwingConstants.CENTER);
 	    enable7.addActionListener(new EnableClickListener());
-	    enable7.setActionCommand("enable 7");
+	    enable7.setActionCommand("TOG 7");
 	    startActivePanel.add(enable1);
 	    startActivePanel.add(enable3);
 	    startActivePanel.add(enable5);
@@ -282,31 +285,31 @@ public class ChronoTimerGUI {
 	    
 	    finishActive = new JTextArea();
 	    finishActive.setBackground(SystemColor.control);
-	    finishActive.setText("Active");
+	    finishActive.setText("Enable/Disable");
 	    finishActivePanel.add(finishActive);
 	    
 	    enable2 = new JRadioButton("");
 	    enable2.setHorizontalAlignment(SwingConstants.CENTER);
 	    enable2.addActionListener(new EnableClickListener());
-	    enable2.setActionCommand("enable 2");
+	    enable2.setActionCommand("TOG 2");
 	    finishActivePanel.add(enable2);
 	    
 	    enable4 = new JRadioButton("");
 	    enable4.setHorizontalAlignment(SwingConstants.CENTER);
 	    enable4.addActionListener(new EnableClickListener());
-	    enable4.setActionCommand("enable 4");
+	    enable4.setActionCommand("TOG 4");
 	    finishActivePanel.add(enable4);
 	    
 	    enable6 = new JRadioButton("");
 	    enable6.setHorizontalAlignment(SwingConstants.CENTER);
 	    enable6.addActionListener(new EnableClickListener());
-	    enable6.setActionCommand("enable 6");
+	    enable6.setActionCommand("TOG 6");
 	    finishActivePanel.add(enable6);
 	    
 	    enable8 = new JRadioButton("");
 	    enable8.setHorizontalAlignment(SwingConstants.CENTER);
 	    enable8.addActionListener(new EnableClickListener());
-	    enable8.setActionCommand("enable 8");
+	    enable8.setActionCommand("TOG 8");
 	    finishActivePanel.add(enable8);
 	    
 	    // Printer Panel - Top Right -------------------------------------------------------------------
@@ -500,26 +503,26 @@ public class ChronoTimerGUI {
 	    
 	    chan1 = new JRadioButton("");
 	    chan1.setHorizontalAlignment(SwingConstants.CENTER);
-	    chan1.addActionListener(new ChannelClickListener());
-	    chan1.setActionCommand("TOG 1");
+	    //chan1.addActionListener(new ChannelClickListener());
+	    chan1.setActionCommand("CONN EYE 1");
 	    chanPanelUpper.add(chan1);
 	    
 	    chan3 = new JRadioButton("");
 	    chan3.setHorizontalAlignment(SwingConstants.CENTER);
-	    chan3.addActionListener(new ChannelClickListener());
-	    chan3.setActionCommand("TOG 3");
+	    //chan3.addActionListener(new ChannelClickListener());
+	    chan3.setActionCommand("CONN EYE 3");
 	    chanPanelUpper.add(chan3);
 	    
 	    chan5 = new JRadioButton("");
 	    chan5.setHorizontalAlignment(SwingConstants.CENTER);
-	    chan5.addActionListener(new ChannelClickListener());
-	    chan5.setActionCommand("TOG 5");
+	    //chan5.addActionListener(new ChannelClickListener());
+	    chan5.setActionCommand("CONN EYE 5");
 	    chanPanelUpper.add(chan5);
 	    
 	    chan7 = new JRadioButton("");
 	    chan7.setHorizontalAlignment(SwingConstants.CENTER);
-	    chan7.addActionListener(new ChannelClickListener());
-	    chan7.setActionCommand("TOG 7");
+	    //chan7.addActionListener(new ChannelClickListener());
+	    chan7.setActionCommand("CONN EYE 7");
 	    chanPanelUpper.add(chan7);
 	    
 	    chanPanelLower = new JPanel();
@@ -544,37 +547,47 @@ public class ChronoTimerGUI {
 	    
 	    chan2 = new JRadioButton("");
 	    chan2.setHorizontalAlignment(SwingConstants.CENTER);
-	    chan2.addActionListener(new ChannelClickListener());
-	    chan2.setActionCommand("TOG 2");
+	    //chan2.addActionListener(new ChannelClickListener());
+	    chan2.setActionCommand("CONN EYE 2");
 	    chanPanelLower.add(chan2);
 	    
 	    chan4 = new JRadioButton("");
 	    chan4.setHorizontalAlignment(SwingConstants.CENTER);
-	    chan4.addActionListener(new ChannelClickListener());
-	    chan4.setActionCommand("TOG 4");
+	   // chan4.addActionListener(new ChannelClickListener());
+	    chan4.setActionCommand("CONN EYE 4");
 	    chanPanelLower.add(chan4);
 	    
 	    chan6 = new JRadioButton("");
 	    chan6.setHorizontalAlignment(SwingConstants.CENTER);
-	    chan6.addActionListener(new ChannelClickListener());
-	    chan6.setActionCommand("TOG 6");
+	    //chan6.addActionListener(new ChannelClickListener());
+	    chan6.setActionCommand("CONN EYE 6");
 	    chanPanelLower.add(chan6);
 	    
 	    chan8 = new JRadioButton("");
 	    chan8.setHorizontalAlignment(SwingConstants.CENTER);
-	    chan8.addActionListener(new ChannelClickListener());
-	    chan8.setActionCommand("TOG 8");
+	    //chan8.addActionListener(new ChannelClickListener());
+	    chan8.setActionCommand("CONN EYE 8");
 	    chanPanelLower.add(chan8);
 	    
-	    // Array list of channels
-	    channels.add(chan1);
-	    channels.add(chan2);
-	    channels.add(chan3);
-	    channels.add(chan4);
-	    channels.add(chan5);
-	    channels.add(chan6);
-	    channels.add(chan7);
-	    channels.add(chan8);
+	    // Array list of connected channels
+	    connectChannels.add(chan1);
+	    connectChannels.add(chan2);
+	    connectChannels.add(chan3);
+	    connectChannels.add(chan4);
+	    connectChannels.add(chan5);
+	    connectChannels.add(chan6);
+	    connectChannels.add(chan7);
+	    connectChannels.add(chan8);
+	    
+	    // Array list of toggled channels
+	    toggledChannels.add(enable1);
+	    toggledChannels.add(enable2);
+	    toggledChannels.add(enable3);
+	    toggledChannels.add(enable4);
+	    toggledChannels.add(enable5);
+	    toggledChannels.add(enable6);
+	    toggledChannels.add(enable7);
+	    toggledChannels.add(enable8);
 	    
 	    // Array list of trigger buttons
 	    trigButtons.add(trig1);
@@ -588,7 +601,24 @@ public class ChronoTimerGUI {
 	   
 	    
 	    //Disable all buttons until power is turned on
-	    for(JRadioButton j: channels){
+	    for(JRadioButton j: connectChannels){
+	    	j.setEnabled(false);
+	    	j.addItemListener(new ItemListener(){
+
+				@Override
+				public void itemStateChanged(ItemEvent e) {
+					if (e.getStateChange() == ItemEvent.SELECTED) {
+			   	        ct.execute(getTime() + " " + j.getActionCommand()); 
+			   	    }
+			   	    else if (e.getStateChange() == ItemEvent.DESELECTED) {
+			   	        ct.execute(getTime() + " DISC "+ j.getActionCommand().substring(9) );
+			   	    }
+				}
+	    		
+	    	});
+	    	
+	    }
+	    for(JRadioButton j: toggledChannels){
 	    	j.setEnabled(false);
 	    }
 	    for(JButton j: trigButtons){
@@ -617,14 +647,24 @@ public class ChronoTimerGUI {
    			ct.execute(getTime() + " POWER");
    			powerToggled = !powerToggled;
    			if(powerToggled == true){
-   				for(JRadioButton j: channels){
+   				for(JRadioButton j: connectChannels){
    			    	j.setEnabled(true);
    			    }
-   			 for(JButton j: trigButtons){
-   		    	j.setEnabled(true);
-   		    }
+   				for(JRadioButton j: toggledChannels){
+   			    	j.setEnabled(true);
+   			    }
+   				for(JButton j: trigButtons){
+   					j.setEnabled(true);
+   				}
+   				
    			}else{
-   				for(JRadioButton j: channels){
+   				for(JRadioButton j: connectChannels){
+   					if(j.isSelected()){
+   						j.setSelected(false);
+   					}
+   			    	j.setEnabled(false);
+   			    }
+   				for(JRadioButton j: toggledChannels){
    					if(j.isSelected()){
    						j.setSelected(false);
    					}
@@ -651,9 +691,10 @@ public class ChronoTimerGUI {
    		public void actionPerformed(ActionEvent e) {
 	         //TODO enable/disable functionality
    			String command = e.getActionCommand();
-   			System.out.println(command);
+   			ct.execute(getTime() + " " + command);
 	     }		
 	}
+   	
    	
    	private class PrinterPowerClickListener implements ActionListener{
    		@Override
@@ -678,7 +719,7 @@ public class ChronoTimerGUI {
    		public void actionPerformed(ActionEvent e) {
 	         //TODO numpad functionality - recieve either number, # or *
    			String command = e.getActionCommand();
-   			ct.execute(getTime() + " " + command);
+   			//ct.execute(getTime() + " " + command);
 	     }		
 	}
    	
