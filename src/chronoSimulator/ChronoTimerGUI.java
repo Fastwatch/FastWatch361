@@ -9,9 +9,7 @@ import java.awt.Toolkit;
 import javax.swing.JPanel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
-import javax.swing.plaf.basic.BasicArrowButton;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -20,47 +18,41 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.awt.event.ActionEvent;
-import javax.swing.JTextField;
-import java.awt.Color;
 import javax.swing.JTextPane;
 import java.awt.FlowLayout;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
 import javax.swing.JRadioButton;
-import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import java.awt.SystemColor;
 import java.awt.Font;
 import javax.swing.border.BevelBorder;
-import javax.swing.AbstractAction;
-import javax.swing.AbstractButton;
-import javax.swing.Action;
 
 import chronoTimer.ChronoTimer;
 
 public class ChronoTimerGUI {
 	
 	private ChronoTimer ct;
+	
 	private boolean powerToggled = false;
 	private String bibNumBuilder = ""; // default if user press # with no number
-	JButton btnSwap;
-	// Sensor list to choose from when connecting/disconnecting
-	private String[] sensorTypes = {"EYE", "GATE", "PAD"}; // types of sensor to choose from
-	private JComboBox sensorComboBox = new JComboBox(sensorTypes); // sensor drop box
+	
+	private ArrayList<JRadioButton> connectChannels = new ArrayList<>();
+	private ArrayList<JRadioButton> toggledChannels = new ArrayList<>();
+	private ArrayList<JButton> trigButtons = new ArrayList<>();
+	
+	
 	
 	// List of Commands to choose to perform
-	private String[] commands = {"NEWRUN", "ENDRUN", "RESET" , "EXPORT" ,"PRINT"}; // pressing the "function" button will execute it
-	private JComboBox commandComboBox = new JComboBox(commands);
+	
 	
 	// Frame and rootPanel
 	private JFrame f;
 	private JPanel upperPanel;
 	
-	// Power Panel
+	// Power Panel - Top Left --------------------------------------------------
 	private JPanel powerPanel;
 	private JButton btnPower;
 	
-	// Sensor Panel
+	// Sensor Panel - Top Middle --------------------------------------------------
 	private JPanel sensorPanel;
 	private JLabel lblNewLabel; // label for application title
 	
@@ -94,7 +86,7 @@ public class ChronoTimerGUI {
 	private JPanel finishSensorPanel;
 	private JPanel finishActivePanel;
 	
-	// Printer Panel - Top Right
+	// Printer Panel - Top Right --------------------------------------------------
 	private JPanel printerPanel;
 	private JPanel printerPowerPanel;
 	
@@ -102,7 +94,7 @@ public class ChronoTimerGUI {
 	
 	private JTextArea printerText;
 	
-	// NumberPad
+	// NumberPad -  Bottom Right --------------------------------------------------
 	private JPanel numPad;
 	private JButton num1;
 	private JButton num2;
@@ -117,19 +109,35 @@ public class ChronoTimerGUI {
 	private JButton numPound;
 	private JButton numStar;
 	
+	// Function Panel - Bottom Left ----------------------------------------------
+	
 	private JPanel functionPanel;
 	private JPanel functionContainer;
 	private JButton btnFunction;
+	private String[] commands = {"NEWRUN", "ENDRUN", "RESET" , "EXPORT" ,"PRINT"}; // pressing the "function" button will execute it
+	private JComboBox<String> commandComboBox = new JComboBox<String>(commands);
 	private JPanel arrowContainer;
 	private JButton btnLeft;
 	private JButton btnRight;
 	private JButton btnDown;
 	private JButton btnUp;
 	private JPanel swapContainer;
+	private JButton btnSwap;
+	
+	// Display Panel - Bottom Middle ----------------------------------------------
+	
 	private JPanel displayPanel;
 	private JTextPane displayText;
 	private JLabel displayLabel;
+	
+	// Lower Panel ----------------------------------------------
+	
 	private JPanel lowerPanel;
+	
+	// Channels - Lower Left ----------------------------------------------
+	// Sensor list to choose from when connecting/disconnecting
+	private String[] sensorTypes = {"EYE", "GATE", "PAD"}; // types of sensor to choose from
+	private JComboBox<String> sensorComboBox = new JComboBox<String>(sensorTypes); // sensor drop box
 	private JPanel channelPanel;
 	private JPanel channelTextPanel;
 	private JLabel chanLabel;
@@ -152,12 +160,11 @@ public class ChronoTimerGUI {
 	private JRadioButton chan4;
 	private JRadioButton chan6;
 	private JRadioButton chan8;
+	
+	// USB Panel - Lower Middle ----------------------------------------------
+	
 	private JPanel usbPanel;
 	private JLabel usbLabel;
-	
-	private ArrayList<JRadioButton> connectChannels = new ArrayList<>();
-	private ArrayList<JRadioButton> toggledChannels = new ArrayList<>();
-	private ArrayList<JButton> trigButtons = new ArrayList<>();
 	
 	public ChronoTimerGUI( ChronoTimer ct) {
 		this.ct = ct;
@@ -710,7 +717,6 @@ public class ChronoTimerGUI {
    	private class PowerClickListener implements ActionListener{
    		@Override
    		public void actionPerformed(ActionEvent e) {
-	         //TODO power button functionality
    			ct.execute(getTime() + " POWER");
    			powerToggled = !powerToggled;
    			if(powerToggled == true){
@@ -791,19 +797,14 @@ public class ChronoTimerGUI {
 	     }		
 	}
    	
-   	private class ChannelClickListener implements ActionListener{
-   		@Override
-   		public void actionPerformed(ActionEvent e) {
-	         //TODO numpad functionality - recieve either number, # or *
-   			String command = e.getActionCommand();
-   			//ct.execute(getTime() + " " + command);
-	     }		
-	}
-   	
    	private String getTime() {
 		//Time Formated as HH:hh:ss
 		//That is, Hour:Min:sec 
 		String timeStamp = new SimpleDateFormat("HH:mm:ss.sss").format(Calendar.getInstance().getTime());
 		return timeStamp;
 	}
+   	
+   	public void printToDisplay(String str) {
+   		// TODO print to display
+   	}
 }
