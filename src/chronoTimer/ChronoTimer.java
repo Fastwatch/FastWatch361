@@ -616,4 +616,8 @@ public class ChronoTimer {
 		}
 		printMessage("Data has been exported successfully to " + file.getAbsolutePath());
 	}
+	
+	public String getLog(){
+		return log;
+	}
 }

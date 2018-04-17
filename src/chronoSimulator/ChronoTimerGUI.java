@@ -8,6 +8,7 @@ import java.awt.Toolkit;
 
 import javax.swing.JPanel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.plaf.basic.BasicArrowButton;
@@ -41,6 +42,16 @@ public class ChronoTimerGUI {
 	
 	private ChronoTimer ct;
 	private boolean powerToggled = false;
+	private String bibNumBuilder = ""; // default if user press # with no number
+	JButton btnSwap;
+	// Sensor list to choose from when connecting/disconnecting
+	private String[] sensorTypes = {"EYE", "GATE", "PAD"}; // types of sensor to choose from
+	private JComboBox sensorComboBox = new JComboBox(sensorTypes); // sensor drop box
+	
+	// List of Commands to choose to perform
+	private String[] commands = {"NEWRUN", "ENDRUN", "RESET" , "EXPORT" ,"PRINT"}; // pressing the "function" button will execute it
+	private JComboBox commandComboBox = new JComboBox(commands);
+	
 	// Frame and rootPanel
 	private JFrame f;
 	private JPanel upperPanel;
@@ -343,9 +354,38 @@ public class ChronoTimerGUI {
 	    FlowLayout flowLayout = (FlowLayout) functionContainer.getLayout();
 	    flowLayout.setAlignment(FlowLayout.LEFT);
 	    functionPanel.add(functionContainer);
+	    functionPanel.add(commandComboBox);
+	    commandComboBox.setSize(100, 200);
+	    commandComboBox.setSelectedIndex(0);
+	    commandComboBox.setVisible(true);
+	    commandComboBox.addActionListener(new ActionListener(){
+
+	    	@Override
+			public void actionPerformed(ActionEvent e) {
+				String command = commandComboBox.getSelectedItem().toString();
+				for(int i = 0; i < commands.length; i++){
+					if(command.equalsIgnoreCase(commands[i])){
+						commandComboBox.setSelectedIndex(i);
+					}
+				}
+			}
+	    	
+	    });
 	    
 	    btnFunction = new JButton("FUNCTION");
 	    functionContainer.add(btnFunction);
+	    btnFunction.setEnabled(false);
+	    btnFunction.addActionListener(new ActionListener(){
+	    
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ct.execute(getTime() + " " + commandComboBox.getSelectedItem().toString());
+				if(commandComboBox.getSelectedItem().toString().equalsIgnoreCase("PRINT")){
+					displayText.setText("Sorry, this feature is currently being fix...");
+				}
+			}
+	    	
+	    });
 	    
 	    arrowContainer = new JPanel();
 	    FlowLayout flowLayout_2 = (FlowLayout) arrowContainer.getLayout();
@@ -370,8 +410,17 @@ public class ChronoTimerGUI {
 	    flowLayout_1.setAlignment(FlowLayout.LEFT);
 	    functionPanel.add(swapContainer);
 	    
-	    JButton btnSwap = new JButton("SWAP");
+	    btnSwap = new JButton("SWAP");
 	    swapContainer.add(btnSwap);
+	    btnSwap.setEnabled(false);
+	    btnSwap.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ct.execute(getTime() + " SWAP"); 
+			}
+	    	
+	    });
 	    
 	    // Display Panel - Bottom Middle -------------------------------------------------------------------
 	    
@@ -477,6 +526,23 @@ public class ChronoTimerGUI {
 	    chanLabel = new JLabel("CHAN");
 	    channelTextPanel.add(chanLabel);
 	    
+	    // add a drop box of sensor types
+	    channelTextPanel.add(sensorComboBox);
+	    sensorComboBox.addActionListener(new ActionListener(){
+	    	
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String sensor = sensorComboBox.getSelectedItem().toString();
+				for(int i = 0; i < sensorTypes.length; i++){
+					if(sensor.equalsIgnoreCase(sensorTypes[i])){
+						sensorComboBox.setSelectedIndex(i);
+					}
+				}
+			}
+	    });
+	    sensorComboBox.setSelectedIndex(0);
+	    sensorComboBox.setVisible(true);
+	    
 	    channelButtonPanel = new JPanel();
 	    channelPanel.add(channelButtonPanel, BorderLayout.CENTER);
 	    channelButtonPanel.setLayout(new GridLayout(2, 0, 0, 0));
@@ -504,25 +570,25 @@ public class ChronoTimerGUI {
 	    chan1 = new JRadioButton("");
 	    chan1.setHorizontalAlignment(SwingConstants.CENTER);
 	    //chan1.addActionListener(new ChannelClickListener());
-	    chan1.setActionCommand("CONN EYE 1");
+	    chan1.setActionCommand("CONN " + sensorComboBox.getSelectedItem() + " 1");
 	    chanPanelUpper.add(chan1);
 	    
 	    chan3 = new JRadioButton("");
 	    chan3.setHorizontalAlignment(SwingConstants.CENTER);
 	    //chan3.addActionListener(new ChannelClickListener());
-	    chan3.setActionCommand("CONN EYE 3");
+	    chan3.setActionCommand("CONN " + sensorComboBox.getSelectedItem() + " 3");
 	    chanPanelUpper.add(chan3);
 	    
 	    chan5 = new JRadioButton("");
 	    chan5.setHorizontalAlignment(SwingConstants.CENTER);
 	    //chan5.addActionListener(new ChannelClickListener());
-	    chan5.setActionCommand("CONN EYE 5");
+	    chan5.setActionCommand("CONN " + sensorComboBox.getSelectedItem() + " 5");
 	    chanPanelUpper.add(chan5);
 	    
 	    chan7 = new JRadioButton("");
 	    chan7.setHorizontalAlignment(SwingConstants.CENTER);
 	    //chan7.addActionListener(new ChannelClickListener());
-	    chan7.setActionCommand("CONN EYE 7");
+	    chan7.setActionCommand("CONN " + sensorComboBox.getSelectedItem() + " 7");
 	    chanPanelUpper.add(chan7);
 	    
 	    chanPanelLower = new JPanel();
@@ -548,25 +614,25 @@ public class ChronoTimerGUI {
 	    chan2 = new JRadioButton("");
 	    chan2.setHorizontalAlignment(SwingConstants.CENTER);
 	    //chan2.addActionListener(new ChannelClickListener());
-	    chan2.setActionCommand("CONN EYE 2");
+	    chan2.setActionCommand("CONN " + sensorComboBox.getSelectedItem() + " 2");
 	    chanPanelLower.add(chan2);
 	    
 	    chan4 = new JRadioButton("");
 	    chan4.setHorizontalAlignment(SwingConstants.CENTER);
 	   // chan4.addActionListener(new ChannelClickListener());
-	    chan4.setActionCommand("CONN EYE 4");
+	    chan4.setActionCommand("CONN " + sensorComboBox.getSelectedItem() + " 4");
 	    chanPanelLower.add(chan4);
 	    
 	    chan6 = new JRadioButton("");
 	    chan6.setHorizontalAlignment(SwingConstants.CENTER);
 	    //chan6.addActionListener(new ChannelClickListener());
-	    chan6.setActionCommand("CONN EYE 6");
+	    chan6.setActionCommand("CONN " + sensorComboBox.getSelectedItem() + " 6");
 	    chanPanelLower.add(chan6);
 	    
 	    chan8 = new JRadioButton("");
 	    chan8.setHorizontalAlignment(SwingConstants.CENTER);
 	    //chan8.addActionListener(new ChannelClickListener());
-	    chan8.setActionCommand("CONN EYE 8");
+	    chan8.setActionCommand("CONN " + sensorComboBox.getSelectedItem() + " 8");
 	    chanPanelLower.add(chan8);
 	    
 	    // Array list of connected channels
@@ -610,13 +676,12 @@ public class ChronoTimerGUI {
 				@Override
 				public void itemStateChanged(ItemEvent e) {
 					if (e.getStateChange() == ItemEvent.SELECTED) {
-			   	        ct.execute(getTime() + " " + j.getActionCommand()); // connect sensor
+			   	        ct.execute(getTime() + " CONN " + sensorComboBox.getSelectedItem() + " " + j.getActionCommand().substring(9)); // connect sensor
 			   	    }
 			   	    else if (e.getStateChange() == ItemEvent.DESELECTED) {
- 			   	        ct.execute(getTime() + " DISC "+ j.getActionCommand().substring(9) ); // disconnect sensor
+ 			   	        ct.execute(getTime() + " DISC " + j.getActionCommand().substring(9)); // disconnect sensor
 			   	    }
 				}
-	    		
 	    	});
 	    	
 	    }
@@ -658,6 +723,9 @@ public class ChronoTimerGUI {
    				for(JButton j: trigButtons){
    					j.setEnabled(true);
    				}
+   			
+   				btnFunction.setEnabled(true);
+   				btnSwap.setEnabled(true);
    				
    			}else{
    				for(JRadioButton j: connectChannels){
@@ -675,6 +743,8 @@ public class ChronoTimerGUI {
    				for(JButton j: trigButtons){
    					j.setEnabled(false);
    				}
+   				btnFunction.setEnabled(false);
+   				btnSwap.setEnabled(false);
    			}
 	     }		
 	}
@@ -702,7 +772,7 @@ public class ChronoTimerGUI {
    		@Override
    		public void actionPerformed(ActionEvent e) {
 	         //TODO numpad functionality - recieve either number, # or *
-   			System.out.println("Printer Power");
+   			printerText.setText(ct.getLog());
 	     }		
 	}
    	
@@ -711,8 +781,13 @@ public class ChronoTimerGUI {
    		public void actionPerformed(ActionEvent e) {
 	         //TODO numpad functionality - recieve either number, # or *
    			String command = e.getActionCommand();
-   			
-   			System.out.println(command);
+   			if(command.equalsIgnoreCase("#")){
+   				ct.execute(getTime() + " NUM " + bibNumBuilder);
+   				bibNumBuilder = ""; // reset
+   			}
+   			else{
+   				bibNumBuilder += command;
+   			}
 	     }		
 	}
    	
