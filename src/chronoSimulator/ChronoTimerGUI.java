@@ -603,15 +603,17 @@ public class ChronoTimerGUI {
 	    //Disable all buttons until power is turned on
 	    for(JRadioButton j: connectChannels){
 	    	j.setEnabled(false);
+	    	
+	    	//use anonymous class for each radio to see if they are selected or deselected
 	    	j.addItemListener(new ItemListener(){
 
 				@Override
 				public void itemStateChanged(ItemEvent e) {
 					if (e.getStateChange() == ItemEvent.SELECTED) {
-			   	        ct.execute(getTime() + " " + j.getActionCommand()); 
+			   	        ct.execute(getTime() + " " + j.getActionCommand()); // connect sensor
 			   	    }
 			   	    else if (e.getStateChange() == ItemEvent.DESELECTED) {
-			   	        ct.execute(getTime() + " DISC "+ j.getActionCommand().substring(9) );
+ 			   	        ct.execute(getTime() + " DISC "+ j.getActionCommand().substring(9) ); // disconnect sensor
 			   	    }
 				}
 	    		
