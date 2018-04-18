@@ -21,6 +21,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.JTextPane;
 import java.awt.FlowLayout;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
 import javax.swing.JLabel;
 import java.awt.SystemColor;
 import java.awt.Font;
@@ -33,6 +34,7 @@ public class ChronoTimerGUI {
 	private ChronoTimer ct;
 	
 	private boolean powerToggled = false;
+	private boolean printerPower = false;
 	private String bibNumBuilder = ""; // default if user press # with no number
 	
 	private ArrayList<JRadioButton> connectChannels = new ArrayList<>();
@@ -348,8 +350,10 @@ public class ChronoTimerGUI {
 	    });
 	    
 	    printerText = new JTextArea();
-	    printerText.setText("Something from printer");
-	    printerPanel.add(printerText, BorderLayout.CENTER);
+	    printerText.setEditable(false);
+	    printerText.setText("Printer is off.\n");
+	    JScrollPane scrollPane = new JScrollPane(printerText);
+	    printerPanel.add(scrollPane, BorderLayout.CENTER);
 	    
 	    // Function Panel - Bottom Left -------------------------------------------------------------------
 	    
@@ -387,9 +391,6 @@ public class ChronoTimerGUI {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				ct.execute(getTime() + " " + commandComboBox.getSelectedItem().toString());
-				if(commandComboBox.getSelectedItem().toString().equalsIgnoreCase("PRINT")){
-					displayText.setText("Sorry, this feature is currently being fix...");
-				}
 			}
 	    	
 	    });
@@ -778,7 +779,12 @@ public class ChronoTimerGUI {
    		@Override
    		public void actionPerformed(ActionEvent e) {
 	         //TODO numpad functionality - recieve either number, # or *
-   			printerText.setText(ct.getLog());
+   			printerPower = !printerPower; // toggle printer power
+   			if(printerPower == true) {
+   				printerText.append("Printer is on.\n");// just to show that the printer is on
+   			}else {
+   				printerText.append("Printer is off.\n");;
+   			}
 	     }		
 	}
    	
@@ -800,11 +806,19 @@ public class ChronoTimerGUI {
    	private String getTime() {
 		//Time Formated as HH:hh:ss
 		//That is, Hour:Min:sec 
-		String timeStamp = new SimpleDateFormat("HH:mm:ss.sss").format(Calendar.getInstance().getTime());
+		String timeStamp = new SimpleDateFormat("HH:mm:ss.SSS").format(Calendar.getInstance().getTime());
 		return timeStamp;
 	}
    	
+   	public boolean printerPowerIsOn() {
+   		return printerPower == true;
+   	}
+   	
    	public void printToDisplay(String str) {
    		// TODO print to display
+   	}
+   	
+   	public void printToPrinter(String s) {
+   		printerText.append("----------------------\n" + s);
    	}
 }

@@ -60,4 +60,10 @@ public class ChronoTimerSimulator {
 	public void execute (String s) {
 		System.out.println(s);
 	}
+	
+	public void sendToGuiPrinter(String s) {
+		if(gui != null && gui.printerPowerIsOn()) {
+			gui.printToPrinter(s);
+		}
+	}
 }

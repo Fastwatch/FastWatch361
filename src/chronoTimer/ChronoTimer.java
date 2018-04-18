@@ -432,8 +432,10 @@ public class ChronoTimer {
 						if(currentRun == null) {
 							printMessage("Printing previous run."); // sim.execute(msg)
 							printMessage(print(time, pastRuns.get(pastRuns.size() - 1))); // print the previous run since user didn't specify the run
+							sim.sendToGuiPrinter(print(time, pastRuns.get(pastRuns.size() - 1)));
 						}else {
 							printMessage(print(time, currentRun)); // print current run
+							sim.sendToGuiPrinter(print(time, currentRun));
 						}
 					}else if(commands.length == 3) {
 						try {
@@ -441,6 +443,7 @@ public class ChronoTimer {
 							if(runNumber <= 0) return printMessage("Cannot print run. Run number starts at 1.");
 							--runNumber; // decrement since we start at index 0
 							printMessage("Printing run " + commands[2] +"\n"+ print(time, pastRuns.get(runNumber))); //print the specified run the user gave us
+							sim.sendToGuiPrinter("Printing run " + commands[2] +"\n"+ print(time, pastRuns.get(runNumber)));
 						}catch(NumberFormatException e) {
 							return printMessage("Cannot parse string to a number.");
 						}catch(IndexOutOfBoundsException e) {
