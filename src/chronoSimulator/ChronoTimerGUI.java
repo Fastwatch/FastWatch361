@@ -42,11 +42,11 @@ public class ChronoTimerGUI {
 	private ArrayList<JButton> trigButtons = new ArrayList<>();
 	
 	
-	private String[] commands = {"RETURN", "NEWRUN", "ENDRUN", "RESET" , "EXPORT" ,"PRINT"}; // pressing the "function" button will execute it
-	private String[] runOptions = {"IND", "GRP"};
+	private String[] commands = {"RETURN", "NEWRUN", "ENDRUN", "EVENT","CLR",  "RESET" , "EXPORT" ,"PRINT"}; // pressing the "function" button will execute it
+	private String[] eventOptions = {"IND","PARIND", "GRP"};
 	private String currentCommand = "";
 	private int commandIndex = 0;
-	private int optionIndex = 0;
+	private int eventIndex = 0;
 	//private JComboBox<String> commandComboBox = new JComboBox<String>(commands);
 	
 	
@@ -130,6 +130,7 @@ public class ChronoTimerGUI {
 	private JButton btnUp;
 	private JPanel swapContainer;
 	private JButton btnSwap;
+	private JButton btnDNF;
 	
 	// Display Panel - Bottom Middle ----------------------------------------------
 	
@@ -401,7 +402,8 @@ public class ChronoTimerGUI {
 				if(!currentCommand.equals("RETURN")) {
 					ct.execute(getTime() + " " + currentCommand);//commandComboBox.getSelectedItem().toString());
 				}
-				
+				commandIndex = 0;
+				eventIndex = 0;
 				printToDisplay("display Text");
 			}
 	    	
@@ -446,6 +448,18 @@ public class ChronoTimerGUI {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				ct.execute(getTime() + " SWAP"); 
+			}
+	    	
+	    });
+	    
+	    btnDNF = new JButton("DNF");
+	    swapContainer.add(btnDNF);
+	    btnDNF.setEnabled(false);
+	    btnDNF.addActionListener(new ActionListener(){
+//TODO
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ct.execute(getTime() + " DNF"); 
 			}
 	    	
 	    });
@@ -826,6 +840,7 @@ public class ChronoTimerGUI {
    	private class ArrowClickListener implements ActionListener{
    		@Override
    		public void actionPerformed(ActionEvent e) {
+   			//kill thread here
    			boolean hasAction = false;
    			
    			String action = e.getActionCommand();
@@ -842,8 +857,8 @@ public class ChronoTimerGUI {
    				
    				System.out.println(commandIndex);
    				currentCommand = commands[commandIndex];
-   				if(currentCommand.equals("NEWRUN")) {
-   					option = runOptions[0];
+   				if(currentCommand.equals("EVENT")) {
+   					option = eventOptions[0];
    				}
    				hasAction = true;
    				break;
@@ -855,21 +870,27 @@ public class ChronoTimerGUI {
    				}
    				System.out.println(commandIndex);
    				currentCommand = commands[commandIndex];
-   				if(currentCommand.equals("NEWRUN")) {
-   					option = runOptions[0];
+   				if(currentCommand.equals("EVENT")) {
+   					option = eventOptions[0];
    				}
    				hasAction = true;
    				break;
    			case "left":
    				//TODO - switch up options
+   				if(currentCommand.equals("EVENT")) {
+   					//TODO stuf
+   				}
    				break;
    			case "right":
    				//TODO - switch up options
+   				if(currentCommand.equals("EVENT")) {
+   					//TODO stuf
+   				}
    				break;
    			}
    			   			
    			if(hasAction)
-   				printToDisplay(currentCommand + option);
+   				printToDisplay(currentCommand + " " + option);
 	     }		
 	}
    	
