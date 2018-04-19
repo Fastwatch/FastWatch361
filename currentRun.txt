@@ -1,0 +1,1 @@
+{"type":"IND","queued":[],"running":[],"finished":[{"bibNum":123,"startTime":"11:27:31.031","endTime":"11:27:31.031","dnf":false},{"bibNum":456,"startTime":"11:27:32.032","endTime":"11:27:32.032","dnf":false},{"bibNum":789,"startTime":"11:27:33.033","endTime":"11:27:33.033","dnf":false}]}

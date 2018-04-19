@@ -42,6 +42,13 @@ public class ChronoTimerGUI {
 	private ArrayList<JButton> trigButtons = new ArrayList<>();
 	
 	
+	private String[] commands = {"RETURN", "NEWRUN", "ENDRUN", "RESET" , "EXPORT" ,"PRINT"}; // pressing the "function" button will execute it
+	private String[] runOptions = {"IND", "GRP"};
+	private String currentCommand = "";
+	private int commandIndex = 0;
+	private int optionIndex = 0;
+	//private JComboBox<String> commandComboBox = new JComboBox<String>(commands);
+	
 	
 	// List of Commands to choose to perform
 	
@@ -116,8 +123,6 @@ public class ChronoTimerGUI {
 	private JPanel functionPanel;
 	private JPanel functionContainer;
 	private JButton btnFunction;
-	private String[] commands = {"NEWRUN", "ENDRUN", "RESET" , "EXPORT" ,"PRINT"}; // pressing the "function" button will execute it
-	private JComboBox<String> commandComboBox = new JComboBox<String>(commands);
 	private JPanel arrowContainer;
 	private JButton btnLeft;
 	private JButton btnRight;
@@ -365,6 +370,7 @@ public class ChronoTimerGUI {
 	    FlowLayout flowLayout = (FlowLayout) functionContainer.getLayout();
 	    flowLayout.setAlignment(FlowLayout.LEFT);
 	    functionPanel.add(functionContainer);
+	    /*
 	    functionPanel.add(commandComboBox);
 	    commandComboBox.setSize(100, 200);
 	    commandComboBox.setSelectedIndex(0);
@@ -382,6 +388,7 @@ public class ChronoTimerGUI {
 			}
 	    	
 	    });
+	    */
 	    
 	    btnFunction = new JButton("FUNCTION");
 	    functionContainer.add(btnFunction);
@@ -390,7 +397,12 @@ public class ChronoTimerGUI {
 	    
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				ct.execute(getTime() + " " + commandComboBox.getSelectedItem().toString());
+				//TODO
+				if(!currentCommand.equals("RETURN")) {
+					ct.execute(getTime() + " " + currentCommand);//commandComboBox.getSelectedItem().toString());
+				}
+				
+				printToDisplay("display Text");
 			}
 	    	
 	    });
@@ -400,17 +412,25 @@ public class ChronoTimerGUI {
 	    flowLayout_2.setAlignment(FlowLayout.RIGHT);
 	    
 	    functionPanel.add(arrowContainer);
-	    
+	    	    
 	    btnLeft = new JButton(String.valueOf('\u25C0'));
+	    btnLeft.addActionListener(new ArrowClickListener());
+	    btnLeft.setActionCommand("left");
 	    arrowContainer.add(btnLeft);
 	    
 	    btnRight = new JButton(String.valueOf('\u25B6'));
+	    btnRight.addActionListener(new ArrowClickListener());
+	    btnRight.setActionCommand("right");
 	    arrowContainer.add(btnRight);
 	    
 	    btnDown = new JButton(String.valueOf('\u25BC'));
+	    btnDown.addActionListener(new ArrowClickListener());
+	    btnDown.setActionCommand("down");
 	    arrowContainer.add(btnDown);
 	    
 	    btnUp = new JButton(String.valueOf('\u25B2'));
+	    btnUp.addActionListener(new ArrowClickListener());
+	    btnUp.setActionCommand("up");
 	    arrowContainer.add(btnUp);
 	    
 	    swapContainer = new JPanel();
@@ -803,6 +823,56 @@ public class ChronoTimerGUI {
 	     }		
 	}
    	
+   	private class ArrowClickListener implements ActionListener{
+   		@Override
+   		public void actionPerformed(ActionEvent e) {
+   			boolean hasAction = false;
+   			
+   			String action = e.getActionCommand();
+   			
+   			String option = "";
+   			
+   			switch(action) {
+   			case "up":
+   				//TODO
+   				commandIndex--;
+   				if(commandIndex < 0) {
+   					commandIndex = commands.length - 1;
+   				}
+   				
+   				System.out.println(commandIndex);
+   				currentCommand = commands[commandIndex];
+   				if(currentCommand.equals("NEWRUN")) {
+   					option = runOptions[0];
+   				}
+   				hasAction = true;
+   				break;
+   			case "down":
+   				//TODO
+   				commandIndex++;
+   				if(commandIndex >= commands.length) {
+   					commandIndex = 0;
+   				}
+   				System.out.println(commandIndex);
+   				currentCommand = commands[commandIndex];
+   				if(currentCommand.equals("NEWRUN")) {
+   					option = runOptions[0];
+   				}
+   				hasAction = true;
+   				break;
+   			case "left":
+   				//TODO - switch up options
+   				break;
+   			case "right":
+   				//TODO - switch up options
+   				break;
+   			}
+   			   			
+   			if(hasAction)
+   				printToDisplay(currentCommand + option);
+	     }		
+	}
+   	
    	private String getTime() {
 		//Time Formated as HH:hh:ss
 		//That is, Hour:Min:sec 
@@ -815,7 +885,7 @@ public class ChronoTimerGUI {
    	}
    	
    	public void printToDisplay(String str) {
-   		// TODO print to display
+   		displayText.setText(str);
    	}
    	
    	public void printToPrinter(String s) {
