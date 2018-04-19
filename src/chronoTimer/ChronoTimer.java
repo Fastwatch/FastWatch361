@@ -623,4 +623,9 @@ public class ChronoTimer {
 	public String getLog(){
 		return log;
 	}
+	
+	public String DispUpdate(String time){
+		if (currentRun==null) return "No Active Run";
+		return currentRun.update(parseTime(time));
+	}
 }

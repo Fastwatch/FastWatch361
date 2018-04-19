@@ -197,4 +197,33 @@ public class GRP extends Run{
 	protected boolean contains(int bibNum){
 		return queued.contains(bibNum)||finished.contains(bibNum);
 	}
+	
+	protected String update(LocalTime time) {
+		if (start==null)return "Race has not started\n";
+		String stand = "Group Start Time: " + start.toString()+"\n";
+		int counter = 0;
+		if(queued.getLength()+finished.getLength() == 0){
+			return stand + "No Racers queued or finished\n";
+		}
+		if(queued.getLength()>0){
+			stand+= "In Queue to finish:\n";
+			for(Node n = queued.head;n!=null&&counter<3;n=n.next){
+				stand+= Integer.toString(n.Data.getBibNum()) +" "+ time.toString()+"\n";
+				++counter;
+			}
+		}
+		counter = 0;
+		if(finished.getLength() > 0){
+			stand+="\nCompleted Race:\n";
+			for(Node n = finished.tail;n!=null&&counter<3;n=n.prev){
+				if(n.Data.getDNF()){
+					stand+= Integer.toString(n.Data.getBibNum()) +" DNF\n";
+				}else{
+					stand+= Integer.toString(n.Data.getBibNum()) +" "+ n.Data.getTime().toString() +"\n";
+				}
+				++counter;
+			}
+		}
+		return stand;
+	}
 }

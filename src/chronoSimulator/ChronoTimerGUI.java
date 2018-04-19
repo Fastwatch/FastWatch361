@@ -131,6 +131,7 @@ public class ChronoTimerGUI {
 	private JPanel swapContainer;
 	private JButton btnSwap;
 	private JButton btnDNF;
+	private JButton btnCancel;
 	
 	// Display Panel - Bottom Middle ----------------------------------------------
 	
@@ -350,6 +351,10 @@ public class ChronoTimerGUI {
 	    btnPrinterPower = new JButton("PRINTER POWER");
 	    btnPrinterPower.addActionListener(new PrinterPowerClickListener());
 	    printerPowerPanel.add(btnPrinterPower);
+	    btnPrinterPower.addActionListener(new ActionListener() {
+	    	public void actionPerformed(ActionEvent arg0) {
+	    	}
+	    });
 	    
 	    printerText = new JTextArea();
 	    printerText.setEditable(false);
@@ -395,8 +400,13 @@ public class ChronoTimerGUI {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				//TODO
+				
 				if(!currentCommand.equals("RETURN")) {
-					ct.execute(getTime() + " " + currentCommand);//commandComboBox.getSelectedItem().toString());
+					if(currentCommand.equalsIgnoreCase("EVENT")){
+						ct.execute(getTime() + " " + currentCommand + " " + eventOptions[eventIndex]);
+					}else{
+						ct.execute(getTime() + " " + currentCommand);//commandComboBox.getSelectedItem().toString());
+					}	
 				}
 				commandIndex = 0;
 				eventIndex = 0;
@@ -456,6 +466,18 @@ public class ChronoTimerGUI {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				ct.execute(getTime() + " DNF"); 
+			}
+	    	
+	    });
+	    
+	    btnCancel = new JButton("Cancel");
+	    swapContainer.add(btnCancel);
+	    btnCancel.setEnabled(false);
+	    btnCancel.addActionListener(new ActionListener(){
+//TODO
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ct.execute(getTime() + " Cancel"); 
 			}
 	    	
 	    });
@@ -723,10 +745,12 @@ public class ChronoTimerGUI {
 	    	});
 	    	
 	    }
-	    for(int i = 0; i < 8; i++) {
-				toggledChannels.get(i).setEnabled(false);
-				trigButtons.get(i).setEnabled(false);
-			}
+	    for(JRadioButton j: toggledChannels){
+	    	j.setEnabled(false);
+	    }
+	    for(JButton j: trigButtons){
+	    	j.setEnabled(false);
+	    }
 	    
 	    
 	    // USB port - Lower Middle -------------------------------------------------------------------
@@ -748,15 +772,43 @@ public class ChronoTimerGUI {
    		public void actionPerformed(ActionEvent e) {
    			ct.execute(getTime() + " POWER");
    			powerToggled = !powerToggled;
+   			if(powerToggled == true){
+   				for(JRadioButton j: connectChannels){
+   			    	j.setEnabled(true);
+   			    }
+   				for(JRadioButton j: toggledChannels){
+   			    	j.setEnabled(true);
+   			    }
+   				for(JButton j: trigButtons){
+   					j.setEnabled(true);
+   				}
    			
-   			for(int i = 0; i < 8; i++) {
-   				connectChannels.get(i).setEnabled(powerToggled);
-   				toggledChannels.get(i).setEnabled(powerToggled);
-   				trigButtons.get(i).setEnabled(powerToggled);
+   				btnFunction.setEnabled(true);
+   				btnSwap.setEnabled(true);
+   				btnCancel.setEnabled(true);
+   				btnDNF.setEnabled(true);
+   				
+   			}else{
+   				for(JRadioButton j: connectChannels){
+   					if(j.isSelected()){
+   						j.setSelected(false);
+   					}
+   			    	j.setEnabled(false);
+   			    }
+   				for(JRadioButton j: toggledChannels){
+   					if(j.isSelected()){
+   						j.setSelected(false);
+   					}
+   			    	j.setEnabled(false);
+   			    }
+   				for(JButton j: trigButtons){
+   					j.setEnabled(false);
+   				}
+   				btnFunction.setEnabled(false);
+   				btnSwap.setEnabled(false);
+   				btnCancel.setEnabled(false);
+   				btnDNF.setEnabled(false);
    			}
-   			btnFunction.setEnabled(powerToggled);
-   			btnSwap.setEnabled(powerToggled);
-   			btnDNF.setEnabled(powerToggled);
 	     }		
 	}
    	
@@ -782,6 +834,7 @@ public class ChronoTimerGUI {
    	private class PrinterPowerClickListener implements ActionListener{
    		@Override
    		public void actionPerformed(ActionEvent e) {
+	         //TODO numpad functionality - recieve either number, # or *
    			printerPower = !printerPower; // toggle printer power
    			if(printerPower == true) {
    				printerText.append("Printer is on.\n");// just to show that the printer is on
@@ -827,7 +880,7 @@ public class ChronoTimerGUI {
    				System.out.println(commandIndex);
    				currentCommand = commands[commandIndex];
    				if(currentCommand.equals("EVENT")) {
-   					option = eventOptions[0];
+   					option = eventOptions[eventIndex];
    				}
    				hasAction = true;
    				break;
@@ -840,20 +893,28 @@ public class ChronoTimerGUI {
    				System.out.println(commandIndex);
    				currentCommand = commands[commandIndex];
    				if(currentCommand.equals("EVENT")) {
-   					option = eventOptions[0];
+   					option = eventOptions[eventIndex];
    				}
    				hasAction = true;
    				break;
    			case "left":
-   				//TODO - switch up options
    				if(currentCommand.equals("EVENT")) {
-   					//TODO stuf
+   					eventIndex--;
+   	   				if(eventIndex < 0) {
+   	   					eventIndex = eventOptions.length - 1;	   				
+   	   				}
+	   	   			option = eventOptions[eventIndex];
+	   	   			hasAction = true;
    				}
    				break;
    			case "right":
-   				//TODO - switch up options
    				if(currentCommand.equals("EVENT")) {
-   					//TODO stuf
+   					eventIndex++;
+   	   				if(eventIndex >= eventOptions.length) {
+   	   					eventIndex = 0;
+   	   				}
+   	   				option = eventOptions[eventIndex];
+   	   				hasAction = true;
    				}
    				break;
    			}
@@ -879,6 +940,6 @@ public class ChronoTimerGUI {
    	}
    	
    	public void printToPrinter(String s) {
-   		printerText.append("\n----------------------\n" + s);
+   		printerText.append("----------------------\n" + s);
    	}
 }

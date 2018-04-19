@@ -120,7 +120,7 @@ class IND extends Run {
 		
 		String stand = "";
 		if(queued.getLength()+running.getLength()+complete.getLength() == 0){
-			return "No Racers Currently In Run";
+			return "No Racers Currently In Run\n";
 		}
 		if(active){
 			if(queued.getLength()>0){
@@ -240,5 +240,45 @@ class IND extends Run {
 			queue.add(n.Data);
 		}
 		return queue;
+	}
+	
+	protected String update(LocalTime time){
+		
+		String stand = "";
+		int counter = 0;
+		if(queued.getLength()+running.getLength()+complete.getLength() == 0){
+			return "No Racers Currently In Run\n";
+		}
+		if(queued.getLength()>0){
+			stand+= "In Queue to Start:\n";
+			for(Node n = queued.head;n!=null&&counter<3;n=n.next){
+				stand+= Integer.toString(n.Data.getBibNum()) +" "+ time.toString()+"\n";
+				++counter;
+			}
+		}
+		counter =0;
+		if(running.getLength() > 0){
+			stand+="\nCurrently Racing:\n";
+			for(Node n = running.tail;n!=null&&counter<3;n=n.prev){
+				n.Data.setFinish(time);
+				stand+= Integer.toString(n.Data.getBibNum()) +" "+ n.Data.getTime().toString() +"\n";
+				n.Data.setFinish(null);
+				++counter;
+			}
+		}
+		counter =0;
+		if(complete.getLength() > 0){
+			stand+="\nCompleted Race:\n";
+			for(Node n = complete.tail;n!=null&&counter<3;n=n.prev){
+				if(n.Data.getDNF()){
+					stand+= Integer.toString(n.Data.getBibNum()) +" DNF\n";
+				}else{
+					stand+= Integer.toString(n.Data.getBibNum()) +" "+ n.Data.getTime().toString() +"\n";
+				}
+				++counter;
+			}
+		}
+		
+		return stand;
 	}
 }

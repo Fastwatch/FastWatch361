@@ -33,6 +33,8 @@ public abstract class Run {
 	
 	protected abstract ArrayList<Racer> getQueue();
 	
+	protected abstract String update(LocalTime time);
+	
 	/**
 	 * Node Class for use in Linked lists for keeping track of racers
 	 * @author Isshanna

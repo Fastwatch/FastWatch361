@@ -3,8 +3,6 @@ package chronoTimer;
 import java.time.LocalTime;
 import java.util.ArrayList;
 
-import chronoTimer.Run.Node;
-
 public class PARIND extends Run{
 
 	IND Lane1;
@@ -154,6 +152,10 @@ public class PARIND extends Run{
 			queue.add(lane2.Data);
 		
 		return queue;
+	}
+	
+	protected String update(LocalTime time) {
+		return "Lane 1:\n" + Lane1.standings(time) + "\nLane 2:\n" + Lane2.standings(time);
 	}
 
 }
