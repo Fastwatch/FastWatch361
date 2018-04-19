@@ -350,10 +350,6 @@ public class ChronoTimerGUI {
 	    btnPrinterPower = new JButton("PRINTER POWER");
 	    btnPrinterPower.addActionListener(new PrinterPowerClickListener());
 	    printerPowerPanel.add(btnPrinterPower);
-	    btnPrinterPower.addActionListener(new ActionListener() {
-	    	public void actionPerformed(ActionEvent arg0) {
-	    	}
-	    });
 	    
 	    printerText = new JTextArea();
 	    printerText.setEditable(false);
@@ -727,12 +723,10 @@ public class ChronoTimerGUI {
 	    	});
 	    	
 	    }
-	    for(JRadioButton j: toggledChannels){
-	    	j.setEnabled(false);
-	    }
-	    for(JButton j: trigButtons){
-	    	j.setEnabled(false);
-	    }
+	    for(int i = 0; i < 8; i++) {
+				toggledChannels.get(i).setEnabled(false);
+				trigButtons.get(i).setEnabled(false);
+			}
 	    
 	    
 	    // USB port - Lower Middle -------------------------------------------------------------------
@@ -754,39 +748,15 @@ public class ChronoTimerGUI {
    		public void actionPerformed(ActionEvent e) {
    			ct.execute(getTime() + " POWER");
    			powerToggled = !powerToggled;
-   			if(powerToggled == true){
-   				for(JRadioButton j: connectChannels){
-   			    	j.setEnabled(true);
-   			    }
-   				for(JRadioButton j: toggledChannels){
-   			    	j.setEnabled(true);
-   			    }
-   				for(JButton j: trigButtons){
-   					j.setEnabled(true);
-   				}
    			
-   				btnFunction.setEnabled(true);
-   				btnSwap.setEnabled(true);
-   				
-   			}else{
-   				for(JRadioButton j: connectChannels){
-   					if(j.isSelected()){
-   						j.setSelected(false);
-   					}
-   			    	j.setEnabled(false);
-   			    }
-   				for(JRadioButton j: toggledChannels){
-   					if(j.isSelected()){
-   						j.setSelected(false);
-   					}
-   			    	j.setEnabled(false);
-   			    }
-   				for(JButton j: trigButtons){
-   					j.setEnabled(false);
-   				}
-   				btnFunction.setEnabled(false);
-   				btnSwap.setEnabled(false);
+   			for(int i = 0; i < 8; i++) {
+   				connectChannels.get(i).setEnabled(powerToggled);
+   				toggledChannels.get(i).setEnabled(powerToggled);
+   				trigButtons.get(i).setEnabled(powerToggled);
    			}
+   			btnFunction.setEnabled(powerToggled);
+   			btnSwap.setEnabled(powerToggled);
+   			btnDNF.setEnabled(powerToggled);
 	     }		
 	}
    	
@@ -812,7 +782,6 @@ public class ChronoTimerGUI {
    	private class PrinterPowerClickListener implements ActionListener{
    		@Override
    		public void actionPerformed(ActionEvent e) {
-	         //TODO numpad functionality - recieve either number, # or *
    			printerPower = !printerPower; // toggle printer power
    			if(printerPower == true) {
    				printerText.append("Printer is on.\n");// just to show that the printer is on
@@ -910,6 +879,6 @@ public class ChronoTimerGUI {
    	}
    	
    	public void printToPrinter(String s) {
-   		printerText.append("----------------------\n" + s);
+   		printerText.append("\n----------------------\n" + s);
    	}
 }
