@@ -850,7 +850,7 @@ public class ChronoTimerGUI {
    	private class NumpadClickListener implements ActionListener{
    		@Override
    		public void actionPerformed(ActionEvent e) {
-	         //TODO numpad functionality - recieve either number, # or *
+	         //TODO numpad functionality - receive either number, # or *
    			String command = e.getActionCommand();
    			if(command.equalsIgnoreCase("#")){
    				ct.execute(getTime() + " NUM " + bibNumBuilder);

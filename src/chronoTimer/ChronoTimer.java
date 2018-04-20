@@ -89,13 +89,13 @@ public class ChronoTimer {
 	//field initialization (default constructor);
 	public ChronoTimer(){ 
 		powerState = false;
-		currentRun = null;
+		setCurrentRun(null);
 		pastRuns = new ArrayList<Run>();
 		channels = new Channel[8];
 		for(int i = 0;i<8;i++) channels[i] = new Channel();
 		log = "";
 		eventType = "IND"; // default run event to start
-		currentTime = null;
+		setCurrentTime(null);
 	}
 
 	/**
@@ -112,13 +112,13 @@ public class ChronoTimer {
 	 * Set the ChronoTimer to it's initial state
 	 */
 	private void reset(){
-		currentRun = null;
+		setCurrentRun(null);
 		pastRuns = new ArrayList<Run>();
 		channels = new Channel[8];
 		for(int i = 0;i<8;i++) channels[i] = new Channel();
 		log = "";
 		eventType = "IND"; //default event 
-		currentTime = null;
+		setCurrentTime(null);
 	}
 
 	/**
@@ -217,13 +217,13 @@ public class ChronoTimer {
 				if(commands.length != 3) return printMessage("Need a time to set. Should be after the time arg.");
 				time = parseTime(commands[2]);
 				if(time == null) return printMessage("Time is null");
-					currentTime = time;
+					setCurrentTime(time);
 					return printMessage("Time has been set to " + time);
 			}
-			if (currentTime != null && currentTime.compareTo(time) > 0){
+			if (getCurrentTime() != null && getCurrentTime().compareTo(time) > 0){
 				return printMessage("Current Time is before system time. Use \"TIME\" command to set system time");
 			}
-			currentTime = time;
+			setCurrentTime(time);
 			switch(commands[1].toUpperCase()){
 				case("POWER"):
 					power();
@@ -235,9 +235,9 @@ public class ChronoTimer {
 					break; 
 					
 				case("CANCEL"): // Discard current run for racer and place racer back to queue
-					if(currentRun == null) return printMessage("Cannot cancel run, there is currently no run.");
+					if(getCurrentRun() == null) return printMessage("Cannot cancel run, there is currently no run.");
 					try {
-						currentRun.cancel();
+						getCurrentRun().cancel();
 					}catch(IllegalStateException e) {
 						return printMessage(e.getMessage());
 					}
@@ -246,7 +246,7 @@ public class ChronoTimer {
 				case("EVENT"): // Set Run to this particular event <TIME> <EVENT> <TYPE>
 					if(commands.length != 3) return printMessage("Need a event type. Should be after the event arg");
 				
-					if(currentRun != null && currentRun.raceInProgress() == true) return printMessage("Must end the current run before assiging a event type.");
+					if(getCurrentRun() != null && getCurrentRun().raceInProgress() == true) return printMessage("Must end the current run before assiging a event type.");
 					
 					String prevEvent = eventType;
 					if(commands[2].equalsIgnoreCase("IND")) {
@@ -261,13 +261,13 @@ public class ChronoTimer {
 					}
 					
 					printMessage("Event set to " + eventType);
-					if(currentRun != null && !eventType.equalsIgnoreCase(prevEvent)) {
+					if(getCurrentRun() != null && !eventType.equalsIgnoreCase(prevEvent)) {
 						printMessage("Converting " + prevEvent + " run to " + eventType + " run");
 						try {
-							queuedRacers = currentRun.getQueue();
+							queuedRacers = getCurrentRun().getQueue();
 							newRun();
 							for(int i = 0; i < queuedRacers.size(); i++) {
-								currentRun.num(queuedRacers.get(i).getBibNum());
+								getCurrentRun().num(queuedRacers.get(i).getBibNum());
 							}
 						}catch(IllegalStateException e) {
 							return printMessage("Error on converting run: " + e.getMessage());
@@ -318,10 +318,10 @@ public class ChronoTimer {
 				
 				case("NUM"): // Set	NUM<NUMBER> as the next	competitor to start.
 					if(commands.length != 3) return printMessage("Need a bib number to set racer. Should be after the num arg.");
-					if(currentRun == null) return printMessage("Cannot add racer, create a Run first.");
+					if(getCurrentRun() == null) return printMessage("Cannot add racer, create a Run first.");
 					try {
 						int bibNum = Integer.parseInt(commands[2]);
-						currentRun.num(bibNum);
+						getCurrentRun().num(bibNum);
 						printMessage("Racer with bib number " + bibNum + " has been added successfully.") ;
 					}catch(NumberFormatException e) {
 						return printMessage("Error on parsing bib number to a number.");
@@ -351,21 +351,21 @@ public class ChronoTimer {
 					break;
 					
 				case("DNF"): // DNF says the run for the bib number is over, and their end time is DNF
-					if(currentRun == null) return printMessage("Cannot set run to dnf. There is no run.");
+					if(getCurrentRun() == null) return printMessage("Cannot set run to dnf. There is no run.");
 					try {
 						
 						//if parind pass commands[2]
 						String message = "";
-						if(currentRun.type.equals("PARIND")) {
+						if(getCurrentRun().type.equals("PARIND")) {
 							try {
 								if(commands.length != 3) return printMessage("Need a lane number to dnf racers.");
 								int lane = Integer.parseInt(commands[2]);
-								message = currentRun.dnf(lane);
+								message = getCurrentRun().dnf(lane);
 							} catch (NumberFormatException e) {
 								message = "Cannot read argument";
 							}
 						} else {
-							message = currentRun.dnf();
+							message = getCurrentRun().dnf();
 						}
 						
 						printMessage(message);
@@ -375,14 +375,14 @@ public class ChronoTimer {
 					break;
 				
 				case("SWAP"): // Start trigger channel 1 (shorthand for TRIG 1)
-					if(currentRun == null) return printMessage("Cannot swap racers. There is no run.");
+					if(getCurrentRun() == null) return printMessage("Cannot swap racers. There is no run.");
 					try {
-						if(currentRun.type.equalsIgnoreCase("PARIND")){
+						if(getCurrentRun().type.equalsIgnoreCase("PARIND")){
 							if(commands.length != 3) return printMessage("Need a lane number to swap racers.");
 							int lane = Integer.parseInt(commands[2]);
-							currentRun.swap(lane);
+							getCurrentRun().swap(lane);
 						}else
-							currentRun.swap();
+							getCurrentRun().swap();
 					}catch(IllegalArgumentException e) {
 						return printMessage(e.getMessage());
 					}
@@ -390,10 +390,10 @@ public class ChronoTimer {
 				
 				case("CLR"): // Start trigger channel 1 (shorthand for TRIG 1)
 					if(commands.length != 3) return printMessage("Need a bib number to remove racer. Should be after the num arg.");
-					if(currentRun == null) return printMessage("Cannot add racer, create a Run first.");
+					if(getCurrentRun() == null) return printMessage("Cannot add racer, create a Run first.");
 					try {
 						int bibNum = Integer.parseInt(commands[2]);
-						currentRun.clr(bibNum);
+						getCurrentRun().clr(bibNum);
 						printMessage("Racer with bib number " + bibNum + " has been removed successfully.") ;
 					}catch(NumberFormatException e) {
 						return printMessage("Error on parsing bib number to a number.");
@@ -406,10 +406,10 @@ public class ChronoTimer {
 					try{
 						if(commands.length != 3) return printMessage("Need a channel number to trigger. Should be after the trig arg.");
 						int channel = Integer.parseInt(commands[2]);
-						if(currentRun == null) return printMessage("Must have current Run to trigger Channel. Please create a run first.");
+						if(getCurrentRun() == null) return printMessage("Must have current Run to trigger Channel. Please create a run first.");
 						try {
 							if(!channels[channel-1].getState())  return printMessage("Channel is inactive");
-							printMessage(currentRun.trig(time, channel));
+							printMessage(getCurrentRun().trig(time, channel));
 						}catch(IllegalStateException e) {
 							return printMessage(e.getMessage());
 						}
@@ -425,17 +425,17 @@ public class ChronoTimer {
 					return execute(time.toString()+" TRIG 2");
 				
 				case("PRINT"): // print <RUN>
-					if(currentRun == null && pastRuns.isEmpty()) 
+					if(getCurrentRun() == null && pastRuns.isEmpty()) 
 						return printMessage("Cannot print Run, there is no Run.");
 				
 					if(commands.length == 2) {
-						if(currentRun == null) {
+						if(getCurrentRun() == null) {
 							printMessage("Printing previous run."); // sim.execute(msg)
 							printMessage(print(time, pastRuns.get(pastRuns.size() - 1))); // print the previous run since user didn't specify the run
 							sim.sendToGuiPrinter(print(time, pastRuns.get(pastRuns.size() - 1)));
 						}else {
-							printMessage(print(time, currentRun)); // print current run
-							sim.sendToGuiPrinter(print(time, currentRun));
+							printMessage(print(time, getCurrentRun())); // print current run
+							sim.sendToGuiPrinter(print(time, getCurrentRun()));
 						}
 					}else if(commands.length == 3) {
 						try {
@@ -456,7 +456,7 @@ public class ChronoTimer {
 					break;
 					
 				case("EXPORT"):
-					if(currentRun == null && pastRuns.isEmpty()) return printMessage("Cannot export. There is no run in system history.");
+					if(getCurrentRun() == null && pastRuns.isEmpty()) return printMessage("Cannot export. There is no run in system history.");
 					if(commands.length == 2){
 						writeFile();
 					}else if(commands.length == 3){
@@ -501,7 +501,7 @@ public class ChronoTimer {
 	 * @param commands string to be parsed to time
 	 * @return The time that was provided. It will return null if the time cannot be parsed into a LocalTime object
 	 */
-	private LocalTime parseTime(String commands) {
+	public LocalTime parseTime(String commands) {
 		LocalTime time = null;
 		try{
 			time = LocalTime.parse(commands);
@@ -517,15 +517,15 @@ public class ChronoTimer {
 	 * default run event type.
 	 */
 	private void newRun(){
-		if (currentRun != null && currentRun.raceInProgress() == true){
+		if (getCurrentRun() != null && getCurrentRun().raceInProgress() == true){
 			throw new IllegalStateException("run in progress");
 		}
 		if(eventType.equalsIgnoreCase("IND")) {
-			currentRun = new IND(); 
+			setCurrentRun(new IND()); 
 		}else if(eventType.equalsIgnoreCase("PARIND")){
-			currentRun = new PARIND();
+			setCurrentRun(new PARIND());
 		}else if(eventType.equalsIgnoreCase("GRP")){
-			currentRun = new GRP();
+			setCurrentRun(new GRP());
 		}
 		printMessage("Run event: " + eventType + " created."); // sim.execute(msg);
 	}
@@ -537,16 +537,16 @@ public class ChronoTimer {
 	 * @return False if there is no current run
 	 */
 	private boolean endRun(){
-		if (currentRun == null){
+		if (getCurrentRun() == null){
 			return false;
 		}
-		pastRuns.add(currentRun);
+		pastRuns.add(getCurrentRun());
 		try {
-			currentRun.end();
+			getCurrentRun().end();
 		}catch(Exception e) {
 			return printMessage(e.getMessage());
 		}
-		currentRun = null;
+		setCurrentRun(null);
 		return true;
 	}
 
@@ -582,16 +582,16 @@ public class ChronoTimer {
 	private void writeFile(){
 		;
 		File file;
-		if(currentRun == null)
+		if(getCurrentRun() == null)
 			file = new File("RUN" + pastRuns.size() + ".txt");
 		else
 			file = new File("currentRun.txt");
 		PrintWriter pw;
 		try{
 			pw = new PrintWriter(file);
-			if (pastRuns.isEmpty() && currentRun != null || !pastRuns.isEmpty() && currentRun != null){
+			if (pastRuns.isEmpty() && getCurrentRun() != null || !pastRuns.isEmpty() && getCurrentRun() != null){
 				printMessage("Beginning to export current run...");
-				pw.write(currentRun.export());
+				pw.write(getCurrentRun().export());
 			}else{
 				printMessage("Attempting to export previous run in system history...");
 				Run mostRecentRun = pastRuns.get(pastRuns.size()-1);
@@ -625,7 +625,23 @@ public class ChronoTimer {
 	}
 	
 	public String DispUpdate(String time){
-		if (currentRun==null) return "No Active Run";
-		return currentRun.update(parseTime(time));
+		if (getCurrentRun()==null) return "No Active Run";
+		return getCurrentRun().update(parseTime(time));
+	}
+
+	public Run getCurrentRun() {
+		return currentRun;
+	}
+
+	public void setCurrentRun(Run currentRun) {
+		this.currentRun = currentRun;
+	}
+
+	public LocalTime getCurrentTime() {
+		return currentTime;
+	}
+
+	public void setCurrentTime(LocalTime currentTime) {
+		this.currentTime = currentTime;
 	}
 }
