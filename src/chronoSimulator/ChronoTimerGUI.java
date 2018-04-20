@@ -404,13 +404,18 @@ public class ChronoTimerGUI {
 				if(!currentCommand.equals("RETURN")) {
 					if(currentCommand.equalsIgnoreCase("EVENT")){
 						ct.execute(getTime() + " " + currentCommand + " " + eventOptions[eventIndex]);
-					}else{
+					}else if(currentCommand.equalsIgnoreCase("CLR")){
+						ct.execute(getTime() + " " + currentCommand + " " + bibNumBuilder);
+						bibNumBuilder = "";
+					}
+					else{
 						ct.execute(getTime() + " " + currentCommand);//commandComboBox.getSelectedItem().toString());
 					}	
 				}
+				currentCommand = "";
 				commandIndex = 0;
 				eventIndex = 0;
-				printToDisplay("display Text");
+				printToDisplay(ct.DispUpdate(getTime()));
 			}
 	    	
 	    });
@@ -454,9 +459,15 @@ public class ChronoTimerGUI {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				ct.execute(getTime() + " SWAP"); 
+				printToDisplay(ct.DispUpdate(getTime()));
 			}
 	    	
 	    });
+	    
+	    btnLeft.setEnabled(false);
+			btnRight.setEnabled(false);
+			btnUp.setEnabled(false);
+			btnDown.setEnabled(false);
 	    
 	    btnDNF = new JButton("DNF");
 	    swapContainer.add(btnDNF);
@@ -466,6 +477,7 @@ public class ChronoTimerGUI {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				ct.execute(getTime() + " DNF"); 
+				printToDisplay(ct.DispUpdate(getTime()));
 			}
 	    	
 	    });
@@ -478,6 +490,7 @@ public class ChronoTimerGUI {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				ct.execute(getTime() + " Cancel"); 
+				printToDisplay(ct.DispUpdate(getTime()));
 			}
 	    	
 	    });
@@ -489,7 +502,7 @@ public class ChronoTimerGUI {
 	    displayPanel.setLayout(new BorderLayout(5, 5));
 	    
 	    displayText = new JTextPane();
-	    displayText.setText("Something from racer queue");
+	    displayText.setText("");
 	    displayText.setEditable(false);
 	    displayPanel.add(displayText, BorderLayout.CENTER);
 	    
@@ -772,43 +785,32 @@ public class ChronoTimerGUI {
    		public void actionPerformed(ActionEvent e) {
    			ct.execute(getTime() + " POWER");
    			powerToggled = !powerToggled;
-   			if(powerToggled == true){
-   				for(JRadioButton j: connectChannels){
-   			    	j.setEnabled(true);
-   			    }
-   				for(JRadioButton j: toggledChannels){
-   			    	j.setEnabled(true);
-   			    }
-   				for(JButton j: trigButtons){
-   					j.setEnabled(true);
-   				}
-   			
-   				btnFunction.setEnabled(true);
-   				btnSwap.setEnabled(true);
-   				btnCancel.setEnabled(true);
-   				btnDNF.setEnabled(true);
    				
-   			}else{
-   				for(JRadioButton j: connectChannels){
-   					if(j.isSelected()){
-   						j.setSelected(false);
-   					}
-   			    	j.setEnabled(false);
-   			    }
-   				for(JRadioButton j: toggledChannels){
-   					if(j.isSelected()){
-   						j.setSelected(false);
-   					}
-   			    	j.setEnabled(false);
-   			    }
-   				for(JButton j: trigButtons){
-   					j.setEnabled(false);
+   			for(int i = 0; i < 8; i++) {
+   				connectChannels.get(i).setEnabled(powerToggled);
+   				trigButtons.get(i).setEnabled(powerToggled);
+   				toggledChannels.get(i).setEnabled(powerToggled);
+   				if(powerToggled == false) {
+   					toggledChannels.get(i).setSelected(false);
    				}
-   				btnFunction.setEnabled(false);
-   				btnSwap.setEnabled(false);
-   				btnCancel.setEnabled(false);
-   				btnDNF.setEnabled(false);
+   				
    			}
+   				btnLeft.setEnabled(powerToggled);
+   				btnRight.setEnabled(powerToggled);
+   				btnUp.setEnabled(powerToggled);
+   				btnDown.setEnabled(powerToggled);
+   				btnFunction.setEnabled(powerToggled);
+   				btnSwap.setEnabled(powerToggled);
+   				btnCancel.setEnabled(powerToggled);
+   				btnDNF.setEnabled(powerToggled);
+   				
+   				if(powerToggled == true) {
+   					printToDisplay(ct.DispUpdate(getTime()));
+   				}else {
+   					printToDisplay("");
+   				}
+   				
+   			
 	     }		
 	}
    	
@@ -818,6 +820,7 @@ public class ChronoTimerGUI {
 	         //TODO trigger button functionality
    			String command = e.getActionCommand();
    			ct.execute(getTime() + " " + command);
+   			printToDisplay(ct.DispUpdate(getTime()));
 	     }		
 	}
    	
@@ -852,6 +855,7 @@ public class ChronoTimerGUI {
    			if(command.equalsIgnoreCase("#")){
    				ct.execute(getTime() + " NUM " + bibNumBuilder);
    				bibNumBuilder = ""; // reset
+   				printToDisplay(ct.DispUpdate(getTime()));
    			}
    			else{
    				bibNumBuilder += command;
@@ -876,8 +880,6 @@ public class ChronoTimerGUI {
    				if(commandIndex < 0) {
    					commandIndex = commands.length - 1;
    				}
-   				
-   				System.out.println(commandIndex);
    				currentCommand = commands[commandIndex];
    				if(currentCommand.equals("EVENT")) {
    					option = eventOptions[eventIndex];
@@ -890,7 +892,6 @@ public class ChronoTimerGUI {
    				if(commandIndex >= commands.length) {
    					commandIndex = 0;
    				}
-   				System.out.println(commandIndex);
    				currentCommand = commands[commandIndex];
    				if(currentCommand.equals("EVENT")) {
    					option = eventOptions[eventIndex];
@@ -940,6 +941,6 @@ public class ChronoTimerGUI {
    	}
    	
    	public void printToPrinter(String s) {
-   		printerText.append("----------------------\n" + s);
+   		printerText.append("\n----------------------\n" + s);
    	}
 }

@@ -43,7 +43,7 @@ public class ConsoleInput {
 	private static String getTime() {
 		//Time Formated as HH:hh:ss
 		//That is, Hour:Min:sec 
-		String timeStamp = new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
+		String timeStamp = new SimpleDateFormat("HH:mm:ss.SSS").format(Calendar.getInstance().getTime());
 		return timeStamp;
 	}
 	
