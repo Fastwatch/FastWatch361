@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -35,14 +36,18 @@ public class ChronoTimerGUI {
 	
 	private boolean powerToggled = false;
 	private boolean printerPower = false;
-	private String bibNumBuilder = ""; // default if user press # with no number
+	private boolean activeRun = false;
+	private boolean swapping = false;
+	private boolean clearing = false;
+	private boolean dnfing = false;
+	private String numBuilder = ""; // default if user press # with no number
 	
 	private ArrayList<JRadioButton> connectChannels = new ArrayList<>();
 	private ArrayList<JRadioButton> toggledChannels = new ArrayList<>();
 	private ArrayList<JButton> trigButtons = new ArrayList<>();
 	
 	
-	private String[] commands = {"RETURN", "NEWRUN", "ENDRUN", "EVENT","CLR",  "RESET" , "EXPORT" ,"PRINT"}; // pressing the "function" button will execute it
+	private String[] commands = {"RETURN", "NEWRUN", "ENDRUN", "EVENT","DNF", "CANCEL", "CLR",  "RESET" , "EXPORT" ,"PRINT"}; // pressing the "function" button will execute it
 	private String[] eventOptions = {"IND","PARIND", "GRP"};
 	private String currentCommand = "";
 	private int commandIndex = 0;
@@ -130,8 +135,6 @@ public class ChronoTimerGUI {
 	private JButton btnUp;
 	private JPanel swapContainer;
 	private JButton btnSwap;
-	private JButton btnDNF;
-	private JButton btnCancel;
 	
 	// Display Panel - Bottom Middle ----------------------------------------------
 	
@@ -174,10 +177,10 @@ public class ChronoTimerGUI {
 	
 	private JPanel usbPanel;
 	private JLabel usbLabel;
+	private Thread dispThread;
 	
 	public ChronoTimerGUI( ChronoTimer ct) {
 		this.ct = ct;
-		
 		f = new JFrame("A JFrame");
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    f.setTitle("FastWatch");
@@ -400,22 +403,36 @@ public class ChronoTimerGUI {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				//TODO
-				
+				numBuilder = "";
 				if(!currentCommand.equals("RETURN")) {
 					if(currentCommand.equalsIgnoreCase("EVENT")){
 						ct.execute(getTime() + " " + currentCommand + " " + eventOptions[eventIndex]);
 					}else if(currentCommand.equalsIgnoreCase("CLR")){
-						ct.execute(getTime() + " " + currentCommand + " " + bibNumBuilder);
-						bibNumBuilder = "";
-					}
-					else{
+						printToDisplay("Enter Racer Num to CLR: \n(# to Confirm or * to Cancel)");
+						numBuilder = "";
+						clearing = true;
+					}else if(currentCommand.equalsIgnoreCase("DNF")){
+						printToDisplay("Enter Lane Num to DNF: \n(# to Confirm or * to Cancel)");
+						numBuilder = "";
+						dnfing = true;
+					}else if(currentCommand.equalsIgnoreCase("NEWRUN")){
+						activeRun = true;
+						ct.execute(getTime() + " " + currentCommand);
+					}else if(currentCommand.equalsIgnoreCase("ENDRUN")){
+						activeRun = false;
+						ct.execute(getTime() + " " + currentCommand);
+					}else if(currentCommand.equalsIgnoreCase("RESET")){
+						ct.execute(getTime() + " " + currentCommand);
+						ct.execute(getTime() + " POWER");
+						resetGUI();
+					}else{
 						ct.execute(getTime() + " " + currentCommand);//commandComboBox.getSelectedItem().toString());
 					}	
 				}
 				currentCommand = "";
 				commandIndex = 0;
 				eventIndex = 0;
-				printToDisplay(ct.DispUpdate(getTime()));
+				if(!clearing&&!dnfing&&!currentCommand.equalsIgnoreCase("RESET"))startThread("action");
 			}
 	    	
 	    });
@@ -458,42 +475,20 @@ public class ChronoTimerGUI {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				ct.execute(getTime() + " SWAP"); 
-				printToDisplay(ct.DispUpdate(getTime()));
+				killThread();
+				clearing = dnfing = false;
+				currentCommand = "";
+				printToDisplay("Lane to swap runners: \n(# to Confirm or * to Cancel)");
+				numBuilder= "";
+				swapping = true;
 			}
 	    	
 	    });
 	    
 	    btnLeft.setEnabled(false);
-			btnRight.setEnabled(false);
-			btnUp.setEnabled(false);
-			btnDown.setEnabled(false);
-	    
-	    btnDNF = new JButton("DNF");
-	    swapContainer.add(btnDNF);
-	    btnDNF.setEnabled(false);
-	    btnDNF.addActionListener(new ActionListener(){
-//TODO
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				ct.execute(getTime() + " DNF"); 
-				printToDisplay(ct.DispUpdate(getTime()));
-			}
-	    	
-	    });
-	    
-	    btnCancel = new JButton("Cancel");
-	    swapContainer.add(btnCancel);
-	    btnCancel.setEnabled(false);
-	    btnCancel.addActionListener(new ActionListener(){
-//TODO
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				ct.execute(getTime() + " Cancel"); 
-				printToDisplay(ct.DispUpdate(getTime()));
-			}
-	    	
-	    });
+		btnRight.setEnabled(false);
+		btnUp.setEnabled(false);
+		btnDown.setEnabled(false);
 	    
 	    // Display Panel - Bottom Middle -------------------------------------------------------------------
 	    
@@ -778,6 +773,7 @@ public class ChronoTimerGUI {
 	    // end -------------------------------------------------------------------------------------------
 	    
 	    f.setVisible(true);
+		startThread("prog");
 	}
 	//for submit and exit
    	private class PowerClickListener implements ActionListener{
@@ -801,16 +797,12 @@ public class ChronoTimerGUI {
    				btnDown.setEnabled(powerToggled);
    				btnFunction.setEnabled(powerToggled);
    				btnSwap.setEnabled(powerToggled);
-   				btnCancel.setEnabled(powerToggled);
-   				btnDNF.setEnabled(powerToggled);
    				
    				if(powerToggled == true) {
    					printToDisplay(ct.DispUpdate(getTime()));
    				}else {
    					printToDisplay("");
    				}
-   				
-   			
 	     }		
 	}
    	
@@ -820,14 +812,12 @@ public class ChronoTimerGUI {
 	         //TODO trigger button functionality
    			String command = e.getActionCommand();
    			ct.execute(getTime() + " " + command);
-   			printToDisplay(ct.DispUpdate(getTime()));
 	     }		
 	}
    	
    	private class EnableClickListener implements ActionListener{
    		@Override
    		public void actionPerformed(ActionEvent e) {
-	         //TODO enable/disable functionality
    			String command = e.getActionCommand();
    			ct.execute(getTime() + " " + command);
 	     }		
@@ -851,14 +841,46 @@ public class ChronoTimerGUI {
    		@Override
    		public void actionPerformed(ActionEvent e) {
 	         //TODO numpad functionality - receive either number, # or *
-   			String command = e.getActionCommand();
-   			if(command.equalsIgnoreCase("#")){
-   				ct.execute(getTime() + " NUM " + bibNumBuilder);
-   				bibNumBuilder = ""; // reset
-   				printToDisplay(ct.DispUpdate(getTime()));
-   			}
-   			else{
-   				bibNumBuilder += command;
+   			if(powerToggled){
+   				currentCommand = "";
+	   			killThread();
+	   			String command = e.getActionCommand();
+	   			if(command.equalsIgnoreCase("#")){
+	   				if (swapping){
+	   					ct.execute(getTime() + " SWAP " +numBuilder);
+	   					swapping = false;
+	   				}else if(clearing){
+	   					ct.execute(getTime() + " CLR " +numBuilder);
+	   					clearing = false;
+	   				}else if(dnfing){
+	   					ct.execute(getTime() + " DNF " +numBuilder);
+	   					dnfing = false;
+	   				}
+	   				else{
+	   					ct.execute(getTime() + " NUM " + numBuilder);
+	   	   				numBuilder = ""; // reset
+	   	   				printToDisplay(ct.DispUpdate(getTime()));
+	   				}
+	   				numBuilder = "";
+	   				startThread("numpad");
+	   			}else if(command.equalsIgnoreCase("*")){
+	   				numBuilder = "";
+	   				clearing = false;
+	   				swapping = false;
+	   				dnfing = false;
+	   				startThread("numpad");
+	   			}else{
+	   				numBuilder += command;
+	   				if (swapping){
+	   					printToDisplay("Lane to swap runners: " + numBuilder+"\n(# to Confirm or * to Cancel)");
+	   				}else if (clearing){
+	   					printToDisplay("Enter Racer Num to CLR: " + numBuilder+"\n(# to Confirm or * to Cancel)");
+	   				}else if (dnfing){
+	   					printToDisplay("Enter Lane Num to DNF: " + numBuilder+"\n(# to Confirm or * to Cancel)");
+	   				}else{
+	   					printToDisplay("Add Racer: "+ numBuilder+"\n(# to Confirm or * to Cancel)");
+	   				}
+	   			}
    			}
 	     }		
 	}
@@ -866,12 +888,11 @@ public class ChronoTimerGUI {
    	private class ArrowClickListener implements ActionListener{
    		@Override
    		public void actionPerformed(ActionEvent e) {
-   			//kill thread here
+   			killThread();
    			boolean hasAction = false;
-   			
+   			clearing = swapping = dnfing = false;
+   			numBuilder = "";
    			String action = e.getActionCommand();
-   			
-   			String option = "";
    			
    			switch(action) {
    			case "up":
@@ -881,9 +902,6 @@ public class ChronoTimerGUI {
    					commandIndex = commands.length - 1;
    				}
    				currentCommand = commands[commandIndex];
-   				if(currentCommand.equals("EVENT")) {
-   					option = eventOptions[eventIndex];
-   				}
    				hasAction = true;
    				break;
    			case "down":
@@ -893,9 +911,6 @@ public class ChronoTimerGUI {
    					commandIndex = 0;
    				}
    				currentCommand = commands[commandIndex];
-   				if(currentCommand.equals("EVENT")) {
-   					option = eventOptions[eventIndex];
-   				}
    				hasAction = true;
    				break;
    			case "left":
@@ -904,7 +919,6 @@ public class ChronoTimerGUI {
    	   				if(eventIndex < 0) {
    	   					eventIndex = eventOptions.length - 1;	   				
    	   				}
-	   	   			option = eventOptions[eventIndex];
 	   	   			hasAction = true;
    				}
    				break;
@@ -914,14 +928,28 @@ public class ChronoTimerGUI {
    	   				if(eventIndex >= eventOptions.length) {
    	   					eventIndex = 0;
    	   				}
-   	   				option = eventOptions[eventIndex];
    	   				hasAction = true;
    				}
    				break;
    			}
    			   			
-   			if(hasAction)
-   				printToDisplay(currentCommand + " " + option);
+   			String disp = "";
+   			if(hasAction){
+   				for(String s:commands){
+   					if (currentCommand.equals(s)){
+   						disp += " > " + s;
+   					}else{
+   						disp += "   " + s;
+   					}
+   					
+   					if (s.equals("EVENT")){
+   						disp += " " + eventOptions[eventIndex]+"\n";
+   					}else{
+   						disp += "\n";
+   					}
+   				}
+   				printToDisplay(disp);
+   			}
 	     }		
 	}
    	
@@ -936,11 +964,83 @@ public class ChronoTimerGUI {
    		return printerPower == true;
    	}
    	
-   	public void printToDisplay(String str) {
-   		displayText.setText(str);
-   	}
+   	public synchronized void printToDisplay(String text) {
+        Runnable  runnable = new Runnable() {
+            public void run(){
+                displayText.setText(text);
+            }
+        };
+        SwingUtilities.invokeLater(runnable);
+    }
    	
    	public void printToPrinter(String s) {
    		printerText.append("\n----------------------\n" + s);
+   	}
+   	
+   	public void killThread(){
+   		if(dispThread!=null) dispThread.interrupt();
+   	}
+   	
+   	public void startThread(String str){
+   		if(activeRun==true){
+	   		DispThread dt = new DispThread();	
+	   		//dt.setSrc(str);
+	   		dispThread = new Thread(dt);
+	   		dispThread.start();
+   		}else if(powerToggled){
+   			printToDisplay("No Active Run");
+   		}else printToDisplay("");
+   	}
+   	
+   	private class DispThread implements Runnable{
+   		boolean alive;
+   		//String src;
+   		
+   		//public void setSrc(String str){src = str;}
+   		
+   		public void run(){
+   			alive = true;
+   			while (alive){
+   				try{
+   					//System.out.println(src);
+   					Thread.sleep(25);
+   					printToDisplay(ct.DispUpdate(getTime()));   					
+   				}
+				catch (InterruptedException e)
+				{
+					alive=false;
+				}catch (Exception e){}
+   			}
+   			return;   			
+   		}
+   		
+   	}
+   	
+   	private void resetGUI(){
+   		powerToggled = false;
+   		printerPower = false;
+   		activeRun = false;
+   		swapping = false;
+   		clearing = false;
+   		dnfing = false;
+   		numBuilder = "";
+	    for(JRadioButton j: connectChannels){
+	    	j.setEnabled(false);
+	    	j.setSelected(false);
+	    }
+	    for(JRadioButton j: toggledChannels){
+	    	j.setEnabled(false);
+	    	j.setSelected(false);
+	    }
+	    for(JButton j: trigButtons){
+	    	j.setEnabled(false);
+	    }
+	    btnLeft.setEnabled(false);
+		btnRight.setEnabled(false);
+		btnUp.setEnabled(false);
+		btnDown.setEnabled(false);
+	    btnSwap.setEnabled(false);
+	    btnFunction.setEnabled(false);
+	    printToDisplay("");
    	}
 }

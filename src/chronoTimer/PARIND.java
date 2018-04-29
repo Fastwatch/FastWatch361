@@ -155,7 +155,93 @@ public class PARIND extends Run{
 	}
 	
 	protected String update(LocalTime time) {
-		return "Lane 1:\n" + Lane1.standings(time) + "\nLane 2:\n" + Lane2.standings(time);
+		LinkedList queued1 = Lane1.queued;
+		LinkedList running1 = Lane1.running;
+		LinkedList complete1 = Lane1.complete;
+		LinkedList queued2 = Lane2.queued;
+		LinkedList running2 = Lane2.running;
+		LinkedList complete2 = Lane2.complete;
+		String timeStr = time.toString();
+		String stand = "";
+		int counter = 0;
+		if(queued1.getLength()+running1.getLength()+complete1.getLength() == 0){
+			return "No Racers Currently In Run\n";
+		}
+		stand += "Lane 1:		Lane 2:\n";	
+		if(queued1.getLength()>0||queued2.getLength()>0){
+			stand+= "In Queue to Start:\n";
+			for(Node n = queued1.head, o = queued2.head;(n!=null||o!=null)&&counter<3;){
+				if(n!=null&&o!=null)
+					stand+= Integer.toString(n.Data.getBibNum()) +" "+ timeStr +"	"+ Integer.toString(o.Data.getBibNum()) +" "+ timeStr+"\n";
+				else if(o==null){
+					stand+= Integer.toString(n.Data.getBibNum()) +" "+ timeStr+"	----"+"\n";
+				}else{
+					stand+= "----		"+ Integer.toString(o.Data.getBibNum()) +" "+ timeStr+"\n";
+				}
+				if (n!=null) n=n.next;
+				if (o!=null) o=o.next;
+				++counter;
+			}
+		}
+		counter = 0;
+		if(running1.getLength()>0||running2.getLength()>0){
+			stand+= "\nCurrently Racing:\n";
+			for(Node n = running1.tail, o = running2.tail;(n!=null||o!=null)&&counter<3;){
+				if(n!=null&&o!=null){
+					n.Data.setFinish(time);
+					o.Data.setFinish(time);
+					stand+= Integer.toString(n.Data.getBibNum()) +" "+ n.Data.getTime().toString()+"	"+ Integer.toString(o.Data.getBibNum()) +" "+ o.Data.getTime().toString()+"\n";
+					n.Data.setFinish(null);
+					o.Data.setFinish(null);
+				}else if(o==null){
+					n.Data.setFinish(time);
+					stand+= Integer.toString(n.Data.getBibNum()) +" "+ n.Data.getTime().toString()+"	----"+"\n";
+					n.Data.setFinish(null);
+				}else{
+					o.Data.setFinish(time);
+					stand+= "----		"+ Integer.toString(o.Data.getBibNum()) +" "+ o.Data.getTime().toString()+"\n";
+					o.Data.setFinish(null);
+				}
+				if (n!=null) n=n.prev;
+				if (o!=null) o=o.prev;
+				++counter;
+			}
+		}
+		counter = 0;
+		if(complete1.getLength()>0||complete2.getLength()>0){
+			stand+= "\nCompleted Race:\n";
+			for(Node n = complete1.tail, o = complete2.tail;(n!=null||o!=null)&&counter<3;){
+				if(n!=null&&o!=null){
+					if(n.Data.getDNF()){
+						stand+= Integer.toString(n.Data.getBibNum()) +" DNF	";
+					}else{
+						stand+= Integer.toString(n.Data.getBibNum()) +" "+ n.Data.getTime().toString();
+					}
+					stand +="	";
+					if(o.Data.getDNF()){
+						stand+= Integer.toString(o.Data.getBibNum()) +" DNF\n";
+					}else{
+						stand+= Integer.toString(o.Data.getBibNum()) +" "+ o.Data.getTime().toString() +"\n";
+					}
+				}else if(o==null){
+					if(n.Data.getDNF()){
+						stand+= Integer.toString(n.Data.getBibNum()) +" DNF		----\n";
+					}else{
+						stand+= Integer.toString(n.Data.getBibNum()) +" "+ n.Data.getTime().toString() +"	----\n";
+					}
+				}else{
+					if(o.Data.getDNF()){
+						stand+= "----		"+Integer.toString(o.Data.getBibNum()) +" DNF\n";
+					}else{
+						stand+= "----		"+ Integer.toString(o.Data.getBibNum()) +" "+ o.Data.getTime().toString() +"\n";
+					}
+				}
+				if (n!=null) n=n.prev;
+				if (o!=null) o=o.prev;
+				++counter;
+			}
+		
+		}	
+		return stand;
 	}
-
 }
