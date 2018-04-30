@@ -428,11 +428,11 @@ public class ChronoTimerGUI {
 					}else{
 						ct.execute(getTime() + " " + currentCommand);//commandComboBox.getSelectedItem().toString());
 					}	
-				}
-				currentCommand = "";
+				}				
 				commandIndex = 0;
 				eventIndex = 0;
-				if(!clearing&&!dnfing&&!currentCommand.equalsIgnoreCase("RESET"))startThread("action");
+				if(!clearing&&!dnfing&&!currentCommand.equalsIgnoreCase("RESET")) startThread("action");
+				currentCommand = "";
 			}
 	    	
 	    });
