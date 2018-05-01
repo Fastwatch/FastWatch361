@@ -252,7 +252,7 @@ public class ChronoTimerGUI {
 	    
 	    startActive = new JTextArea();
 	    startActive.setBackground(SystemColor.control);
-	    startActive.setText("Enable/Disable");
+	    startActive.setText("Enable/\nDisable");
 	    startActivePanel.add(startActive);
 	    
 	    enable1 = new JRadioButton("");
@@ -315,7 +315,7 @@ public class ChronoTimerGUI {
 	    
 	    finishActive = new JTextArea();
 	    finishActive.setBackground(SystemColor.control);
-	    finishActive.setText("Enable/Disable");
+	    finishActive.setText("Enable/\nDisable");
 	    finishActivePanel.add(finishActive);
 	    
 	    enable2 = new JRadioButton("");
@@ -423,7 +423,6 @@ public class ChronoTimerGUI {
 						ct.execute(getTime() + " " + currentCommand);
 					}else if(currentCommand.equalsIgnoreCase("RESET")){
 						ct.execute(getTime() + " " + currentCommand);
-						ct.execute(getTime() + " POWER");
 						resetGUI();
 					}else{
 						ct.execute(getTime() + " " + currentCommand);//commandComboBox.getSelectedItem().toString());
@@ -978,13 +977,16 @@ public class ChronoTimerGUI {
    	}
    	
    	public void killThread(){
-   		if(dispThread!=null) dispThread.interrupt();
+   		if(dispThread!=null) {
+   			dispThread.interrupt();
+   			dispThread = null;
+   		}
    	}
    	
    	public void startThread(String str){
-   		if(activeRun==true){
+   		if(activeRun==true&&dispThread == null){
 	   		DispThread dt = new DispThread();	
-	   		//dt.setSrc(str);
+	   		dt.setSrc(str);
 	   		dispThread = new Thread(dt);
 	   		dispThread.start();
    		}else if(powerToggled){
@@ -994,16 +996,16 @@ public class ChronoTimerGUI {
    	
    	private class DispThread implements Runnable{
    		boolean alive;
-   		//String src;
+   		String src;
    		
-   		//public void setSrc(String str){src = str;}
+   		public void setSrc(String str){src = str;}
    		
    		public void run(){
    			alive = true;
    			while (alive){
    				try{
-   					//System.out.println(src);
-   					Thread.sleep(25);
+   					System.out.println(src);
+   					Thread.sleep(100);
    					printToDisplay(ct.DispUpdate(getTime()));   					
    				}
 				catch (InterruptedException e)
@@ -1017,17 +1019,12 @@ public class ChronoTimerGUI {
    	}
    	
    	private void resetGUI(){
-   		powerToggled = false;
-   		printerPower = false;
+
    		activeRun = false;
    		swapping = false;
    		clearing = false;
    		dnfing = false;
    		numBuilder = "";
-	    for(JRadioButton j: connectChannels){
-	    	j.setEnabled(false);
-	    	j.setSelected(false);
-	    }
 	    for(JRadioButton j: toggledChannels){
 	    	j.setEnabled(false);
 	    	j.setSelected(false);
@@ -1035,12 +1032,6 @@ public class ChronoTimerGUI {
 	    for(JButton j: trigButtons){
 	    	j.setEnabled(false);
 	    }
-	    btnLeft.setEnabled(false);
-		btnRight.setEnabled(false);
-		btnUp.setEnabled(false);
-		btnDown.setEnabled(false);
-	    btnSwap.setEnabled(false);
-	    btnFunction.setEnabled(false);
 	    printToDisplay("");
    	}
 }
