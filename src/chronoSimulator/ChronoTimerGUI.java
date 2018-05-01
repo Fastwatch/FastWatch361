@@ -986,7 +986,7 @@ public class ChronoTimerGUI {
    	public void startThread(String str){
    		if(activeRun==true&&dispThread == null){
 	   		DispThread dt = new DispThread();	
-	   		dt.setSrc(str);
+	   		//dt.setSrc(str); debug
 	   		dispThread = new Thread(dt);
 	   		dispThread.start();
    		}else if(powerToggled){
