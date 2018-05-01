@@ -226,4 +226,12 @@ public class GRP extends Run{
 		}
 		return stand;
 	}
+	@Override
+	protected ArrayList<Racer> serverData() {
+		ArrayList<Racer> finishedList = new ArrayList<>();
+		for(Node n = finished.head; n != null; n = n.next) {
+			finishedList.add(n.Data);
+		}
+		return finishedList;
+	}
 }

@@ -242,6 +242,15 @@ class IND extends Run {
 		return queue;
 	}
 	
+	@Override
+	protected ArrayList<Racer> serverData(){
+		ArrayList<Racer> finishedList = new ArrayList<>();
+		for(Node n = complete.head; n != null; n = n.next) {
+			finishedList.add(n.Data);
+		}
+		return finishedList;
+	}
+	
 	protected String update(LocalTime time){
 		
 		String stand = "";
