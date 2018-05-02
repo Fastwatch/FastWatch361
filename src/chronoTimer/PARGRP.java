@@ -10,6 +10,7 @@ public class PARGRP extends Run{
 	LocalTime startTime;
 	LocalTime[] finishTimes = new LocalTime[8];
 	int bibNumbers[] = new bibNumbers[8];
+	int dnf[] = new dnf[8];
 	
 	int numOfRacers = 0;
 	
@@ -72,12 +73,17 @@ public class PARGRP extends Run{
 
 	@Override
 	protected String dnf() {
-		throw new IllegalStateException("Race Type does not support that");
+		throw new IllegalStateException("Race Type does not support that (Must have bib number)");
 	}
 
 	@Override
 	protected String dnf(int laneNum) {
-		Race Type does not support that	
+		if(laneNumber <= numRacers) {
+			dnf[laneNumber] = true;			
+		} else {
+			throw new IllegalStateException("Cannot DNF a lane without a racer");			
+		}
+		return "Racer " + n.Data.getBibNum() + " did not finish."; 
 	}
 
 	@Override
