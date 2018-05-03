@@ -20,6 +20,7 @@ import chronoSimulator.ChronoTimerSimulator;
  *
  */
 
+@SuppressWarnings("unused")
 public class ChronoTimer {
 
 	private class Channel{

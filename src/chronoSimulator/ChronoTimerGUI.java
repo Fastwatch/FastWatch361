@@ -40,6 +40,8 @@ public class ChronoTimerGUI {
 	private boolean swapping = false;
 	private boolean clearing = false;
 	private boolean dnfing = false;
+	private boolean printing = false;
+	private boolean exporting = false;
 	private String numBuilder = ""; // default if user press # with no number
 	
 	private ArrayList<JRadioButton> connectChannels = new ArrayList<>();
@@ -47,7 +49,7 @@ public class ChronoTimerGUI {
 	private ArrayList<JButton> trigButtons = new ArrayList<>();
 	
 	
-	private String[] commands = {"RETURN", "NEWRUN", "ENDRUN", "EVENT","DNF", "CANCEL", "CLR",  "RESET" , "EXPORT" ,"PRINT"}; // pressing the "function" button will execute it
+	private String[] commands = {"RETURN", "EVENT", "NEWRUN", "ENDRUN","DNF", "CANCEL", "CLR", "LOG",  "RESET" , "EXPORT" ,"PRINT"}; // pressing the "function" button will execute it
 	private String[] eventOptions = {"IND","PARIND", "GRP"};
 	private String currentCommand = "";
 	private int commandIndex = 0;
@@ -402,36 +404,48 @@ public class ChronoTimerGUI {
 	    
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//TODO
-				numBuilder = "";
-				if(!currentCommand.equals("RETURN")) {
-					if(currentCommand.equalsIgnoreCase("EVENT")){
-						ct.execute(getTime() + " " + currentCommand + " " + eventOptions[eventIndex]);
-					}else if(currentCommand.equalsIgnoreCase("CLR")){
-						printToDisplay("Enter Racer Num to CLR: \n(# to Confirm or * to Cancel)");
-						numBuilder = "";
-						clearing = true;
-					}else if(currentCommand.equalsIgnoreCase("DNF")){
-						printToDisplay("Enter Lane Num to DNF: \n(# to Confirm or * to Cancel)");
-						numBuilder = "";
-						dnfing = true;
-					}else if(currentCommand.equalsIgnoreCase("NEWRUN")){
-						activeRun = true;
-						ct.execute(getTime() + " " + currentCommand);
-					}else if(currentCommand.equalsIgnoreCase("ENDRUN")){
-						activeRun = false;
-						ct.execute(getTime() + " " + currentCommand);
-					}else if(currentCommand.equalsIgnoreCase("RESET")){
-						ct.execute(getTime() + " " + currentCommand);
-						resetGUI();
-					}else{
-						ct.execute(getTime() + " " + currentCommand);//commandComboBox.getSelectedItem().toString());
-					}	
-				}				
-				commandIndex = 0;
-				eventIndex = 0;
-				if(!clearing&&!dnfing&&!currentCommand.equalsIgnoreCase("RESET")) startThread("action");
-				currentCommand = "";
+				//TODO			
+				if(currentCommand.length() > 0){
+					numBuilder = "";
+					if(!currentCommand.equals("RETURN")) {
+						if(currentCommand.equalsIgnoreCase("EVENT")){
+							ct.execute(getTime() + " " + currentCommand + " " + eventOptions[eventIndex]);
+						}else if(currentCommand.equalsIgnoreCase("CLR")){
+							printToDisplay("Enter Racer Num to CLR: \n(# to Confirm or * to Cancel)");
+							numBuilder = "";
+							clearing = true;
+						}else if(currentCommand.equalsIgnoreCase("DNF")){
+							printToDisplay("Enter Lane Num to DNF: \n(# to Confirm or * to Cancel)");
+							numBuilder = "";
+							dnfing = true;
+						}else if(currentCommand.equalsIgnoreCase("PRINT")){
+							printToDisplay("Enter Run Num to Print: \n(# to Confirm or * to Cancel)");
+							numBuilder = "";
+							printing = true;
+						}else if(currentCommand.equalsIgnoreCase("EXPORT")){
+							printToDisplay("Enter Run Num to Export: \n(# to Confirm or * to Cancel)");
+							numBuilder = "";
+							exporting = true;
+						}else if(currentCommand.equalsIgnoreCase("NEWRUN")){
+							activeRun = true;
+							ct.execute(getTime() + " " + currentCommand);
+						}else if(currentCommand.equalsIgnoreCase("LOG")){
+								printToPrinter(ct.getLog());
+						}else if(currentCommand.equalsIgnoreCase("ENDRUN")){
+							activeRun = false;
+							ct.execute(getTime() + " " + currentCommand);
+						}else if(currentCommand.equalsIgnoreCase("RESET")){
+							ct.execute(getTime() + " " + currentCommand);
+							resetGUI();
+						}else{
+							ct.execute(getTime() + " " + currentCommand);//commandComboBox.getSelectedItem().toString());
+						}	
+					}				
+					commandIndex = 0;
+					eventIndex = 0;
+					if(!clearing&&!dnfing&&!printing&&!exporting&&!currentCommand.equalsIgnoreCase("RESET")) startThread("action");
+					currentCommand = "";
+				}
 			}
 	    	
 	    });
@@ -475,7 +489,7 @@ public class ChronoTimerGUI {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				killThread();
-				clearing = dnfing = false;
+				clearing = dnfing = printing = exporting = false;
 				currentCommand = "";
 				printToDisplay("Lane to swap runners: \n(# to Confirm or * to Cancel)");
 				numBuilder= "";
@@ -854,6 +868,12 @@ public class ChronoTimerGUI {
 	   				}else if(dnfing){
 	   					ct.execute(getTime() + " DNF " +numBuilder);
 	   					dnfing = false;
+	   				}else if(printing){
+	   					ct.execute(getTime() + " PRINT " +numBuilder);
+	   					printing = false;
+	   				}else if(exporting){
+	   					ct.execute(getTime() + " EXPORT " +numBuilder);
+	   					exporting = false;
 	   				}
 	   				else{
 	   					ct.execute(getTime() + " NUM " + numBuilder);
@@ -864,9 +884,7 @@ public class ChronoTimerGUI {
 	   				startThread("numpad");
 	   			}else if(command.equalsIgnoreCase("*")){
 	   				numBuilder = "";
-	   				clearing = false;
-	   				swapping = false;
-	   				dnfing = false;
+	   				clearing = printing = exporting = swapping = dnfing = false;
 	   				startThread("numpad");
 	   			}else{
 	   				numBuilder += command;
@@ -876,6 +894,10 @@ public class ChronoTimerGUI {
 	   					printToDisplay("Enter Racer Num to CLR: " + numBuilder+"\n(# to Confirm or * to Cancel)");
 	   				}else if (dnfing){
 	   					printToDisplay("Enter Lane Num to DNF: " + numBuilder+"\n(# to Confirm or * to Cancel)");
+	   				}else if (printing){
+	   					printToDisplay("Enter Run Num to Print: " + numBuilder+"\n(# to Confirm or * to Cancel)");
+	   				}else if (dnfing){
+	   					printToDisplay("Enter Run Num to Export: " + numBuilder+"\n(# to Confirm or * to Cancel)");
 	   				}else{
 	   					printToDisplay("Add Racer: "+ numBuilder+"\n(# to Confirm or * to Cancel)");
 	   				}
@@ -889,7 +911,7 @@ public class ChronoTimerGUI {
    		public void actionPerformed(ActionEvent e) {
    			killThread();
    			boolean hasAction = false;
-   			clearing = swapping = dnfing = false;
+   			clearing = printing = exporting = swapping = dnfing = false;
    			numBuilder = "";
    			String action = e.getActionCommand();
    			
@@ -996,15 +1018,15 @@ public class ChronoTimerGUI {
    	
    	private class DispThread implements Runnable{
    		boolean alive;
-   		String src;
+   		//String src;
    		
-   		public void setSrc(String str){src = str;}
+   		//public void setSrc(String str){src = str;}
    		
    		public void run(){
    			alive = true;
    			while (alive){
    				try{
-   					System.out.println(src);
+   					//System.out.println(src);
    					Thread.sleep(100);
    					printToDisplay(ct.DispUpdate(getTime()));   					
    				}
