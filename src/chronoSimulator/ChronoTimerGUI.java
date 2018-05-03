@@ -50,7 +50,7 @@ public class ChronoTimerGUI {
 	
 	
 	private String[] commands = {"RETURN", "EVENT", "NEWRUN", "ENDRUN","DNF", "CANCEL", "CLR", "LOG",  "RESET" , "EXPORT" ,"PRINT"}; // pressing the "function" button will execute it
-	private String[] eventOptions = {"IND","PARIND", "GRP"};
+	private String[] eventOptions = {"IND","PARIND", "GRP", "PARGRP"};
 	private String currentCommand = "";
 	private int commandIndex = 0;
 	private int eventIndex = 0;
