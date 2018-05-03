@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 import chronoSimulator.ChronoTimerSimulator;
 //other possible imports
@@ -19,6 +20,7 @@ import chronoSimulator.ChronoTimerSimulator;
  *
  */
 
+@SuppressWarnings("unused")
 public class ChronoTimer {
 
 	private class Channel{
@@ -69,6 +71,7 @@ public class ChronoTimer {
 	private String eventType; // their test text file has a EVENT command 
 	private LocalTime currentTime;
 	private ArrayList<Racer> queuedRacers;
+	Server server;
 	
 	// used for testing
 	private boolean showMessage = true; //  TRUE - print invalid sysout msg, FALSE - print no invalid sysout msg 
@@ -96,6 +99,7 @@ public class ChronoTimer {
 		log = "";
 		eventType = "IND"; // default run event to start
 		setCurrentTime(null);
+		server = new Server();
 	}
 
 	/**
@@ -310,6 +314,7 @@ public class ChronoTimer {
 				
 				case("ENDRUN"): // Done with a Run
 					if(endRun() == false) return printMessage("There is no current run.");
+					server.sendData(completedRunData());
 					printMessage("Ending Run.");
 					break;
 				
@@ -579,6 +584,44 @@ public class ChronoTimer {
 		}
 	}
 	*/
+	
+	public ArrayList<Racer> completedRunData() {
+		ArrayList<Racer> results = new ArrayList<>();
+		if(!pastRuns.isEmpty()) {
+			int mostRecentRun = pastRuns.size() - 1;
+			try {
+				results = pastRuns.get(mostRecentRun).serverData();
+
+				Comparator<Racer> comparator = new Comparator<Racer>(){
+
+					@Override
+					public int compare(Racer o1, Racer o2) {
+						if(o1.getDNF() == true && o2.getDNF() == false) {
+							return 1;
+						}else if(o1.getDNF() == false && o2.getDNF() == true) {
+							return -1;
+						}else if(o1.getDNF() == true && o1.getDNF() == true) {
+							return 0;
+						}
+						else {
+							if(o1.getTime().compareTo(o2.getTime()) > 0) return 1;
+							else if(o1.getTime().compareTo(o2.getTime()) < 0) return -1;
+							else return 0;
+						}
+					}
+				};
+				
+				results.sort(comparator);
+				
+				return results;
+				
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return results;
+	}
 	
 	private void writeFile(){
 		;

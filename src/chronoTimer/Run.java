@@ -35,6 +35,8 @@ public abstract class Run {
 	
 	protected abstract String update(LocalTime time);
 	
+	protected abstract ArrayList<Racer> serverData();
+	
 	/**
 	 * Node Class for use in Linked lists for keeping track of racers
 	 * @author Isshanna

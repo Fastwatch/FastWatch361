@@ -1,0 +1,75 @@
+/*body {
+    background: url("background.gif") no-repeat;
+    background-size: 100%;
+}*/
+/* old stuff that looks nice
+table{
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-collapse: collapse;
+    background-color: white;
+}
+tr, th, td {
+    text-align: left;
+    font-size: 18px;
+}
+th, td {
+    padding-right: 5px;
+    padding-left: 10px;
+}
+tr:nth-child(odd){
+    background-color: rgba(0, 0, 0, 0.2);
+}
+tr:first-child {
+    background-color: #8bc34a;
+    color: white;
+}
+
+tr:hover {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+tr:first-child:hover{
+    background-color: #8bc34a;
+}
+*/
+/* body {
+    background: url("background.gif") no-repeat;
+    background-size: 100%;
+} */
+table{
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-collapse: collapse;
+    background-color: white;
+    background: -webkit-linear-gradient(rgba(255, 13, 255, 0.5), rgba(0, 255, 247, 0.5));
+    background: -o-linear-gradient(rgba(255, 13, 255, 0.5), rgba(0, 255, 247, 0.5));
+    background: -moz-linear-gradient(rgba(255, 13, 255, 0.5), rgba(0, 255, 247, 0.5));
+    background: linear-gradient(rgba(255, 13, 255, 0.5), rgba(0, 255, 247, 0.5));
+    color: black;
+}
+tr, th, td {
+    text-align: left;
+    font-size: 18px;
+
+}
+th, td {
+    padding-right: 5px;
+    padding-left: 10px;
+}
+tr:nth-child(odd){
+    background-color: rgba(0, 255, 0, 0.5);
+    background: -webkit-linear-gradient(rgba(168, 255, 199, 0.5), rgba(176, 255, 40, 0.5));
+    background: -o-linear-gradient(rgba(168, 255, 199, 0.5), rgba(176, 255, 40, 0.5));
+    background: -moz-linear-gradient(rgba(168, 255, 199, 0.5), rgba(176, 255, 40, 0.5));
+    background: linear-gradient(rgba(168, 255, 199, 0.5), rgba(176, 255, 40, 0.5));
+    background-blend-mode: hue;
+}
+tr:first-child {
+    background-color: #8bc34a;
+    color: white;
+}
+
+tr:hover {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+tr:first-child:hover{
+    background-color: #8bc34a;
+}
