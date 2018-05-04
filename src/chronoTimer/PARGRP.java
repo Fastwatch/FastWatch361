@@ -11,11 +11,7 @@ public class PARGRP extends Run{
 	LocalTime[] finishTimes = new LocalTime[8];
 	int bibNumbers[] = new bibNumbers[8];
 	int dnf[] = new dnf[8];
-	
 	int numOfRacers = 0;
-	
-	int tempNum;
-	Node pointer;
 	
 	protected PARGRP(){
 		this.type="PARGRP";
@@ -32,7 +28,10 @@ public class PARGRP extends Run{
 			throw new IllegalStateException("No Racers Entered");
 		}
 		//Channel 1 is both a start trigger and finish trigger
-		if(channelNum == 1 && start==null){
+		if(start==null){
+			for(int i = 0; i < numRacers; i++) {
+				dnf[i] = false;
+			}
 			start = time;
 			status = "Parallel Group Race Now Started"
 		} else {
@@ -83,6 +82,7 @@ public class PARGRP extends Run{
 		} else {
 			throw new IllegalStateException("Cannot DNF a lane without a racer");			
 		}
+		dnf[laneNum] = true;
 		return "Racer " + n.Data.getBibNum() + " did not finish."; 
 	}
 
@@ -131,34 +131,25 @@ public class PARGRP extends Run{
 	protected String standings(LocalTime time) {
 		if (start==null)return "Race has not started\n";
 		String stand = "Group Start Time: " + start.toString()+"\n";
+		stand+= "Currently In Race:\n";
+		for(int i = 0; i < numRacers; i++) {
+			if(hasFinishedYet[i] == false && dnf[i] == false) {
+				stand+= bibNumbers[i].toString() +" "+ time.toString()+"\n";
+		}
 		
-		if(active){
-			if(queued.getLength()>0){
-				stand+= "In Queue to finish:\n";
-				for(Node n = queued.head;n!=null;n=n.next){
-					stand+= Integer.toString(n.Data.getBibNum()) +" "+ time.toString()+"\n";
+		}
+		if(finished.getLength() > 0){
+			stand+="\nCompleted Race:\n";
+			
+			for(int i = 0; i < numRacers; i++) {
+				if(hasFinishedYet[i] == true && dnf[i] == false) {
+					stand+= bibNumbers[i].toString() +" DNF\n";
 				}
 			}
-			if(finished.getLength() > 0){
-				stand+="\nCompleted Race:\n";
-				for(Node n = finished.head;n!=null;n=n.next){
-					if(n.Data.getDNF()){
-						stand+= Integer.toString(n.Data.getBibNum()) +" DNF\n";
-					}else{
-						stand+= Integer.toString(n.Data.getBibNum()) +" "+ n.Data.getTime().toString() +"\n";
-					}
-				}
-			}
-		}else{
-			if(finished.getLength() > 0){
-				stand+="\nCompleted Race:\n";
-				for(Node n = finished.head;n!=null;n=n.next){
-					if(n.Data.getDNF()){
-						stand+= Integer.toString(n.Data.getBibNum()) +" DNF\n";
-					}else{
-						stand+= Integer.toString(n.Data.getBibNum()) +" "+ n.Data.getTime().toString() +"\n";
-					}
-					
+			
+			for(int i = 0; i < numRacers; i++){
+				if(dnf[i] == true) {
+					stand+= bibNumbers[i].toString() +" DNF\n";
 				}
 			}
 		}
@@ -168,30 +159,35 @@ public class PARGRP extends Run{
 	@Override
 	protected void end() {
 		active = false;
-		while(queued.getLength()>0){
-			dnf();
-		}
+
+		//@TODO: 
 		
 	}
 
 	@Override
 	protected String export() {
-		String output = "{\"type\":\"GRP\",";
+		String output = "{\"type\":\"PARGRP\",";
 		output+= "\"startTime\":\""+start.toString()+"\",";
-		output+= "\"queued\":[";
-		for(Node n = queued.head;n!=null;n=n.next){
-			output+= "{\"bibNum\":"+Integer.toString(n.Data.getBibNum())+",\"startTime\":\"\",\"endTime\":\"\",\"dnf\":"+n.Data.getDNF()+"}";
-			if (n.next!=null) output+=",";
+		output+= "\"Racing\":[";
+		for(int i = 0; i < numRacers; i++){
+			if(hasFinishedYet[i] == false) {
+				output+= "{\"bibNum\":"+bibNumbers[i].toString()+",\"startTime\":\"\",\"endTime\":\"\",\"dnf\":"+dnf[i].toString()+"}";				
+			}
+			if(i == numOfRacers){ output+=","};
 		}
 		output += "],";
 		output+= "\"finished\":[";
-		for(Node n = finished.head;n!=null;n=n.next){
-			if (n.Data.getDNF()){
-				output+= "{\"bibNum\":"+Integer.toString(n.Data.getBibNum())+",\"startTime\":\""+n.Data.getStartTime()+"\",\"endTime\":\"\",\"dnf\":"+n.Data.getDNF()+"}";
-			}else{
-				output+= "{\"bibNum\":"+Integer.toString(n.Data.getBibNum())+",\"startTime\":\""+n.Data.getStartTime()+"\",\"endTime\":\""+n.Data.getEndTime()+"\",\"dnf\":"+n.Data.getDNF()+"}";
+		for(int i = 0; i < numRacers; i++){
+
+			if(hasFinishedYet[i] == false && dnf[i] == true) {
+				output+= "{\"bibNum\":"+bibNumbers[i].toString()+",\"startTime\":\"" + start +"\",\"endTime\":\"\",\"dnf\":"+dnf[i].toString()+"}";			
 			}
-			if (n.next!=null) output+=",";
+
+			if(hasFinishedYet[i] == true) {
+				output+= "{\"bibNum\":"+bibNumbers[i].toString()+",\"startTime\":\"" + start +"\",\"endTime\":\""+finishTimes[i].toString()+"\",\"dnf\":"+dnf[i].toString()+"}";		
+			}
+			
+			if(i == numOfRacers){ output+=","};
 		}
 		output += "]}";
 		return output;
@@ -202,15 +198,6 @@ public class PARGRP extends Run{
 		return start!=null;
 	}
 
-	@Override
-	protected ArrayList<Racer> getQueue() {
-		ArrayList<Racer> queue = new ArrayList<>();
-		for(Node n = queued.head; n != null; n = n.next) {
-			queue.add(n.Data);
-		}
-		return queue;
-	}
-	
 	protected boolean contains(int bibNum){
 		bool contains = false;
 		for(int i = 0; i < numRacers; i++) {
@@ -223,26 +210,17 @@ public class PARGRP extends Run{
 		if (start==null)return "Race has not started\n";
 		String stand = "Group Start Time: " + start.toString()+"\n";
 		int counter = 0;
-		if(queued.getLength()+finished.getLength() == 0){
-			return stand + "No Racers queued or finished\n";
-		}
-		if(queued.getLength()>0){
-			stand+= "In Queue to finish:\n";
-			for(Node n = queued.head;n!=null&&counter<3;n=n.next){
-				stand+= Integer.toString(n.Data.getBibNum()) +" "+ time.toString()+"\n";
-				++counter;
+		bool hasAnyoneFinished = false;
+		for(int i = 0; i < numRacers; i++) {
+			if(hasFinished[i]) {
+				hasAnyoneFinished = true;
 			}
 		}
-		counter = 0;
-		if(finished.getLength() > 0){
+	
+		if(!hasAnyoneFinished){
+			return stand + "No Racers finished\n";
+		} else {
 			stand+="\nCompleted Race:\n";
-			for(Node n = finished.tail;n!=null&&counter<3;n=n.prev){
-				if(n.Data.getDNF()){
-					stand+= Integer.toString(n.Data.getBibNum()) +" DNF\n";
-				}else{
-					stand+= Integer.toString(n.Data.getBibNum()) +" "+ n.Data.getTime().toString() +"\n";
-				}
-				++counter;
 			}
 		}
 		return stand;
