@@ -3,6 +3,9 @@ package chronoTimer;
 import java.time.LocalTime;
 import java.util.ArrayList;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 public class PARIND extends Run{
 
 	IND Lane1;
@@ -108,10 +111,90 @@ public class PARIND extends Run{
 
 	@Override
 	protected String export() {
-		String output = "{\"type\":\"PARIND\",";
-		output += "\"Lane1\":"+Lane1.export()+",";		
-		output += "\"Lane2\":"+Lane2.export()+"}";	
-		return output;
+		JsonObject obj = new JsonObject();
+		JsonArray lane1 = new JsonArray();
+		JsonArray lane2 = new JsonArray();
+		JsonObject element;
+	
+		obj.addProperty("type", this.type.toString());
+		// iterate through lane 1 and add it to array called queuedLane1
+		for(Node n = Lane1.queued.head;n!=null;n=n.next){
+			element = new JsonObject();
+			element.addProperty("bibNum", n.Data.getBibNum());
+			element.addProperty("startTime", "");
+			element.addProperty("endTime", "");
+			element.addProperty("dnf", n.Data.getDNF());
+			lane1.add(element);
+		}
+		obj.add("queuedLane1", lane1);
+		lane1 = new JsonArray();
+		
+		// iterate through lane 2 and add it to array called queuedLane2
+		for(Node n = Lane2.queued.head;n!=null;n=n.next){
+			element = new JsonObject();
+			element.addProperty("bibNum", n.Data.getBibNum());
+			element.addProperty("startTime", "");
+			element.addProperty("endTime", "");
+			element.addProperty("dnf", n.Data.getDNF());
+			lane2.add(element);
+		} 
+		obj.add("queuedLane2", lane2);
+		lane2 = new JsonArray();
+		
+		for(Node n = Lane1.running.head; n != null; n=n.next){
+			element = new JsonObject();
+			element.addProperty("bibNum", n.Data.getBibNum());
+			element.addProperty("startTime", n.Data.getStartTime().toString());
+			element.addProperty("endTime", "");
+			element.addProperty("dnf", n.Data.getDNF());
+			lane1.add(element);
+		} 
+		obj.add("runningLane1", lane1);
+		lane1 = new JsonArray();
+		
+		for(Node n = Lane2.running.head; n != null; n=n.next){
+			element = new JsonObject();
+			element.addProperty("bibNum", n.Data.getBibNum());
+			element.addProperty("startTime", n.Data.getStartTime().toString());
+			element.addProperty("endTime", "");
+			element.addProperty("dnf", n.Data.getDNF());
+			lane2.add(element);
+		} 
+		obj.add("runningLane2", lane2);
+		lane2 = new JsonArray();
+		
+		for(Node n = Lane1.complete.head;n!=null;n=n.next){
+			element = new JsonObject();
+			element.addProperty("bibNum", n.Data.getBibNum());
+			element.addProperty("startTime",n.Data.getStartTime().toString());
+			if(n.Data.getDNF() == false){
+				element.addProperty("endTime", n.Data.getEndTime().toString());
+			}else{
+				element.addProperty("endTime", "");
+			}
+			element.addProperty("dnf", n.Data.getDNF());
+			lane1.add(element);
+		} 
+		obj.add("finishedLane1", lane1);
+		lane1 = new JsonArray();
+		
+		
+		for(Node n = Lane2.complete.head;n!=null;n=n.next){
+			element = new JsonObject();
+			element.addProperty("bibNum", n.Data.getBibNum());
+			element.addProperty("startTime",n.Data.getStartTime().toString());
+			if(n.Data.getDNF() == false){
+				element.addProperty("endTime", n.Data.getEndTime().toString());
+			}else{
+				element.addProperty("endTime", "");
+			}
+			element.addProperty("dnf", n.Data.getDNF());
+			lane2.add(element);
+		} 
+		obj.add("finishedLane2", lane2);
+		lane2 = new JsonArray();
+		//System.out.println(obj.toString()); // debug
+		return obj.toString();
 	}
 
 
@@ -244,17 +327,5 @@ public class PARIND extends Run{
 		}	
 		return stand;
 	}
-	
-	@Override
-	protected ArrayList<Racer> serverData() {
-		ArrayList<Racer> finishedList = new ArrayList<>();
-		for(Node n = Lane1.complete.head; n != null; n = n.next) {
-			finishedList.add(n.Data);
-		}
-		for(Node n = Lane2.complete.head; n != null; n = n.next) {
-			finishedList.add(n.Data);
-		}
-	
-		return finishedList;
-	}
+
 }

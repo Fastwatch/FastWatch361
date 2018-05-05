@@ -3,6 +3,9 @@ package chronoTimer;
 import java.time.LocalTime;
 import java.util.ArrayList;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 class IND extends Run {
 	
 	LinkedList queued;
@@ -193,30 +196,48 @@ class IND extends Run {
 
 	@Override
 	protected String export() {
-		String output = "{\"type\":\"IND\",";
-		output+= "\"queued\":[";
+		JsonObject obj = new JsonObject();
+		JsonArray array = new JsonArray();
+		JsonObject element;
+		
+		obj.addProperty("type", this.type.toString());
 		for(Node n = queued.head;n!=null;n=n.next){
-			output+= "{\"bibNum\":"+Integer.toString(n.Data.getBibNum())+",\"startTime\":\"\",\"endTime\":\"\",\"dnf\":"+n.Data.getDNF()+"}";
-			if (n.next!=null) output+=",";
-		}
-		output += "],";
-		output+= "\"running\":[";
+			element = new JsonObject();
+			element.addProperty("bibNum", n.Data.getBibNum());
+			element.addProperty("startTime", "");
+			element.addProperty("endTime", "");
+			element.addProperty("dnf", n.Data.getDNF());
+			array.add(element);
+		} 
+		
+		obj.add("queued", array);
+		array = new JsonArray();
 		for(Node n = running.head;n!=null;n=n.next){
-			output+= "{\"bibNum\":"+Integer.toString(n.Data.getBibNum())+",\"startTime\":\""+n.Data.getStartTime()+"\",\"endTime\":\"\",\"dnf\":"+n.Data.getDNF()+"}";
-			if (n.next!=null) output+=",";
-		}
-		output += "],";
-		output+= "\"finished\":[";
+			element = new JsonObject();
+			element.addProperty("bibNum", n.Data.getBibNum());
+			element.addProperty("startTime", n.Data.getStartTime().toString());
+			element.addProperty("endTime", "");
+			element.addProperty("dnf", n.Data.getDNF());
+			array.add(element);
+		} 
+		
+		obj.add("running", array);
+		array = new JsonArray();
 		for(Node n = complete.head;n!=null;n=n.next){
-			if (n.Data.getDNF()){
-				output+= "{\"bibNum\":"+Integer.toString(n.Data.getBibNum())+",\"startTime\":\""+n.Data.getStartTime()+"\",\"endTime\":\"\",\"dnf\":"+n.Data.getDNF()+"}";
+			element = new JsonObject();
+			element.addProperty("bibNum", n.Data.getBibNum());
+			element.addProperty("startTime", n.Data.getStartTime().toString());
+			if(n.Data.getDNF() == false){
+				element.addProperty("endTime", n.Data.getEndTime().toString());
 			}else{
-				output+= "{\"bibNum\":"+Integer.toString(n.Data.getBibNum())+",\"startTime\":\""+n.Data.getStartTime()+"\",\"endTime\":\""+n.Data.getEndTime()+"\",\"dnf\":"+n.Data.getDNF()+"}";
+				element.addProperty("endTime", "");
 			}
-			if (n.next!=null) output+=",";
-		}
-		output += "]}";
-		return output;
+			element.addProperty("dnf", n.Data.getDNF());
+			array.add(element);
+		} 
+		obj.add("finished", array);
+		//System.out.println(obj.toString()); // debug
+		return obj.toString();
 	}
 	
 	protected boolean contains(int bibNum){
@@ -240,15 +261,6 @@ class IND extends Run {
 			queue.add(n.Data);
 		}
 		return queue;
-	}
-	
-	@Override
-	protected ArrayList<Racer> serverData(){
-		ArrayList<Racer> finishedList = new ArrayList<>();
-		for(Node n = complete.head; n != null; n = n.next) {
-			finishedList.add(n.Data);
-		}
-		return finishedList;
 	}
 	
 	protected String update(LocalTime time){

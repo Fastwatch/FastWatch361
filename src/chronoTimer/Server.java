@@ -7,10 +7,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Scanner;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -25,6 +31,7 @@ public class Server {
 	// a shared area where we get the POST data and then use it in the other handler
 	static boolean gotMessageFlag = false;
 	static ArrayList<Racer> results = new ArrayList<Racer>();
+	static String runType = "IND";
 
 	public Server() {
 
@@ -84,6 +91,24 @@ public class Server {
 					// read from file and check if there is any name matching with the bibNumber
 					HashMap<Integer, String> names = parseFile(); 
 					
+					results.sort(new Comparator<Racer>(){
+
+						public int compare(Racer o1, Racer o2) {
+							if(o1.getDNF() == true && o2.getDNF() == false) {
+								return 1;
+							}else if(o1.getDNF() == false && o2.getDNF() == true) {
+								return -1;
+							}else if(o1.getDNF() == true && o1.getDNF() == true) {
+								return 0;
+							}
+							else {
+								if(o1.getTime().compareTo(o2.getTime()) > 0) return 1;
+								else if(o1.getTime().compareTo(o2.getTime()) < 0) return -1;
+								else return 0;
+							}
+						}
+					});
+					
 					for (Racer r : results) {
 						String racerName = "";
 						response += "<tr>" + "\n";
@@ -135,7 +160,7 @@ public class Server {
 			HashMap<Integer, String> names = new HashMap<Integer, String>();
 			
 			if(!file.exists() || !file.isFile()) {
-				System.out.println("No file called racers.txt found");
+				//System.out.println("No file called racers.txt found");
 			}
 			
 			try (BufferedReader br = new BufferedReader(new FileReader("racers.txt"));){
@@ -147,7 +172,7 @@ public class Server {
 					names.put(Integer.parseInt(s[0]), s[1]);
 				}
 			} catch (Exception e) {
-				System.out.println(e.getMessage());
+				//System.out.println(e.getMessage());
 			}
 			
 			return names;
@@ -210,11 +235,62 @@ public class Server {
 	 * Sends the most recent sorted RUN data to the server.
 	 * @param data
 	 */
-	public void sendData(ArrayList<Racer> data) {
-		if(!data.isEmpty()) {
-			System.out.println("Data sent to server.");
+	public void receiveData(String JSONString) {
+		Gson g = new Gson();
+		results = new ArrayList<>(); // reset results every update
+		
+		// get the whole JSON Data converted into JsonObject
+		JsonElement element = g.fromJson(JSONString, JsonElement.class); 
+		JsonObject runData = element.getAsJsonObject(); 
+		JsonArray finishedRacers = new JsonArray();
+		
+		// parse and initialize to create a Json Array containing finished racers
+		runType = runData.get("type").toString();
+		if(runType.equalsIgnoreCase("\"PARIND\"")){
+			JsonArray lane1 = runData.getAsJsonArray("finishedLane1");
+			JsonArray lane2 = runData.getAsJsonArray("finishedLane2");
+			finishedRacers.addAll(lane1);
+			finishedRacers.addAll(lane2);
+		}else{
+			finishedRacers = runData.getAsJsonArray("finished");
 		}
-		results = data;
+		 
+
+		// iterate through Json Array and add it to an ArrayList for sorting and fetching data from
+		for(int i = 0; i < finishedRacers.size(); i++) {
+			Racer r;
+			LocalTime startTime;
+			JsonObject object = finishedRacers.get(i).getAsJsonObject();
+			int bibNum = Integer.parseInt(object.get("bibNum").toString());
+			boolean dnf = object.get("dnf").getAsBoolean();
+			String sTime = object.get("startTime").getAsString();
+			
+			if(dnf == false) {
+				String eTime = object.get("endTime").getAsString();
+				LocalTime endTime = LocalTime.parse(eTime);
+				
+				if(!sTime.equalsIgnoreCase("")){
+					startTime = LocalTime.parse(sTime);
+					r = new Racer(bibNum, startTime, endTime);
+				}else{
+					r = new Racer(bibNum);
+					r.setFinish(endTime);
+				}
+				r.setDNF(false);
+			}else {
+				if(!sTime.equalsIgnoreCase("")){
+					startTime = LocalTime.parse(sTime);
+					r = new Racer(bibNum,startTime);
+				}else{
+					r = new Racer(bibNum);
+				}
+				r.setDNF(true); 
+			}
+			
+			results.add(r);
+		}
+		
 	}
+
 
 }

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.BindException;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -100,6 +101,7 @@ public class ChronoTimer {
 		eventType = "IND"; // default run event to start
 		setCurrentTime(null);
 		server = new Server();
+
 	}
 
 	/**
@@ -259,6 +261,8 @@ public class ChronoTimer {
 						eventType = "PARIND";
 					}else if(commands[2].equalsIgnoreCase("GRP")){
 						eventType = "GRP";
+					}else if(commands[2].equalsIgnoreCase("PARGRP")){
+						eventType = "PARGRP";
 					}
 					else{
 						return printMessage("Unsupported event type.");
@@ -314,8 +318,7 @@ public class ChronoTimer {
 				
 				case("ENDRUN"): // Done with a Run
 					if(endRun() == false) return printMessage("There is no current run.");
-					server.sendData(completedRunData());
-					printMessage("Ending Run.");
+					printMessage(eventType + " Run ended");
 					break;
 				
 				case("RESET"): // Reset system to initial state
@@ -436,12 +439,11 @@ public class ChronoTimer {
 				
 					if(commands.length == 2) {
 						if(getCurrentRun() == null) {
-							printMessage("Printing previous run."); // sim.execute(msg)
-							printMessage(print(time, pastRuns.get(pastRuns.size() - 1))); // print the previous run since user didn't specify the run
-							sim.sendToGuiPrinter(print(time, pastRuns.get(pastRuns.size() - 1)));
+							printMessage("Printing previous run:\n" + print(time, pastRuns.get(pastRuns.size() - 1))); // print the previous run since user didn't specify the run
+							sim.sendToGuiPrinter("Printing previous run:\n" + print(time, pastRuns.get(pastRuns.size() - 1)));
 						}else {
-							printMessage(print(time, getCurrentRun())); // print current run
-							sim.sendToGuiPrinter(print(time, getCurrentRun()));
+							printMessage("Printing current run:\n" + print(time, getCurrentRun())); // print current run
+							sim.sendToGuiPrinter("Printing current run:\n" + print(time, getCurrentRun()));
 						}
 					}else if(commands.length == 3) {
 						try {
@@ -532,6 +534,8 @@ public class ChronoTimer {
 			setCurrentRun(new PARIND());
 		}else if(eventType.equalsIgnoreCase("GRP")){
 			setCurrentRun(new GRP());
+		}else if(eventType.equalsIgnoreCase("PARGRP")){
+			//setCurrentRun(new PARGRP());
 		}
 		printMessage("Run event: " + eventType + " created."); // sim.execute(msg);
 	}
@@ -546,11 +550,17 @@ public class ChronoTimer {
 		if (getCurrentRun() == null){
 			return false;
 		}
-		pastRuns.add(getCurrentRun());
+		if(!currentRun.getQueue().isEmpty() || currentRun.raceInProgress()){
+			// only add it to our pastRuns if there there are racers in the RUN, it will be a waste to add "empty" Runs
+			pastRuns.add(currentRun);
+		}
 		try {
+			printMessage("Attempting to send Run results to server");
 			getCurrentRun().end();
+			server.receiveData(currentRun.export());
+			printMessage("Results sent to the server.");	
 		}catch(Exception e) {
-			return printMessage(e.getMessage());
+			printMessage("Uh oh, something went wrong when sending data to server...");
 		}
 		setCurrentRun(null);
 		return true;
@@ -584,47 +594,7 @@ public class ChronoTimer {
 		}
 	}
 	*/
-	
-	public ArrayList<Racer> completedRunData() {
-		ArrayList<Racer> results = new ArrayList<>();
-		if(!pastRuns.isEmpty()) {
-			int mostRecentRun = pastRuns.size() - 1;
-			try {
-				results = pastRuns.get(mostRecentRun).serverData();
-
-				Comparator<Racer> comparator = new Comparator<Racer>(){
-
-					@Override
-					public int compare(Racer o1, Racer o2) {
-						if(o1.getDNF() == true && o2.getDNF() == false) {
-							return 1;
-						}else if(o1.getDNF() == false && o2.getDNF() == true) {
-							return -1;
-						}else if(o1.getDNF() == true && o1.getDNF() == true) {
-							return 0;
-						}
-						else {
-							if(o1.getTime().compareTo(o2.getTime()) > 0) return 1;
-							else if(o1.getTime().compareTo(o2.getTime()) < 0) return -1;
-							else return 0;
-						}
-					}
-				};
-				
-				results.sort(comparator);
-				
-				return results;
-				
-			}catch(Exception e) {
-				e.printStackTrace();
-			}
-		}
-		
-		return results;
-	}
-	
 	private void writeFile(){
-		;
 		File file;
 		if(getCurrentRun() == null)
 			file = new File("RUN" + pastRuns.size() + ".txt");

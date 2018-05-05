@@ -3,6 +3,7 @@ package chronoTimer;
 import java.time.LocalTime;
 import java.util.ArrayList;
 
+
 public abstract class Run {
 	protected String type;
 	protected boolean active;
@@ -34,8 +35,6 @@ public abstract class Run {
 	protected abstract ArrayList<Racer> getQueue();
 	
 	protected abstract String update(LocalTime time);
-	
-	protected abstract ArrayList<Racer> serverData();
 	
 	/**
 	 * Node Class for use in Linked lists for keeping track of racers

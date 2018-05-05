@@ -3,12 +3,16 @@ package chronoTimer;
 import java.time.LocalTime;
 import java.util.ArrayList;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 public class GRP extends Run{
 	
 	LocalTime startTime;
 	LinkedList finished;
 	LinkedList queued;
 	int tempNum;
+	ArrayList<Integer> usedBibNum = new ArrayList<>(); // collection of bib numbers user gave to us
 	Node pointer;
 	
 	protected GRP(){
@@ -30,7 +34,10 @@ public class GRP extends Run{
 			status = "Group Race has now started";
 		}else if(channelNum == 2){
 			if (startTime==null) throw new IllegalStateException("Race has not started.");
-			if (queued.getLength() == 0){		
+			if (queued.getLength() == 0){
+				while(usedBibNum.contains(tempNum)){
+					tempNum++;
+				}
 				Node n = new Node(new Racer(tempNum,startTime,time));
 				status = "Temp Racer " + tempNum +" completed their run in: " +n.Data.getTime();
 				if(pointer==null){
@@ -54,7 +61,7 @@ public class GRP extends Run{
 	@Override
 	protected void swap() {
 		if(startTime==null) throw new IllegalStateException("Race hasn't started yet");
-		if(queued.getLength() < 2) throw new IllegalArgumentException("Not Enough Racers queued to Swap.");
+		if(queued.getLength() < 2) throw new IllegalArgumentException("No Enough Racers queued to Swap.");
 		Node n1 = queued.removeStart();
 		Node n2 = queued.removeStart();
 		queued.addStart(n1);
@@ -99,6 +106,7 @@ public class GRP extends Run{
 			Node n = new Node(new Racer(bibNum));
 			queued.addEnd(n);
 		}	
+		usedBibNum.add(bibNum);
 	}
 
 	@Override
@@ -154,30 +162,48 @@ public class GRP extends Run{
 		while(queued.getLength()>0){
 			dnf();
 		}
+		for(Node n = finished.head; n != null; n = n.next){
+			
+			n.Data.setStart(startTime);
+		}
 		
 	}
 
 	@Override
 	protected String export() {
-		String output = "{\"type\":\"GRP\",";
-		output+= "\"startTime\":\""+startTime.toString()+"\",";
-		output+= "\"queued\":[";
+		JsonObject obj = new JsonObject();
+		JsonArray array = new JsonArray();
+		JsonObject element;
+		String time = "";
+	
+		obj.addProperty("type", "GRP");
 		for(Node n = queued.head;n!=null;n=n.next){
-			output+= "{\"bibNum\":"+Integer.toString(n.Data.getBibNum())+",\"startTime\":\"\",\"endTime\":\"\",\"dnf\":"+n.Data.getDNF()+"}";
-			if (n.next!=null) output+=",";
-		}
-		output += "],";
-		output+= "\"finished\":[";
+			element = new JsonObject();
+			element.addProperty("bibNum", n.Data.getBibNum());
+			element.addProperty("startTime", time);
+			element.addProperty("endTime", "");
+			element.addProperty("dnf", n.Data.getDNF());
+			array.add(element);
+		} 
+		
+		obj.add("queued", array);
+		array = new JsonArray();
+		
 		for(Node n = finished.head;n!=null;n=n.next){
-			if (n.Data.getDNF()){
-				output+= "{\"bibNum\":"+Integer.toString(n.Data.getBibNum())+",\"startTime\":\""+n.Data.getStartTime()+"\",\"endTime\":\"\",\"dnf\":"+n.Data.getDNF()+"}";
+			element = new JsonObject();
+			element.addProperty("bibNum", n.Data.getBibNum());
+			element.addProperty("startTime", n.Data.getStartTime().toString());
+			if(n.Data.getDNF() == false){
+				element.addProperty("endTime", n.Data.getEndTime().toString());
 			}else{
-				output+= "{\"bibNum\":"+Integer.toString(n.Data.getBibNum())+",\"startTime\":\""+n.Data.getStartTime()+"\",\"endTime\":\""+n.Data.getEndTime()+"\",\"dnf\":"+n.Data.getDNF()+"}";
+				element.addProperty("endTime", "");
 			}
-			if (n.next!=null) output+=",";
-		}
-		output += "]}";
-		return output;
+			element.addProperty("dnf", n.Data.getDNF());
+			array.add(element);
+		} 
+		obj.add("finished", array);
+		//System.out.println(obj.toString()); // debug
+		return obj.toString();
 	}
 
 	@Override
@@ -230,12 +256,5 @@ public class GRP extends Run{
 		}
 		return stand;
 	}
-	@Override
-	protected ArrayList<Racer> serverData() {
-		ArrayList<Racer> finishedList = new ArrayList<>();
-		for(Node n = finished.head; n != null; n = n.next) {
-			finishedList.add(n.Data);
-		}
-		return finishedList;
-	}
+
 }
