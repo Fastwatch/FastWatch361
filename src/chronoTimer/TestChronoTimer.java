@@ -36,7 +36,9 @@ public class TestChronoTimer {
 		assertTrue("Valid event.", ct.execute("12:01:20.0 EVENT IND"));
 		assertFalse("Invalid event.", ct.execute("12:01:20.0 EVENT Id"));
 		assertFalse("There is no event to assign.", ct.execute("12:01:20.0 EVENT"));
-		assertFalse("Event is not supported yet of release 1.", ct.execute("12:01:20.0 EVENT GRP"));
+		assertTrue("Valid event.", ct.execute("12:01:20.0 EVENT GRP"));
+		assertTrue("Valid event.", ct.execute("12:01:20.0 EVENT PARIND"));
+		assertTrue("Valid event.", ct.execute("12:01:20.0 EVENT PARGRP"));
 	}
 	
 	@Test

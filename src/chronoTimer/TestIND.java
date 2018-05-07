@@ -34,14 +34,7 @@ public class TestIND {
 		run.num(3);
 		emptyRun = new IND();
 	}
-	
-	@Test
-	public void testStandings(){
-		assertEquals("String is displayed incorrectly for an empty run.","No Racers Currently In Run" , emptyRun.standings(time));
-		//Racers in queue
-		assertEquals("String is displayed incorrectly.",queueStanding + "1 " + time + 
-				  "\n" + "2 " + time + "\n" + "3 " + time + "\n" , run.standings(time));
-	}
+
 	
 	@Test
 	public void testTrig(){
@@ -76,14 +69,14 @@ public class TestIND {
 			run.swap();
 			assertFalse("Cannot swap, there are no racer in the running list",true);
 		}catch(RuntimeException e){
-			assertTrue("wrong exception thrown: " + e, e instanceof IllegalStateException);
+			assertTrue("wrong exception thrown: " + e, e instanceof IllegalArgumentException);
 		}
 		run.trig(time, 1); //(racer 1)
 		try{
 			run.swap();
 			assertFalse("Cannot swap, there is 1 racer in the running list",true);
 		}catch(RuntimeException e){
-			assertTrue("wrong exception thrown: " + e, e instanceof IllegalStateException);
+			assertTrue("wrong exception thrown: " + e, e instanceof IllegalArgumentException);
 		}
 		
 		run.trig(time, 1); //time start is 10:30:00 (racer 2)
@@ -131,7 +124,7 @@ public class TestIND {
 		// no racers
 		run.clr(3);
 		run.clr(2);
-		assertEquals("String is diplayed incorrectly.","No Racers Currently In Run", run.standings(time));
+		assertEquals("String is diplayed incorrectly.","No Racers Currently In Run\n", run.standings(time));
 		
 		try{
 			run.clr(1);
@@ -171,7 +164,7 @@ public class TestIND {
 			run.dnf();
 			assertFalse("Cannot dnf racers, there are no racer in the running list",true);
 		}catch(RuntimeException e){
-			assertTrue("wrong exception thrown: " + e, e instanceof IllegalArgumentException);
+			assertTrue("wrong exception thrown: " + e, e instanceof IllegalStateException);
 		}
 		// all racers in queue
 		assertEquals("String is displayed incorrectly in queue standing.",queueStanding + "1 " + time + 
@@ -189,7 +182,7 @@ public class TestIND {
 			emptyRun.dnf();
 			assertFalse("Cannot dnf racers, there are no racer in the run",true);
 		}catch(RuntimeException e){
-			assertTrue("wrong exception thrown: " + e, e instanceof IllegalArgumentException);
+			assertTrue("wrong exception thrown: " + e, e instanceof IllegalStateException);
 		}
 		
 	}

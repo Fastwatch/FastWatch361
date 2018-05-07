@@ -1,10 +1,14 @@
 package chronoTimer;
 
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.BindException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -71,7 +75,7 @@ public class ChronoTimer {
 	private ChronoTimerSimulator sim; // Chronotimer simulator
 	private String eventType; // their test text file has a EVENT command 
 	private LocalTime currentTime;
-	Server server;
+	//Server server;
 	
 	// used for testing
 	private boolean showMessage = true; //  TRUE - print invalid sysout msg, FALSE - print no invalid sysout msg 
@@ -99,7 +103,7 @@ public class ChronoTimer {
 		log = "";
 		eventType = "IND"; // default run event to start
 		currentTime = null;
-		server = new Server();
+		//server = new Server();
 
 	}
 
@@ -191,7 +195,8 @@ public class ChronoTimer {
 				time = parseTime(commands[2]);
 				if(time == null) return printMessage("Time is null");
 					currentTime = time;
-					return printMessage("Time has been set to " + time);
+					printMessage("Time has been set to " + time);
+					return true;
 			}
 			if (currentTime != null && currentTime.compareTo(time) > 0){
 				return printMessage("Current Time is before system time. Use \"TIME\" command to set system time");
@@ -523,8 +528,43 @@ public class ChronoTimer {
 			try {
 				printMessage("Attempting to send Run results to server");
 				currentRun.end();
-				server.receiveData(currentRun.export());
-				printMessage("Results sent to the server.");	
+				try {
+					String arg = "Requesting connection to server";
+
+					// Client will connect to this location
+					URL site = new URL("http://localhost:8001/sendresults");
+					HttpURLConnection conn = (HttpURLConnection) site.openConnection();
+
+					// now create a POST request
+					conn.setRequestMethod("POST");
+					conn.setDoOutput(true);
+					conn.setDoInput(true);
+					DataOutputStream out = new DataOutputStream(conn.getOutputStream());
+
+					// write out string to output buffer for message
+					out.writeBytes(arg);
+					out.flush();
+					out.close();
+
+					System.out.println("Done sent to server");
+
+					InputStreamReader inputStr = new InputStreamReader(conn.getInputStream());
+
+					// string to hold the result of reading in the response
+					StringBuilder sb = new StringBuilder();
+
+					// read the characters from the request byte by byte and build up
+					// the Response
+					int nextChar;
+					while ((nextChar = inputStr.read()) > -1) {
+						sb = sb.append((char) nextChar);
+					}
+					System.out.println("Server response: " + sb);
+
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				//server.receiveData(currentRun.export());
 			}catch(Exception e) {
 				printMessage("Uh oh, something went wrong when sending data to server...");
 			}
