@@ -36,24 +36,28 @@ public class Server {
 	public static void main(String[] args) throws Exception {
 
 		// set up a simple HTTP server on our local host
-		HttpServer server;
+		HttpServer serverDisplay;
+		HttpServer serverResults;
 		try {
-			server = HttpServer.create(new InetSocketAddress(8001), 0);
-			
+			// use different port for sending and displaying results
+			serverResults = HttpServer.create(new InetSocketAddress(8100), 0); // chronotimer port
+			serverDisplay =  HttpServer.create(new InetSocketAddress(8001), 0); // spectator's port
+
 			// create a context to get the request for the POST
-			server.createContext("/sendresults", new PostHandler());
+			serverResults.createContext("/sendresults", new PostHandler());
 
 			// create a context to get the request to display the Formatted results
-			server.createContext("/displayresults/racerlist", new RacerListHandler());
+			serverDisplay.createContext("/displayresults/racerlist", new RacerListHandler());
 
 			// create a context to get the request for the Style Sheet
-			server.createContext("/displayresults/style.css", new StyleHandler());
+			serverDisplay.createContext("/displayresults/style.css", new StyleHandler());
 
-			server.setExecutor(null); // creates a default executor
+			serverDisplay.setExecutor(null); // creates a default executor
 
 			// get it going
 			System.out.println("Starting Server...");
-			server.start();
+			serverDisplay.start();
+			serverResults.start();
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -225,7 +229,7 @@ public class Server {
 			receiveData(sb.toString());
 			
 			// respond to the POST with ROGER
-			String postResponse = "Run data received";
+			String postResponse = "Run results received";
 
 			// assume that stuff works all the time
 			transmission.sendResponseHeaders(300, postResponse.length());

@@ -243,6 +243,11 @@ public class ChronoTimer {
 						printMessage("Converting " + prevEvent + " run to " + eventType + " run");
 						try {
 							ArrayList<Racer> queuedRacers = currentRun.getQueue();
+							if(queuedRacers.size() >= 9 && eventType.equalsIgnoreCase("PARGRP")) {
+								eventType = prevEvent;// reassign it back
+								printMessage("Event is set back to " + eventType);
+								return printMessage("Incompatible to convert a Run with more than 9 racers to PARGRP");
+							}
 							currentRun = null;
 							newRun();
 							for(int i = 0; i < queuedRacers.size(); i++) {
@@ -522,50 +527,52 @@ public class ChronoTimer {
 		}
 		if(!currentRun.getQueue().isEmpty() || currentRun.raceInProgress()){
 			// only add it to our pastRuns if there there are racers in the RUN, it will be a waste to add "empty" Runs
-			pastRuns.add(currentRun);
-			try {
-				printMessage("Attempting to send Run results to server");
-				currentRun.end();
+				pastRuns.add(currentRun);
+			if(currentRun.raceInProgress()) {
 				try {
-					String arg = currentRun.export();
+					printMessage("Attempting to send Run results to server");
+					currentRun.end();
+					try {
+						String arg = currentRun.export();
 
-					// ChronoTimer will connect to this location
-					URL site = new URL("http://localhost:8001/sendresults");
-					HttpURLConnection conn = (HttpURLConnection) site.openConnection();
+						// ChronoTimer will connect to this location
+						URL site = new URL("http://localhost:8100/sendresults");
+						HttpURLConnection conn = (HttpURLConnection) site.openConnection();
 
-					// now create a POST request
-					conn.setRequestMethod("POST");
-					conn.setDoOutput(true);
-					conn.setDoInput(true);
-					DataOutputStream out = new DataOutputStream(conn.getOutputStream());
+						// now create a POST request
+						conn.setRequestMethod("POST");
+						conn.setDoOutput(true);
+						conn.setDoInput(true);
+						DataOutputStream out = new DataOutputStream(conn.getOutputStream());
 
-					// write out string to output buffer for message
-					out.writeBytes(arg);
-					out.flush();
-					out.close();
+						// write out string to output buffer for message
+						out.writeBytes(arg);
+						out.flush();
+						out.close();
 
-					System.out.println("Done sent to server");
+						printMessage("Sending Run results to server...");
 
-					InputStreamReader inputStr = new InputStreamReader(conn.getInputStream());
+						InputStreamReader inputStr = new InputStreamReader(conn.getInputStream());
 
-					// string to hold the result of reading in the response
-					StringBuilder sb = new StringBuilder();
+						// string to hold the result of reading in the response
+						StringBuilder sb = new StringBuilder();
 
-					// read the characters from the request byte by byte and build up
-					// the Response
-					int nextChar;
-					while ((nextChar = inputStr.read()) > -1) {
-						sb = sb.append((char) nextChar);
+						// read the characters from the request byte by byte and build up
+						// the Response
+						int nextChar;
+						while ((nextChar = inputStr.read()) > -1) {
+							sb = sb.append((char) nextChar);
+						}
+						System.out.println("Server response: " + sb);
+
+					} catch (Exception e) {
+						//e.printStackTrace();
+						printMessage("Cannot connect to server. Make sure the server is on first.");
 					}
-					System.out.println("Server response: " + sb);
-
-				} catch (Exception e) {
-					//e.printStackTrace();
-					printMessage("Cannot connect to server. Make sure the server is on first.");
+					//server.receiveData(currentRun.export());
+				}catch(Exception e) {
+					printMessage("Uh oh, something went wrong when sending data to server...");
 				}
-				//server.receiveData(currentRun.export());
-			}catch(Exception e) {
-				printMessage("Uh oh, something went wrong when sending data to server...");
 			}
 		}
 		
