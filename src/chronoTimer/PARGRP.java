@@ -73,7 +73,7 @@ public class PARGRP extends Run{
 
 	@Override
 	protected String dnf(int laneNum) {
-		if(racers[laneNum - 1] != null && racers[laneNum - 1].getEndTime() != null){
+		if(racers[laneNum - 1] != null && racers[laneNum - 1].getEndTime() == null){
 			racers[laneNum - 1].setDNF(true);
 		}else{
 			throw new IllegalStateException("No racer in lane " + laneNum + " to DNF");	
@@ -252,7 +252,7 @@ public class PARGRP extends Run{
 		return stand;
 	}
 
-
+	
 	@Override
 	protected ArrayList<Racer> getQueue() {
 		ArrayList<Racer> queue = new ArrayList<>();

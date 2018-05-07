@@ -75,7 +75,6 @@ public class ChronoTimer {
 	private ChronoTimerSimulator sim; // Chronotimer simulator
 	private String eventType; // their test text file has a EVENT command 
 	private LocalTime currentTime;
-	//Server server;
 	
 	// used for testing
 	private boolean showMessage = true; //  TRUE - print invalid sysout msg, FALSE - print no invalid sysout msg 
@@ -103,7 +102,6 @@ public class ChronoTimer {
 		log = "";
 		eventType = "IND"; // default run event to start
 		currentTime = null;
-		//server = new Server();
 
 	}
 
@@ -529,9 +527,9 @@ public class ChronoTimer {
 				printMessage("Attempting to send Run results to server");
 				currentRun.end();
 				try {
-					String arg = "Requesting connection to server";
+					String arg = currentRun.export();
 
-					// Client will connect to this location
+					// ChronoTimer will connect to this location
 					URL site = new URL("http://localhost:8001/sendresults");
 					HttpURLConnection conn = (HttpURLConnection) site.openConnection();
 
@@ -562,7 +560,8 @@ public class ChronoTimer {
 					System.out.println("Server response: " + sb);
 
 				} catch (Exception e) {
-					e.printStackTrace();
+					//e.printStackTrace();
+					printMessage("Cannot connect to server. Make sure the server is on first.");
 				}
 				//server.receiveData(currentRun.export());
 			}catch(Exception e) {

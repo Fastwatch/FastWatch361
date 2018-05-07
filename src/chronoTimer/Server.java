@@ -33,7 +33,7 @@ public class Server {
 	static ArrayList<Racer> results = new ArrayList<Racer>();
 	static String runType = "IND";
 
-	public Server() {
+	public static void main(String[] args) throws Exception {
 
 		// set up a simple HTTP server on our local host
 		HttpServer server;
@@ -41,7 +41,7 @@ public class Server {
 			server = HttpServer.create(new InetSocketAddress(8001), 0);
 			
 			// create a context to get the request for the POST
-			//server.createContext("/sendresults", new PostHandler());
+			server.createContext("/sendresults", new PostHandler());
 
 			// create a context to get the request to display the Formatted results
 			server.createContext("/displayresults/racerlist", new RacerListHandler());
@@ -216,10 +216,16 @@ public class Server {
 			while (nextChar > -1) {
 				sb = sb.append((char) nextChar);
 				nextChar = inputStr.read();
+				
 			}
-
+			// print what we received
+			System.out.println(sb);
+			
+			//ChronoTimer data
+			receiveData(sb.toString());
+			
 			// respond to the POST with ROGER
-			String postResponse = "ROGER JSON RECEIVED";
+			String postResponse = "Run data received";
 
 			// assume that stuff works all the time
 			transmission.sendResponseHeaders(300, postResponse.length());
@@ -235,7 +241,7 @@ public class Server {
 	 * Sends the most recent sorted RUN data to the server.
 	 * @param data
 	 */
-	public void receiveData(String JSONString) {
+	public static void receiveData(String JSONString) {
 		Gson g = new Gson();
 		results = new ArrayList<>(); // reset results every update
 		
