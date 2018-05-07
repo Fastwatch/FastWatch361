@@ -13,19 +13,18 @@ import com.google.gson.reflect.TypeToken;
 
 import chronoTimer.Run.Node;
 
+@SuppressWarnings("unused")
 public class PARGRP extends Run{
 	
 	LocalTime startTime;
 	Racer racers[];
 	int numOfRacers;
-	ArrayList<Racer> finishedRacers;
 
 	
 	protected PARGRP(){
 		this.type="PARGRP";
 		startTime=null;
 		active = true;
-		finishedRacers = new ArrayList<>();
 		racers = new Racer[8];
 	}
 	
@@ -47,20 +46,11 @@ public class PARGRP extends Run{
 			return status;
 		} else {
 			//Trying to trigger a finish for a channel with no racer
-			if(racers[channelNum - 1] == null || racers[channelNum - 1].getEndTime() != null) throw new IllegalStateException("No racers in lane " + channelNum + "\n");	
+			if(racers[channelNum - 1] == null || racers[channelNum - 1].getEndTime() != null || racers[channelNum - 1].getDNF()) throw new IllegalStateException("No racers in lane " + channelNum + "\n");	
  
 			racers[channelNum - 1].setFinish(time);
-			finishedRacers.add(racers[channelNum - 1]);
 			status += "Racer " + racers[channelNum - 1].getBibNum() + " has finished with a time of " + racers[channelNum - 1].getTime() + "\n";
-			--numOfRacers;
 
-			//check finish times to see if all participants have a finish time
-			if(numOfRacers <= 0) {
-				racers = new Racer[8];
-				numOfRacers = 0;
-				startTime = null;
-				status += "Race is Finished\n";
-			}
 		}
 		return status;
 	}
@@ -85,8 +75,6 @@ public class PARGRP extends Run{
 	protected String dnf(int laneNum) {
 		if(racers[laneNum - 1] != null){
 			racers[laneNum - 1].setDNF(true);
-			finishedRacers.add(racers[laneNum - 1]);
-			--numOfRacers;
 		}else{
 			throw new IllegalStateException("No racer in lane " + laneNum + " to DNF");	
 		}
@@ -99,7 +87,7 @@ public class PARGRP extends Run{
 		
 		//Can't cancel a race startTime if a racer has finished
 		for(int i = 0; i < numOfRacers; i++) {
-			if(racers[i].getEndTime() != null) throw new IllegalStateException("Cannot cancel start after a racer has finished.");
+			if(racers[i].getEndTime() != null|| racers[i].getDNF()) throw new IllegalStateException("Cannot cancel start after a racer has finished.");
 		}
 		startTime = null;
 	}
@@ -110,9 +98,6 @@ public class PARGRP extends Run{
 		if (bibNum<0 ||bibNum>=1000)throw new IllegalArgumentException("Bib Number must be between 000 and 999.");
 		if(startTime != null) throw new IllegalArgumentException("Cannot add racers while a race is in progress.");
 		if(numOfRacers >= 8) throw new IllegalArgumentException("Can only have up to 8 racers per race."); //can't have too many racers
-		for(Racer r: finishedRacers){
-			if(r.getBibNum() == bibNum) throw new IllegalArgumentException("Racer " + bibNum + " already completed the race earlier.");
-		}
 		racers[numOfRacers] = new Racer(bibNum);
 		numOfRacers++;
 		
@@ -125,53 +110,39 @@ public class PARGRP extends Run{
 		//Remove bib then fill missing spot in array with the last racer in array
 		for(int i = 0; i < 8; i++) {
 			if(racers[i].getBibNum() == bibNum) {
-				racers[i] = null;
+				for(int j = i;j<7;j++){
+					racers[j] = racers[j+1];
+				}
+				racers[7] = null;
 				numOfRacers--;
+				break;
 			}
-		}
-		for(Racer r: finishedRacers)
-			if(r.getBibNum() == bibNum) finishedRacers.remove(r);
-		
+		}		
 	}
 
 	@Override
 	protected String standings(LocalTime time) {
-		if(numOfRacers < 0 && finishedRacers.isEmpty()) return "No Racers Currently In Run\n";
+		if(numOfRacers <= 0) return "No Racers Currently In Run\n";
+		String timeStamp = "";
 		String stand = "";
-		if(startTime == null){
-			stand+= "In Queue to Start:\n";
-			for(int i = 0; i < 8; i++) {
-				if(racers[i] != null) {
-					stand+= racers[i].getBibNum() +" "+ time.toString()+"\n";
-				}
-			}
-		}else{
+		LocalTime duration = time;
+		if (startTime != null) {
 			stand += "Parallel Group startTime Time: " + startTime.toString()+"\n";
-			String timeStamp = new SimpleDateFormat("HH:mm:ss.SSS").format(Calendar.getInstance().getTime());
 			stand+= "Currently Racing:\n";
-			LocalTime elapsedTime = LocalTime.parse(timeStamp);
-			elapsedTime.minusHours(startTime.getHour());
-			elapsedTime.minusMinutes(startTime.getMinute());
-			elapsedTime.minusSeconds(startTime.getSecond());
-			elapsedTime.minusNanos(startTime.getNano());
-			
-			for(int i = 0; i < 8; i++) {
-				if(racers[i] != null){
-					if(racers[i].getEndTime() == null && racers[i].getDNF() == false) {
-						stand+= racers[i].getBibNum() +" "+ elapsedTime +"\n";
-					}
-				}
-			}
-		
+			duration = time.minusHours(startTime.getHour());
+			duration = duration.minusMinutes(startTime.getMinute());
+			duration = duration.minusSeconds(startTime.getSecond());
+			duration = duration.minusNanos(startTime.getNano());
 		}
-		if(!finishedRacers.isEmpty()){
-			stand+="\nCompleted Race:\n";
-			for(Racer r: finishedRacers) {
-				if(r.getDNF() == true){
-					stand += r.getBibNum() + " DNF\n";
-				}else{
-					stand += r.getBibNum() + " " + r.getTime() +"\n";
-				}
+		int count = 1;
+		for(Racer r:racers){
+			if (r!=null){
+				stand += "Lane " + count++ + ": " + r.getBibNum() + " ";
+				if (r.getEndTime() == null && r.getDNF() == false)stand += duration.toString() + "\n";
+				else if (r.getDNF()) stand += "DNF\n";
+				else stand +=  r.getTime() +"\n";
+			}else{
+				stand += "Lane " + count++ + ":\n";
 			}
 		}
 		return stand;
@@ -181,9 +152,8 @@ public class PARGRP extends Run{
 	protected void end() {
 		active = false;
 		for(int i = 0; i< 8; i++){
-			if(racers[i] != null && racers[i].getEndTime() == null && racers[i].getStartTime() != null){
+			if(racers[i] != null && racers[i].getEndTime() == null){
 				racers[i].setDNF(true);
-				finishedRacers.add(racers[i]);
 				numOfRacers = 0;
 			}
 		}
@@ -220,79 +190,45 @@ public class PARGRP extends Run{
 			}
 		}
 		obj.add("running", array);
-		array = new JsonArray();
-		for(Racer r: finishedRacers){
-			element = new JsonObject();
-			element.addProperty("bibNum", r.getBibNum());
-			element.addProperty("startTime", r.getStartTime().toString());
-			if(r.getDNF() == false){
-				element.addProperty("endTime", r.getEndTime().toString());
-			}else{
-				element.addProperty("endTime", "");
-			}
-			element.addProperty("dnf", r.getDNF());
-			array.add(element);
-		} 
-		obj.add("finished", array);
 		//System.out.println(obj.toString()); // debug
 		return obj.toString();
 	}
 
 	@Override
 	protected boolean raceInProgress() {
-		return !finishedRacers.isEmpty();
+		return startTime!=null;
 	}
 
 	protected boolean contains(int bibNum){
 		boolean contains = false;
 		for(int i = 0; i < 8; i++) {
-			if(racers[i] != null && bibNum == racers[i].getBibNum()) contains = true;
-		}
-		for(Racer r: finishedRacers)
-			if(r.getBibNum() == bibNum) contains = true;
-		
-		return contains;
+			if(racers[i] != null && bibNum == racers[i].getBibNum()) return true;
+		}		
+		return false;
 	}
 	
 	protected String update(LocalTime time) {
-		if(numOfRacers == 0) return "No racers in queue\n";
-		int counter = 0;
+		if(numOfRacers <= 0) return "No Racers Currently In Run\n";
+		String timeStamp = "";
 		String stand = "";
-		if (startTime!=null){
-			stand = "Parallel Group start time: " + startTime.toString()+"\n";
-
+		LocalTime duration = time;
+		if (startTime != null) {
+			stand += "Parallel Group startTime Time: " + startTime.toString()+"\n";
 			stand+= "Currently Racing:\n";
-			LocalTime elapsedTime = time;
-			elapsedTime = elapsedTime.minusHours(startTime.getHour());
-			elapsedTime = elapsedTime.minusMinutes(startTime.getMinute());
-			elapsedTime = elapsedTime.minusSeconds(startTime.getSecond());
-			elapsedTime = elapsedTime.minusNanos(startTime.getNano());
-			
-			for(int i = 0; i < 8 && counter < 3; i++) {
-				if(racers[i] != null){
-					if(racers[i].getEndTime() == null && racers[i].getDNF() == false) {
-						stand+= racers[i].getBibNum() +" "+ elapsedTime +"\n";
-						++counter;
-					}
-					if(i == 8) break;
-				}
-				
-			}
-		}else if(startTime == null){
-			stand+= "Racers in queue:\n";
-			for(int i = 0; i < numOfRacers && counter < 3; i++) {
-				stand += racers[i].getBibNum() + " " +  time.toString() + "\n";
-				++counter;
-			}
+			duration = time.minusHours(startTime.getHour());
+			duration = duration.minusMinutes(startTime.getMinute());
+			duration = duration.minusSeconds(startTime.getSecond());
+			duration = duration.minusNanos(startTime.getNano());
 		}
-		counter = 0;
-		stand+="\nCompleted Race:\n";
-		
-		for(Racer r: finishedRacers){
-			if(r.getDNF() == true){
-				stand += r.getBibNum() + " DNF\n";
+		int count = 1;
+		for(Racer r:racers){
+			if (r!=null){
+				stand += "Lane " + count++ + ": " + r.getBibNum() + " ";
+				if (r.getEndTime() == null && r.getDNF() == false)stand += duration.toString() + "\n";
+				else if (r.getDNF()) stand += "DNF\n";
+				else stand +=  r.getTime() +"\n";
 			}else{
-				stand += r.getBibNum() + " " + r.getTime() +"\n";
+				stand += "Lane " + count++ + ":\n";
 			}
 		}
 		return stand;
