@@ -260,14 +260,13 @@ public class PARGRP extends Run{
 		String stand = "";
 		if (startTime!=null){
 			stand = "Parallel Group start time: " + startTime.toString()+"\n";
-			String timeStamp = new SimpleDateFormat("HH:mm:ss.SSS").format(Calendar.getInstance().getTime());
-			
+
 			stand+= "Currently Racing:\n";
-			LocalTime elapsedTime = LocalTime.parse(timeStamp);
-			elapsedTime.minusHours(startTime.getHour());
-			elapsedTime.minusMinutes(startTime.getMinute());
-			elapsedTime.minusSeconds(startTime.getSecond());
-			elapsedTime.minusNanos(startTime.getNano());
+			LocalTime elapsedTime = time;
+			elapsedTime = elapsedTime.minusHours(startTime.getHour());
+			elapsedTime = elapsedTime.minusMinutes(startTime.getMinute());
+			elapsedTime = elapsedTime.minusSeconds(startTime.getSecond());
+			elapsedTime = elapsedTime.minusNanos(startTime.getNano());
 			
 			for(int i = 0; i < 8 && counter < 3; i++) {
 				if(racers[i] != null){
