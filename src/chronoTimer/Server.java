@@ -41,7 +41,7 @@ public class Server {
 			server = HttpServer.create(new InetSocketAddress(8001), 0);
 			
 			// create a context to get the request for the POST
-			server.createContext("/sendresults", new PostHandler());
+			//server.createContext("/sendresults", new PostHandler());
 
 			// create a context to get the request to display the Formatted results
 			server.createContext("/displayresults/racerlist", new RacerListHandler());
