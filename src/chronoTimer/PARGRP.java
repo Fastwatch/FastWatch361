@@ -73,7 +73,7 @@ public class PARGRP extends Run{
 
 	@Override
 	protected String dnf(int laneNum) {
-		if(racers[laneNum - 1] != null){
+		if(racers[laneNum - 1] != null && racers[laneNum - 1].getEndTime() != null){
 			racers[laneNum - 1].setDNF(true);
 		}else{
 			throw new IllegalStateException("No racer in lane " + laneNum + " to DNF");	
@@ -154,7 +154,6 @@ public class PARGRP extends Run{
 		for(int i = 0; i< 8; i++){
 			if(racers[i] != null && racers[i].getEndTime() == null){
 				racers[i].setDNF(true);
-				numOfRacers = 0;
 			}
 		}
 	}
@@ -190,6 +189,25 @@ public class PARGRP extends Run{
 			}
 		}
 		obj.add("running", array);
+		array = new JsonArray();
+		
+		for(int i = 0; i<8; i++){
+			if(racers[i] != null){
+				if(racers[i].getEndTime() != null || racers[i].getDNF() == true) {
+					element = new JsonObject();
+					element.addProperty("bibNum", racers[i].getBibNum());
+					element.addProperty("startTime", startTime.toString());
+					if(racers[i].getEndTime() != null){
+						element.addProperty("endTime", racers[i].getEndTime().toString());
+					}else {
+						element.addProperty("endTime", "");
+					}
+					element.addProperty("dnf", racers[i].getDNF());
+					array.add(element);
+				}
+			}
+		}
+		obj.add("finished", array);
 		//System.out.println(obj.toString()); // debug
 		return obj.toString();
 	}
