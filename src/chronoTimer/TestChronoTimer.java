@@ -117,12 +117,26 @@ public class TestChronoTimer {
 	
 	@Test
 	public void testReset() {
-		// TODO
+		assertFalse("Power is off",ct.execute("12:01:10.0 RESET"));
+		ct.execute("12:01:02.0 POWER");
+		assertTrue("Reset System",ct.execute("12:01:10.0 RESET"));
+		assertTrue("Reset System",ct.execute("12:01:10.0 RESET"));
+		ct.execute("12:01:10.0 NEWRUN");
+		ct.execute("12:01:10.0 ENDRUN");
+		assertFalse("ct has log", (ct.getLog().equals("")));
+		assertTrue("Reset System",ct.execute("12:01:10.0 RESET"));
+		assertTrue("ct has no log after reset", (ct.getLog().equals("")));
+		
 	}
 	
 	@Test
 	public void testEndrun() {
-		// TODO
+		assertFalse("Power is off",ct.execute("12:01:10.0 ENDRUN"));
+		ct.execute("12:01:02.0 POWER");
+		assertFalse("Need to have a run to end",ct.execute("12:01:10.0 ENDRUN"));
+		assertTrue("Should created a new run.",ct.execute("12:01:10.0 NEWRUN"));
+		assertTrue("Should end run",ct.execute("12:01:10.0 ENDRUN"));
+		assertFalse("Need to have a run to end",ct.execute("12:01:10.0 ENDRUN"));	
 	}
 	
 	@Test
