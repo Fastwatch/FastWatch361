@@ -263,6 +263,8 @@ public class ChronoTimer {
 						conn(channelNum-1, commands[2]);
 					}catch(NumberFormatException ex){
 						return printMessage("Error on parsing Channel to a number.");
+					}catch(ArrayIndexOutOfBoundsException ex){
+						return printMessage("Channel not supported.");
 					}
 					break;
 					
