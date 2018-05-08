@@ -118,8 +118,7 @@ public class ChronoTimer {
 	private void reset(){
 		currentRun = null;
 		pastRuns = new ArrayList<Run>();
-		channels = new Channel[8];
-		for(int i = 0;i<8;i++) channels[i] = new Channel();
+		for(Channel c:channels)	if (c.getState()) c.toggle();
 		log = "";
 		eventType = "IND"; //default event 
 		currentTime = null;
@@ -523,6 +522,7 @@ public class ChronoTimer {
 			return false;
 		}
 		if(!currentRun.getQueue().isEmpty() || currentRun.raceInProgress()){
+			currentRun.end();
 			// only add it to our pastRuns if there there are racers in the RUN, it will be a waste to add "empty" Runs
 				pastRuns.add(currentRun);
 			if(currentRun.raceInProgress()) {

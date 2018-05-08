@@ -52,8 +52,8 @@ public class PARGRP extends Run{
 			return status;
 		} else {
 			//Trying to trigger a finish for a channel with no racer
-			if(racers[channelNum - 1] == null || racers[channelNum - 1].getEndTime() != null || racers[channelNum - 1].getDNF()) throw new IllegalStateException("No racers in lane " + channelNum + "\n");	
- 
+			if(racers[channelNum - 1] == null) throw new IllegalStateException("No racers in lane " + channelNum + "\n");	
+			if(racers[channelNum - 1].getEndTime() != null || racers[channelNum - 1].getDNF()) throw new IllegalStateException("Racer in lane " + channelNum + "already finished\n");
 			racers[channelNum - 1].setFinish(time);
 			status += "Racer " + racers[channelNum - 1].getBibNum() + " has finished with a time of " + racers[channelNum - 1].getTime() + "\n";
 
@@ -112,7 +112,7 @@ public class PARGRP extends Run{
 	@Override
 	protected void clr(int bibNum) {
 		if(!contains(bibNum))throw new IllegalArgumentException("Runner Not Found");
-		
+		if(startTime != null) throw new IllegalArgumentException("Cannot remove racers while a race is in progress.");
 		//Remove bib then fill missing spot in array with the last racer in array
 		for(int i = 0; i < 8; i++) {
 			if(racers[i].getBibNum() == bibNum) {
@@ -130,11 +130,10 @@ public class PARGRP extends Run{
 	protected String standings(LocalTime time) {
 		if(numOfRacers <= 0) return "No Racers Currently In Run\n";
 		String timeStamp = "";
-		String stand = "";
+		String stand = "Parallel Group\n";
 		LocalTime duration = time;
 		if (startTime != null) {
-			stand += "Parallel Group startTime Time: " + startTime.toString()+"\n";
-			stand+= "Currently Racing:\n";
+			stand += "Start Time: " + startTime.toString()+"\n";
 			duration = time.minusHours(startTime.getHour());
 			duration = duration.minusMinutes(startTime.getMinute());
 			duration = duration.minusSeconds(startTime.getSecond());
@@ -234,20 +233,20 @@ public class PARGRP extends Run{
 	protected String update(LocalTime time) {
 		if(numOfRacers <= 0) return "No Racers Currently In Run\n";
 		String timeStamp = "";
-		String stand = "";
+		String stand = "Parallel Group\n";
 		LocalTime duration = time;
 		if (startTime != null) {
-			stand += "Parallel Group startTime Time: " + startTime.toString()+"\n";
-			stand+= "Currently Racing:\n";
+			stand += "Start Time: " + startTime.toString()+"\n";
 			duration = time.minusHours(startTime.getHour());
 			duration = duration.minusMinutes(startTime.getMinute());
 			duration = duration.minusSeconds(startTime.getSecond());
 			duration = duration.minusNanos(startTime.getNano());
 		}
+		stand+="Lane	Bib Num	Time\n=============================\n";
 		int count = 1;
 		for(Racer r:racers){
 			if (r!=null){
-				stand += "Lane " + count++ + ": " + r.getBibNum() + " ";
+				stand += "Lane " + count++ + ":	" + r.getBibNum() + "	";
 				if (r.getEndTime() == null && r.getDNF() == false)stand += duration.toString() + "\n";
 				else if (r.getDNF()) stand += "DNF\n";
 				else stand +=  r.getTime() +"\n";

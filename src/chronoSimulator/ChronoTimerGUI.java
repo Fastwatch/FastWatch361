@@ -875,13 +875,13 @@ public class ChronoTimerGUI {
 	   					ct.execute(getTime() + " EXPORT " +numBuilder);
 	   					exporting = false;
 	   				}
-	   				else{
+	   				else if(numBuilder.length()>0){
 	   					ct.execute(getTime() + " NUM " + numBuilder);
 	   	   				numBuilder = ""; // reset
-	   	   				printToDisplay(ct.DispUpdate(getTime()));
+	   	   				printToDisplay(ct.DispUpdate(getTime()));		
 	   				}
-	   				numBuilder = "";
 	   				startThread("numpad");
+	   				numBuilder = "";	
 	   			}else if(command.equalsIgnoreCase("*")){
 	   				numBuilder = "";
 	   				clearing = printing = exporting = swapping = dnfing = false;
@@ -1043,16 +1043,10 @@ public class ChronoTimerGUI {
    	private void resetGUI(){
 
    		activeRun = false;
-   		swapping = false;
-   		clearing = false;
-   		dnfing = false;
+   		swapping = clearing = dnfing = printing = exporting = false;
    		numBuilder = "";
 	    for(JRadioButton j: toggledChannels){
-	    	j.setEnabled(false);
 	    	j.setSelected(false);
-	    }
-	    for(JButton j: trigButtons){
-	    	j.setEnabled(false);
 	    }
 	    printToDisplay("");
    	}
