@@ -118,9 +118,9 @@ public class ChronoTimer {
 	private void reset(){
 		currentRun = null;
 		pastRuns = new ArrayList<Run>();
+		log = "";
 		channels = new Channel[8];
 		for(int i = 0;i<8;i++) channels[i] = new Channel();
-		log = "";
 		eventType = "IND"; //default event 
 		currentTime = null;
 	}
@@ -295,6 +295,7 @@ public class ChronoTimer {
 				
 				case("RESET"): // Reset system to initial state
 					reset();
+					printMessage("System reset.");
 					break;
 				
 				case("NUM"): // Set	NUM<NUMBER> as the next	competitor to start.

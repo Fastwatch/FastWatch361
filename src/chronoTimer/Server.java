@@ -35,6 +35,7 @@ public class Server {
 	static boolean gotMessageFlag = false;
 	static ArrayList<Racer> results = new ArrayList<Racer>();
 	static String runType = "IND";
+	static HashMap<Integer, String> names;
 
 	public static void main(String[] args) throws Exception {
 
@@ -61,13 +62,43 @@ public class Server {
 			System.out.println("Starting Server...");
 			serverDisplay.start();
 			serverResults.start();
-
+			names = parseFile();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
 	}
 
+
+	/**
+	 * Read from the racers.txt file and parses by ":" expecting a format of bibNum:Name and returns
+	 * a Hash Map of the racers bib number and name.
+	 * @param fileName
+	 * @return HashMap containing key values of an integer(bibNum) associated with a string value(Name).
+	 */
+	private static HashMap<Integer,String> parseFile() {
+		File file = null;
+		file = new File("racers.txt");
+		HashMap<Integer, String> names = new HashMap<Integer, String>();
+		
+		if(!file.exists() || !file.isFile()) {
+			//System.out.println("No file called racers.txt found");
+		}
+		
+		try (BufferedReader br = new BufferedReader(new FileReader("racers.txt"));){
+			
+			String line;
+			
+			while ((line = br.readLine()) != null) {
+				String[] s = line.split(":");
+				names.put(Integer.parseInt(s[0]), s[1]);
+			}
+		} catch (Exception e) {
+			//System.out.println(e.getMessage());
+		}
+		
+		return names;
+	}
 
 	static class RacerListHandler implements HttpHandler {
 		public void handle(HttpExchange t) throws IOException {
@@ -93,9 +124,6 @@ public class Server {
 			} else {
 				try {
 					int place = 1;
-					
-					// read from file and check if there is any name matching with the bibNumber
-					HashMap<Integer, String> names = parseFile(); 
 					
 					results.sort(new Comparator<Racer>(){
 
@@ -153,38 +181,7 @@ public class Server {
 			os.close();
 
 		}
-
-		/**
-		 * Read from the racers.txt file and parses by ":" expecting a format of bibNum:Name and returns
-		 * a Hash Map of the racers bib number and name.
-		 * @param fileName
-		 * @return HashMap containing key values of an integer(bibNum) associated with a string value(Name).
-		 */
-		private HashMap<Integer,String> parseFile() {
-			File file = null;
-			file = new File("racers.txt");
-			HashMap<Integer, String> names = new HashMap<Integer, String>();
-			
-			if(!file.exists() || !file.isFile()) {
-				//System.out.println("No file called racers.txt found");
-			}
-			
-			try (BufferedReader br = new BufferedReader(new FileReader("racers.txt"));){
-				
-				String line;
-				
-				while ((line = br.readLine()) != null) {
-					String[] s = line.split(":");
-					names.put(Integer.parseInt(s[0]), s[1]);
-				}
-			} catch (Exception e) {
-				//System.out.println(e.getMessage());
-			}
-			
-			return names;
-		}
 	}
-
 	/* Commenting that phil wrote this code */
 	static class StyleHandler implements HttpHandler {
 		public void handle(HttpExchange t) throws IOException {

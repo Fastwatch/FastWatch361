@@ -430,6 +430,7 @@ public class ChronoTimerGUI {
 							activeRun = true;
 							ct.execute(getTime() + " " + currentCommand);
 						}else if(currentCommand.equalsIgnoreCase("LOG")){
+							if(printerPower == true)
 								printToPrinter(ct.getLog());
 						}else if(currentCommand.equalsIgnoreCase("ENDRUN")){
 							activeRun = false;
@@ -1048,12 +1049,11 @@ public class ChronoTimerGUI {
    		dnfing = false;
    		numBuilder = "";
 	    for(JRadioButton j: toggledChannels){
-	    	j.setEnabled(false);
 	    	j.setSelected(false);
 	    }
 	    for(JButton j: trigButtons){
-	    	j.setEnabled(false);
+	    	j.setSelected(false);
 	    }
-	    printToDisplay("");
+	    printToDisplay("No Active Run");
    	}
 }
