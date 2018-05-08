@@ -294,6 +294,7 @@ public class ChronoTimer {
 				
 				case("RESET"): // Reset system to initial state
 					reset();
+					printMessage("System reset.");
 					break;
 				
 				case("NUM"): // Set	NUM<NUMBER> as the next	competitor to start.

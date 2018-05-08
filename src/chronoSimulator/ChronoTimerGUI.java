@@ -376,35 +376,14 @@ public class ChronoTimerGUI {
 	    functionContainer = new JPanel();
 	    FlowLayout flowLayout = (FlowLayout) functionContainer.getLayout();
 	    flowLayout.setAlignment(FlowLayout.LEFT);
-	    functionPanel.add(functionContainer);
-	    /*
-	    functionPanel.add(commandComboBox);
-	    commandComboBox.setSize(100, 200);
-	    commandComboBox.setSelectedIndex(0);
-	    commandComboBox.setVisible(true);
-	    commandComboBox.addActionListener(new ActionListener(){
-
-	    	@Override
-			public void actionPerformed(ActionEvent e) {
-				String command = commandComboBox.getSelectedItem().toString();
-				for(int i = 0; i < commands.length; i++){
-					if(command.equalsIgnoreCase(commands[i])){
-						commandComboBox.setSelectedIndex(i);
-					}
-				}
-			}
-	    	
-	    });
-	    */
-	    
+	    functionPanel.add(functionContainer);	    
 	    btnFunction = new JButton("FUNCTION");
 	    functionContainer.add(btnFunction);
 	    btnFunction.setEnabled(false);
 	    btnFunction.addActionListener(new ActionListener(){
 	    
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				//TODO			
+			public void actionPerformed(ActionEvent e) {		
 				if(currentCommand.length() > 0){
 					numBuilder = "";
 					if(!currentCommand.equals("RETURN")) {
@@ -430,6 +409,7 @@ public class ChronoTimerGUI {
 							activeRun = true;
 							ct.execute(getTime() + " " + currentCommand);
 						}else if(currentCommand.equalsIgnoreCase("LOG")){
+							if(printerPower == true)
 								printToPrinter(ct.getLog());
 						}else if(currentCommand.equalsIgnoreCase("ENDRUN")){
 							activeRun = false;
@@ -822,7 +802,6 @@ public class ChronoTimerGUI {
    	private class TrigClickListener implements ActionListener{
    		@Override
    		public void actionPerformed(ActionEvent e) {
-	         //TODO trigger button functionality
    			String command = e.getActionCommand();
    			ct.execute(getTime() + " " + command);
 	     }		
@@ -840,7 +819,6 @@ public class ChronoTimerGUI {
    	private class PrinterPowerClickListener implements ActionListener{
    		@Override
    		public void actionPerformed(ActionEvent e) {
-	         //TODO numpad functionality - recieve either number, # or *
    			printerPower = !printerPower; // toggle printer power
    			if(printerPower == true) {
    				printerText.append("Printer is on.\n");// just to show that the printer is on
@@ -853,7 +831,6 @@ public class ChronoTimerGUI {
    	private class NumpadClickListener implements ActionListener{
    		@Override
    		public void actionPerformed(ActionEvent e) {
-	         //TODO numpad functionality - receive either number, # or *
    			if(powerToggled){
    				currentCommand = "";
 	   			killThread();
@@ -917,7 +894,6 @@ public class ChronoTimerGUI {
    			
    			switch(action) {
    			case "up":
-   				//TODO
    				commandIndex--;
    				if(commandIndex < 0) {
    					commandIndex = commands.length - 1;
@@ -926,7 +902,6 @@ public class ChronoTimerGUI {
    				hasAction = true;
    				break;
    			case "down":
-   				//TODO
    				commandIndex++;
    				if(commandIndex >= commands.length) {
    					commandIndex = 0;
@@ -1048,6 +1023,6 @@ public class ChronoTimerGUI {
 	    for(JRadioButton j: toggledChannels){
 	    	j.setSelected(false);
 	    }
-	    printToDisplay("");
+	    printToDisplay("No Active Run");
    	}
 }
