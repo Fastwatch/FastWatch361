@@ -37,6 +37,32 @@ public class TestChronoTimer {
 	}
 	
 	@Test
+	public void testPOWER(){
+	assertFalse("Must turn on power.", ct.execute("12:01:20.0 EXIT"));
+	assertFalse("Must turn on power.", ct.execute("12:01:20.0 RESET"));
+	assertFalse("Must turn on power.", ct.execute("12:01:20.0 TOG 2"));
+	assertFalse("Must turn on power.", ct.execute("12:01:20.0 CONN 2"));
+	assertFalse("Must turn on power.", ct.execute("12:01:20.0 DISC 2"));
+	assertFalse("Must turn on power.", ct.execute("12:01:20.0 EVENT GRP"));
+	assertFalse("Must turn on power.", ct.execute("12:01:20.0 NEWRUN"));
+	assertFalse("Must turn on power.", ct.execute("12:01:20.0 ENDRUN"));
+	assertFalse("Must turn on power.", ct.execute("12:01:20.0 PRINT "));
+	assertFalse("Must turn on power.", ct.execute("12:01:20.0 EXPORT"));
+	assertFalse("Must turn on power.", ct.execute("12:01:20.0 NUM"));
+	assertFalse("Must turn on power.", ct.execute("12:01:20.0 "));
+	assertFalse("Must turn on power.", ct.execute("12:01:20.0 "));
+	assertFalse("Must turn on power.", ct.execute("12:01:20.0 "));
+	assertFalse("Must turn on power.", ct.execute("12:01:20.0 "));
+	assertFalse("Must turn on power.", ct.execute("12:01:20.0 "));
+	}
+	
+	@Test
+	public void testCONN(){
+	assert
+	
+	}
+	
+	@Test
 	public void testEvent(){
 		ct.execute("12:01:02.0 POWER");
 		assertTrue("Valid event.", ct.execute("12:01:20.0 EVENT IND"));
@@ -141,7 +167,7 @@ public class TestChronoTimer {
 	
 	@Test
 	public void testClr() {
-		// TODO
+		assertFalse("Power")
 	}
 	
 	@Test
@@ -159,4 +185,5 @@ public class TestChronoTimer {
 		// TODO
 	}
 
+	
 }
