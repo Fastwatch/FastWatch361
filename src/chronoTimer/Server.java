@@ -1,6 +1,7 @@
 package chronoTimer;
 
 import java.io.BufferedReader;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -22,11 +23,13 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
-public class Server {
+/**
+ * 
+ * @author Fue Her
+ *
+ */
 
-	/**
-	 * Simple HTTP handler for the ChronoTimer
-	 */
+public class Server {
 
 	// a shared area where we get the POST data and then use it in the other handler
 	static boolean gotMessageFlag = false;
@@ -60,7 +63,6 @@ public class Server {
 			serverResults.start();
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 

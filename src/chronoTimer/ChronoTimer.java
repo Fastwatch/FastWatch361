@@ -15,13 +15,12 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 import chronoSimulator.ChronoTimerSimulator;
-//other possible imports
 
 /**
  *  The Sport Timing system that will perform specific actions provided by certain commands from the simulator (either from
  *  file or console input). It will record and keep track of racers and runs of multiple sporting racing events. The simulator and hardware will only 
  *  have access to use the execute method of this system to run and execute.
- * @authors Isaac Kadera, Philip Sauvey and Fue Her 
+ * @authors Isaac Kadera, Philip Sauvey, Fue Her, Riley Mahr, Andrew Krill
  *
  */
 
@@ -70,8 +69,6 @@ public class ChronoTimer {
 	private ArrayList<Run> pastRuns; //run history
 	private Channel[] channels; //8 sensor inputs
 	private String log; //text of previous commands
-	//private ArrayList<String> log; //
-	//private Event currentEvent;
 	private ChronoTimerSimulator sim; // Chronotimer simulator
 	private String eventType; // their test text file has a EVENT command 
 	private LocalTime currentTime;

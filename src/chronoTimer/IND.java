@@ -90,7 +90,6 @@ class IND extends Run {
 	 */
 	@Override
 	protected void num(int bibNum) {
-		// TODO Auto-generated method stub
 		if(contains(bibNum))throw new IllegalArgumentException("Attempting to create duplicate racer");
 		if (bibNum<0 ||bibNum>=1000)throw new IllegalArgumentException("Bib Number must be between 000 and 999.");
 		Node n = new Node(new Racer(bibNum));

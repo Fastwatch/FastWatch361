@@ -14,10 +14,6 @@ import chronoTimer.ChronoTimer;
  */ 
 public class ConsoleInput {
 	
-	/**
-	 * Base class to read in console commands
-	 */
-	
 	public boolean readConsole(ChronoTimer ct) {
 		boolean isRunning = true;
 		Scanner scanner = new Scanner(System.in);
@@ -42,7 +38,6 @@ public class ConsoleInput {
 	
 	private static String getTime() {
 		//Time Formated as HH:hh:ss
-		//That is, Hour:Min:sec 
 		String timeStamp = new SimpleDateFormat("HH:mm:ss.SSS").format(Calendar.getInstance().getTime());
 		return timeStamp;
 	}

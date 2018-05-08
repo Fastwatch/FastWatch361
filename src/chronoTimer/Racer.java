@@ -4,8 +4,8 @@ import java.time.LocalTime;
 
 
 /**
- *  A racer with a unique bib number that has it's own start and end time (LocalTime class). This class
- *  is used in racing events.
+ *  A racer with a unique bib number that has it's own start and end time (LocalTime class). 
+ *  This class is used in racing events.
  * @author Fue Her
  *
  */

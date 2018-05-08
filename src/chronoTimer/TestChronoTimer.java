@@ -7,6 +7,12 @@ import chronoSimulator.ChronoTimerSimulator;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * Testing class for chronotimer
+ * @author Isaac Kadera, Riley Mahr
+ *
+ */
+
 public class TestChronoTimer {
 
 	ChronoTimer ct;
@@ -89,6 +95,18 @@ public class TestChronoTimer {
 		assertFalse("Should return false, error in parsing time",ct.execute("12:01.0 TIME 12:0s:13.2"));
 		assertFalse("Should return false, error in parsing time",ct.execute("1:20.0 TIME 12s:0s:13.2"));
 		assertFalse("Should return false, not enough arguments",ct.execute(""));
+	}
+	
+	@Test
+	public void testNum() {
+		ct.execute("12:01:02.0 POWER");
+		assertTrue("Should created a new run.",ct.execute("12:01:10.0 NEWRUN"));
+		assertFalse("Should error as number is too large", ct.execute("12:01:10.0 NUM 1000"));
+		for(int i = 0; i < 1000; i++) {
+			System.out.println(i);
+			assertTrue("Accepts number in 0 - 999 range", ct.execute("12:01:10.0 NUM " + i));
+		}
+		assertFalse("cannot add duplicate racer",ct.execute("12:01:10.0 NUM 5"));
 	}
 
 }

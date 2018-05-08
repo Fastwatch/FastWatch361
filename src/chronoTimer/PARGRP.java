@@ -13,6 +13,12 @@ import com.google.gson.reflect.TypeToken;
 
 import chronoTimer.Run.Node;
 
+/**
+ * 
+ * @author Andrew Krill, Fue Her, Philip Sauvey
+ *
+ */
+
 @SuppressWarnings("unused")
 public class PARGRP extends Run{
 	

@@ -38,7 +38,7 @@ public abstract class Run {
 	
 	/**
 	 * Node Class for use in Linked lists for keeping track of racers
-	 * @author Isshanna
+	 * @author Philip Sauvey
 	 *
 	 */
 	protected class Node{

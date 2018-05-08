@@ -30,6 +30,12 @@ import javax.swing.border.BevelBorder;
 
 import chronoTimer.ChronoTimer;
 
+/**
+ * GUI for chronotimer
+ * @author Riley Mahr, Fue Her, Philip Sauvey
+ *
+ */
+
 public class ChronoTimerGUI {
 	
 	private ChronoTimer ct;
@@ -48,17 +54,11 @@ public class ChronoTimerGUI {
 	private ArrayList<JRadioButton> toggledChannels = new ArrayList<>();
 	private ArrayList<JButton> trigButtons = new ArrayList<>();
 	
-	
 	private String[] commands = {"RETURN", "EVENT", "NEWRUN", "ENDRUN","DNF", "CANCEL", "CLR", "LOG",  "RESET" , "EXPORT" ,"PRINT"}; // pressing the "function" button will execute it
 	private String[] eventOptions = {"IND","PARIND", "GRP", "PARGRP"};
 	private String currentCommand = "";
 	private int commandIndex = 0;
-	private int eventIndex = 0;
-	//private JComboBox<String> commandComboBox = new JComboBox<String>(commands);
-	
-	
-	// List of Commands to choose to perform
-	
+	private int eventIndex = 0;		
 	
 	// Frame and rootPanel
 	private JFrame f;
