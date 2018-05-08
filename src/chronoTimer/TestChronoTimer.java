@@ -99,6 +99,7 @@ public class TestChronoTimer {
 	
 	@Test
 	public void testNum() {
+		assertFalse("Power is off", ct.execute("12:01:10.0 NUM 10"));
 		ct.execute("12:01:02.0 POWER");
 		assertTrue("Should created a new run.",ct.execute("12:01:10.0 NEWRUN"));
 		assertFalse("Should error as number is too large", ct.execute("12:01:10.0 NUM 1000"));
@@ -107,6 +108,41 @@ public class TestChronoTimer {
 			assertTrue("Accepts number in 0 - 999 range", ct.execute("12:01:10.0 NUM " + i));
 		}
 		assertFalse("cannot add duplicate racer",ct.execute("12:01:10.0 NUM 5"));
+	}
+	
+	@Test
+	public void testExit() {
+		// TODO
+	}
+	
+	@Test
+	public void testReset() {
+		// TODO
+	}
+	
+	@Test
+	public void testEndrun() {
+		// TODO
+	}
+	
+	@Test
+	public void testClr() {
+		// TODO
+	}
+	
+	@Test
+	public void testSwap() {
+		// TODO
+	}
+	
+	@Test
+	public void testDNF() {
+		// TODO
+	}
+	
+	@Test
+	public void testFinish() {
+		// TODO
 	}
 
 }
