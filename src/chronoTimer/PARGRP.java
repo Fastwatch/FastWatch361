@@ -79,7 +79,9 @@ public class PARGRP extends Run{
 
 	@Override
 	protected String dnf(int laneNum) {
-		if(racers[laneNum - 1] != null && racers[laneNum - 1].getEndTime() == null){
+		if(startTime == null) throw new IllegalStateException("Cannot DNF, Race did not start yet.");
+		if(laneNum >= 9 || laneNum <= -1) throw new IllegalStateException("No such lane exist.");
+		if(racers[laneNum - 1] != null && racers[laneNum - 1].getEndTime() == null && racers[laneNum - 1].getDNF() == false){
 			racers[laneNum - 1].setDNF(true);
 		}else{
 			throw new IllegalStateException("No racer in lane " + laneNum + " to DNF");	
