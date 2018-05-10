@@ -65,6 +65,24 @@ public class TestLinkedList {
 	}
 	
 	@Test
+	public void testAddStart(){
+		list.addStart(nodes.get(0)); // [0]
+		list.addStart(nodes.get(1)); // [1,0]
+		assertEquals("Racer head is incorrect", 1, list.head.Data.getBibNum());
+		assertEquals("Racer is not in correct position", 0, list.tail.Data.getBibNum());
+		assertEquals("Linkedlist next node is incorrect", 0, list.head.next.Data.getBibNum());
+	}
+	
+	@Test
+	public void testAddEnd(){
+		list.addEnd(nodes.get(0));  // [0]
+		list.addEnd(nodes.get(1)); //  [0,1]
+		assertEquals("Racer tail is incorrect", 1, list.tail.Data.getBibNum());
+		assertEquals("Racer is not in correct position", 0, list.head.Data.getBibNum());
+		assertEquals("Linkedlist next node is incorrect", 1, list.head.next.Data.getBibNum());
+	}
+	
+	@Test
 	public void testRemove(){
 		for(int i = 0; i < 10; i++){
 			list.addEnd(nodes.get(i));

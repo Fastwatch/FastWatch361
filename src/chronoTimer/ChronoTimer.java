@@ -263,6 +263,7 @@ public class ChronoTimer {
 					
 					try{
 						int channelNum = Integer.parseInt(commands[3]);
+						if(channelNum <= 0 || channelNum >= 9) return printMessage("Invalid channel");
 						conn(channelNum-1, commands[2]);
 					}catch(NumberFormatException ex){
 						return printMessage("Error on parsing Channel to a number.");
@@ -276,6 +277,7 @@ public class ChronoTimer {
 					
 					try{
 						int channelNum = Integer.parseInt(commands[2]);
+						if(channelNum <= 0 || channelNum >= 9) return printMessage("Invalid channel");
 						disc(channelNum-1);
 					}catch(NumberFormatException ex){
 						return printMessage("Error on parsing Channel to a number.");
@@ -320,7 +322,7 @@ public class ChronoTimer {
 					if(commands.length != 3) return printMessage("Need a channel number to toggle.");
 					try{
 						int channel = Integer.parseInt(commands[2]);
-						if(channel < 0 || channel >= 9){
+						if(channel <= 0 || channel >= 9){
 							return printMessage("Channel Not Supported.");
 						}
 						channels[channel-1].toggle();
@@ -392,6 +394,7 @@ public class ChronoTimer {
 					try{
 						if(commands.length != 3) return printMessage("Need a channel number to trigger. Should be after the trig arg.");
 						int channel = Integer.parseInt(commands[2]);
+						if(channel <= 0 || channel >= 9) return printMessage("Invalid channel");
 						if(currentRun == null) return printMessage("Must have current Run to trigger Channel. Please create a run first.");
 						try {
 							if(!channels[channel-1].getState())  return printMessage("Channel is inactive");

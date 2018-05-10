@@ -23,7 +23,8 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
-/**
+/**Server for receiving data from the ChronoTimer and
+ * displaying the latest completed RUN to a local server
  * 
  * @author Fue Her
  *
@@ -241,7 +242,7 @@ public class Server {
 	}
 
 	/**
-	 * Sends the most recent sorted RUN data to the server.
+	 * Receive the most recent sorted RUN data to the server.
 	 * @param data
 	 */
 	public static void receiveData(String JSONString) {
