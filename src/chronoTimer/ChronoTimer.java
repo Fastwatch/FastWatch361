@@ -221,6 +221,7 @@ public class ChronoTimer {
 					if(currentRun != null && currentRun.raceInProgress() == true) return printMessage("Must end the current run before assiging a event type.");
 					
 					String prevEvent = eventType;
+					//This is one of two locations where a new run type must be added if more types are desired in the future
 					if(commands[2].equalsIgnoreCase("IND")) {
 						eventType = "IND";
 					}else if(commands[2].equalsIgnoreCase("PARIND")){
@@ -235,6 +236,8 @@ public class ChronoTimer {
 					}
 					
 					printMessage("Event set to " + eventType);
+					//This if statement allows for switching between run types after racers are added
+					//but before the race actually begins.
 					if(currentRun != null && !eventType.equalsIgnoreCase(prevEvent)) {
 						printMessage("Converting " + prevEvent + " run to " + eventType + " run");
 						try {
@@ -357,7 +360,7 @@ public class ChronoTimer {
 					}
 					break;
 				
-				case("SWAP"): // Start trigger channel 1 (shorthand for TRIG 1)
+				case("SWAP"): // Swaps the leading 2 active racers in a race, when valid
 					if(currentRun == null) return printMessage("Cannot swap racers. There is no run.");
 					try {
 						if(currentRun.type.equalsIgnoreCase("PARIND")){
@@ -371,7 +374,7 @@ public class ChronoTimer {
 					}
 					break;
 				
-				case("CLR"): // Start trigger channel 1 (shorthand for TRIG 1)
+				case("CLR"): // Clears a racer with a particular bib number from a race
 					if(commands.length != 3) return printMessage("Need a bib number to remove racer. Should be after the num arg.");
 					if(currentRun == null) return printMessage("Cannot add racer, create a Run first.");
 					try {
@@ -437,7 +440,7 @@ public class ChronoTimer {
 						
 					break;
 					
-				case("EXPORT"):
+				case("EXPORT"): //Exports run data as a json string to a file located on the system.
 					if(currentRun == null && pastRuns.isEmpty()) return printMessage("Cannot export. There is no run in system history.");
 					if(commands.length == 2){
 						writeFile();

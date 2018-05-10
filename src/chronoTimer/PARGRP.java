@@ -1,25 +1,21 @@
 package chronoTimer;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
-
-import chronoTimer.Run.Node;
 
 /**
+ * The Parallel Group Race has a single start for all racers,
+ * however each racer is in their own lane and has a dedicated sensor for their finish
+ *
+ * Any channel can be used to start the race,
+ * Each channel number 1-8 is associated with the corresponding lane 1-8
  * 
  * @author Andrew Krill, Fue Her, Philip Sauvey
  *
  */
 
-@SuppressWarnings("unused")
 public class PARGRP extends Run{
 	
 	LocalTime startTime;
@@ -34,6 +30,14 @@ public class PARGRP extends Run{
 		racers = new Racer[8];
 	}
 	
+	/**
+	 * Trigger function for handling sensor input
+	 * Channel Any: Start
+	 * Channel 1-8: Finish for corresponding lane
+	 *  
+	 * @param time current system time trigger takes place
+	 * @param channelNum Channel that is triggered
+	 */
 	@Override
 	protected String trig(LocalTime time, int channelNum) {
 		String status = "";
@@ -61,26 +65,39 @@ public class PARGRP extends Run{
 		return status;
 	}
 
-
+	/**
+	 * Swapping is not supported for this race type
+	 */
 	@Override
 	protected void swap() {
 		throw new IllegalStateException("Race Type does not support that");
 	}
 
+	/**
+	 * Swapping is not supported for this race type
+	 */
 	@Override
 	protected void swap(int laneNum) {
 		throw new IllegalStateException("Race Type does not support that");
 	}
 
+	/**
+	 * This method not supported for this race type, a lane number must be provided to swap
+	 */
 	@Override
 	protected String dnf() {
 		throw new IllegalStateException("Race Type does not support that (Must have lane number)");
 	}
 
+	/**
+	 * DNFs the racer in the lane specified
+	 * 
+	 * @param laneNum Lane number to DNF
+	 */
 	@Override
 	protected String dnf(int laneNum) {
 		if(startTime == null) throw new IllegalStateException("Cannot DNF, Race did not start yet.");
-		if(laneNum >= 9 || laneNum <= -1) throw new IllegalStateException("No such lane exist.");
+		if(laneNum >= 9 || laneNum <= 0) throw new IllegalStateException("No such lane exist.");
 		if(racers[laneNum - 1] != null && racers[laneNum - 1].getEndTime() == null && racers[laneNum - 1].getDNF() == false){
 			racers[laneNum - 1].setDNF(true);
 		}else{
@@ -89,6 +106,10 @@ public class PARGRP extends Run{
 		return "Racer " + racers[laneNum - 1].getBibNum() + " did not finish."; 
 	}
 
+	/**
+	 * Function to cancel the group start time.
+	 * Cannot cancel start if a racer has already completed the course.
+	 */
 	@Override
 	protected void cancel() {
 		if(startTime==null) throw new IllegalStateException("Race hasn't startTimeed yet");
@@ -100,6 +121,12 @@ public class PARGRP extends Run{
 		startTime = null;
 	}
 
+	/**
+	 * Num function adds a racer to the next empty lane in the race
+	 * cannot add more than 8 racers to this type of race
+	 * 
+	 * @param bibNum Racer Number to be added to race
+	 */
 	@Override
 	protected void num(int bibNum) {
 		if(contains(bibNum))throw new IllegalArgumentException("Attempting to create duplicate racer");
@@ -111,6 +138,12 @@ public class PARGRP extends Run{
 		
 	}
 
+	/**
+	 * Clr function removes a racer from his lane and shifts all other racers down so there are
+	 * no empty lanes between racers.
+	 * 
+	 * @param bibNum Racer to delete from race
+	 */
 	@Override
 	protected void clr(int bibNum) {
 		if(!contains(bibNum))throw new IllegalArgumentException("Runner Not Found");
@@ -128,10 +161,15 @@ public class PARGRP extends Run{
 		}		
 	}
 
+	/**
+	 * Returns current status of race listing each lane their racer and their status
+	 * 
+	 * @param time current system time used to calculate current time of racers
+	 * @return formatted string with all racers' bib numbers, times, and status
+	 */
 	@Override
 	protected String standings(LocalTime time) {
 		if(numOfRacers <= 0) return "No Racers Currently In Run\n";
-		String timeStamp = "";
 		String stand = "Parallel Group\n";
 		LocalTime duration = time;
 		if (startTime != null) {
@@ -155,6 +193,10 @@ public class PARGRP extends Run{
 		return stand;
 	}
 
+	/**
+	 * Function to handle graceful ending of race.
+	 * DNFs all racers still running.
+	 */
 	@Override
 	protected void end() {
 		active = false;
@@ -165,6 +207,11 @@ public class PARGRP extends Run{
 		}
 	}
 
+	/**
+	 * This function exports a valid json string representation of the status of the race.
+	 * 
+	 * @return JSON formatted string of current race status.
+	 */
 	@Override
 	protected String export() {
 		JsonObject obj = new JsonObject();
@@ -219,22 +266,37 @@ public class PARGRP extends Run{
 		return obj.toString();
 	}
 
+	/**
+	 * Tests to see if a race is already running by checking if there is a start time
+	 * 
+	 * @return True if race has started, false otherwise
+	 */
 	@Override
 	protected boolean raceInProgress() {
 		return startTime!=null;
 	}
 
+	/**
+	 * Checks if a bibNum is already used in the current race.
+	 * 
+	 * @param bibNum Racer number to check
+	 * @return True if bibNum already used, false otherwise
+	 */
 	protected boolean contains(int bibNum){
-		boolean contains = false;
 		for(int i = 0; i < 8; i++) {
 			if(racers[i] != null && bibNum == racers[i].getBibNum()) return true;
 		}		
 		return false;
 	}
 	
+	/**
+	 * This function generates a formatted string for use of the display of the GUI/Hardware
+	 * It provides a live look at the status of a race.
+	 * 
+	 * @param time LocalTime object representing current time of the race.
+	 */
 	protected String update(LocalTime time) {
 		if(numOfRacers <= 0) return "No Racers Currently In Run\n";
-		String timeStamp = "";
 		String stand = "Parallel Group\n";
 		LocalTime duration = time;
 		if (startTime != null) {
@@ -259,7 +321,13 @@ public class PARGRP extends Run{
 		return stand;
 	}
 
-	
+	/**
+	 * This function generates an array list of all racers in queue to start
+	 * It is generally used to transition between race types before a race has started
+	 * but after racers have been added.
+	 * 
+	 * @return ArrayList of all racers in queue to start race
+	 */
 	@Override
 	protected ArrayList<Racer> getQueue() {
 		ArrayList<Racer> queue = new ArrayList<>();

@@ -6,6 +6,15 @@ import java.util.ArrayList;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+/**
+ * The Parallel Individual Run Type supports two lanes at once for head to head racing
+ * Racers are adding in alternating lanes and each lane runs independently of the other
+ * for concurrent operation.
+ * Channels 1 and 2 are reserved for lane 1
+ * Channels 3 and 4 are reserved for lane 2
+ * 
+ * @author Fue Her, Philip Sauvey
+ */
 public class PARIND extends Run{
 
 	IND Lane1;
@@ -19,7 +28,16 @@ public class PARIND extends Run{
 		addToOne = true;
 	}
 	
-	
+	/**
+	 * Trigger function for handling sensor input
+	 * Channel 1: Start Lane 1
+	 * Channel 2: Finish Lane 1
+	 * Channel 3: Start Lane 2
+	 * Channel 4: Finish Lane 2
+	 * 
+	 * @param time current system time trigger takes place
+	 * @param channelNum Channel that is triggered
+	 */
 	@Override
 	protected String trig(LocalTime time, int channelNum) {
 		String status;
@@ -33,16 +51,26 @@ public class PARIND extends Run{
 		return status;
 	}
 
+	/**
+	 * This method not supported for this race type, a lane number must be provided to swap
+	 */
 	@Override
 	protected void swap() {
 		throw new IllegalArgumentException("This Method not supported with this type of event");		
 	}
 
+	/**
+	 * This method not supported for this race type, a lane number must be provided to swap
+	 */
 	@Override
 	protected String dnf() {
 		throw new IllegalArgumentException("This Method not supported with this type of event");
 	}
 
+	/**
+	 * Cancels the last racer to start from either lane
+	 * Only ever cancels one start for one racer
+	 */
 	@Override
 	protected void cancel() {
 		Racer r1 = Lane1.lastStart();
@@ -57,6 +85,12 @@ public class PARIND extends Run{
 		}
 	}
 
+	/**
+	 * num function to generate new racers for this run
+	 * Racers are added in an alternating fashion to the lanes
+	 * 
+	 * @param bibNum of racer to be added to end of queued racers
+	 */
 	@Override
 	protected void num(int bibNum) {
 		if(Lane1.contains(bibNum)||Lane2.contains(bibNum)) throw new IllegalArgumentException("Attempting to create duplicate racer");
@@ -68,6 +102,11 @@ public class PARIND extends Run{
 		addToOne = !addToOne;
 	}
 
+	/**
+	 * function to remove racer from this run by bib number
+	 * 
+	 * @param bibNum of racer to be removed from run
+	 */
 	@Override
 	protected void clr(int bibNum) {
 		if(Lane1.contains(bibNum)){
@@ -77,11 +116,22 @@ public class PARIND extends Run{
 		}else throw new IllegalArgumentException("Runner Not Found");
 	}
 
+	/**
+	 * Returns current status of race including all racers in all 3 stages of the race, Finished, Running, 
+	 * and Waiting to Start for both lanes
+	 * 
+	 * 
+	 * @param time current system time used to calculate current time of racers
+	 * @return formatted string with all racers bib numbers times and status
+	 */
 	@Override
 	protected String standings(LocalTime time) {
 		return "Lane 1:\n" + Lane1.standings(time) + "\nLane 2:\n" + Lane2.standings(time);
 	}
 
+	/**
+	 * Function to handle graceful ending of race.
+	 */
 	@Override
 	protected void end() {
 		active = false;
@@ -89,6 +139,11 @@ public class PARIND extends Run{
 		Lane2.end();
 	}
 
+	/**
+	 * Swaps the leading 2 running racers in the specified lane
+	 * 
+	 * @param laneNum Lane number to swap
+	 */
 	@Override
 	protected void swap(int laneNum) {
 		if (laneNum == 1){
@@ -98,6 +153,12 @@ public class PARIND extends Run{
 		}else throw new IllegalArgumentException("Lane " + laneNum + " Not Supported");
 	}
 
+	
+	/**
+	 * DNFs the racer at the front of the running racers in the lane specified
+	 * 
+	 * @param laneNum Lane number to DNF
+	 */
 	@Override
 	protected String dnf(int laneNum) {
 		String out = "";
@@ -109,6 +170,11 @@ public class PARIND extends Run{
 		return out;
 	}
 
+	/**
+	 * This function exports a valid json string representation of the status of the race.
+	 * 
+	 * @return JSON formatted string of current race status.
+	 */
 	@Override
 	protected String export() {
 		JsonObject obj = new JsonObject();
@@ -198,7 +264,11 @@ public class PARIND extends Run{
 	}
 
 
-	
+	/**
+	 * Tests to see if a race is already running by checking both lanes
+	 * 
+	 * @return True if either lane has started, false otherwise
+	 */
 	protected boolean raceInProgress() {
 		if(Lane1.raceInProgress() == true || Lane2.raceInProgress() == true)
 			return true;
@@ -206,7 +276,13 @@ public class PARIND extends Run{
 	}
 
 
-	
+	/**
+	 * This function generates an array list of all racers in queue to start
+	 * It is generally used to transition between race types before a race has started
+	 * but after racers have been added.
+	 * 
+	 * @return ArrayList of all racers in queue to start race
+	 */
 	protected ArrayList<Racer> getQueue() {
 		boolean addedLane1 = false;
 		ArrayList<Racer> queue = new ArrayList<>();
@@ -237,6 +313,13 @@ public class PARIND extends Run{
 		return queue;
 	}
 	
+	
+	/**
+	 * This function generates a formatted string for use of the display of the GUI/Hardware
+	 * It provides a live look at the status of a race.
+	 * 
+	 * @param time LocalTime object representing current time of the race.
+	 */
 	protected String update(LocalTime time) {
 		LinkedList queued1 = Lane1.queued;
 		LinkedList running1 = Lane1.running;

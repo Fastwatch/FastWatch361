@@ -6,6 +6,15 @@ import java.util.ArrayList;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+/**
+ * The Individual Race is a single stream of racers all starting and finishing 
+ * at the same location. 
+ * 
+ * Channel 1: Start
+ * Channel 2: Finish
+ * 
+ * @author Fue Her, Philip Sauvey
+ */
 class IND extends Run {
 	
 	LinkedList queued;
@@ -22,7 +31,9 @@ class IND extends Run {
 	
 	/**
 	 * Trigger function for handling sensor input
-	 * 
+	 * Channel 1: Start
+	 * Channel 2: Finish
+	 *  
 	 * @param time current system time trigger takes place
 	 * @param channelNum Channel that is triggered
 	 */
@@ -97,7 +108,7 @@ class IND extends Run {
 	}
 
 	/**
-	 * num function to remove racer from this run
+	 * function to remove racer from this run by bib number
 	 * 
 	 * @param bibNum of racer to be removed from run
 	 */
@@ -182,17 +193,34 @@ class IND extends Run {
 	}
 
 
-
+	/**
+	 * This function is present so that other race types may take advantage of swapping by lane
+	 * This race type does not need a lane number to swap so if called it just calls the basic swap method without a lane
+	 * 
+	 * @param laneNum Lane number to swap (not used for this race type)
+	 */
 	@Override
 	protected void swap(int laneNum) {
 		swap();
 	}
 
+	/**
+	 * This function is present in the interface so that other race types may take advantage of DNFing by lane
+	 * This race type does not need a lane number to DNF so if called it just calls the basic DNF method without a lane
+	 * 
+	 * @param laneNum Lane number to DNF (not used for this race type)
+	 */
 	@Override
 	protected String dnf(int laneNum) {
 		return dnf();
 	}
 
+	
+	/**
+	 * This function exports a valid json string representation of the status of the race.
+	 * 
+	 * @return JSON formatted string of current race status.
+	 */
 	@Override
 	protected String export() {
 		JsonObject obj = new JsonObject();
@@ -239,20 +267,44 @@ class IND extends Run {
 		return obj.toString();
 	}
 	
+	/**
+	 * Checks every leg of the race for a particular bibNum
+	 * 
+	 * @param bibNum The bibNumber of the racer to search for
+	 * @return True if bibNumber is in race, false otherwise
+	 */
 	protected boolean contains(int bibNum){
 		return (queued.contains(bibNum)||running.contains(bibNum)||complete.contains(bibNum));
 	}
 	
+	/**
+	 * 
+	 * @return Racer object of last racer who started the race.
+	 */
 	protected Racer lastStart(){
 		if (running.tail==null) return null;
 		return running.tail.Data;
 	}
+	
+	/**
+	 * Tests to see if a race is already running
+	 * 
+	 * @return True if race has started, false otherwise
+	 */
 	@Override
 	protected boolean raceInProgress() {
 		if(this.running.getLength() > 0 || this.complete.getLength() > 0)
 			return true;
 		return false;
 	}
+	
+	/**
+	 * This function generates an array list of all racers in queue to start
+	 * It is generally used to transition between race types before a race has started
+	 * but after racers have been added.
+	 * 
+	 * @return ArrayList of all racers in queue to start race
+	 */
 	@Override
 	protected ArrayList<Racer> getQueue() {
 		ArrayList<Racer> queue = new ArrayList<>();
@@ -262,6 +314,12 @@ class IND extends Run {
 		return queue;
 	}
 	
+	/**
+	 * This function generates a formatted string for use of the display of the GUI/Hardware
+	 * It provides a live look at the status of a race.
+	 * 
+	 * @param time LocalTime object representing current time of the race.
+	 */
 	protected String update(LocalTime time){
 		
 		String stand = "";

@@ -52,10 +52,12 @@ public abstract class Run {
 	}
 	
 	/**
-	 * Internal Linked list class used for the queued, running, and completed sets
+	 * Custom Internal Linked list class used for the queued, running, and completed
+	 * sets in the different run types.
 	 * 
-	 * Supports adding to the head and tail, and removal from head tail or by specific racer number
-	 * @author Isshanna
+	 * Supports constant time operations for adding nodes to the head and tail, 
+	 * and constant time removal from head tail or O(n) time removal by specific racer number
+	 * @author Philip Sauvey
 	 *
 	 */
 	protected class LinkedList{
@@ -70,6 +72,11 @@ public abstract class Run {
 			count = 0;
 		}
 		
+		/**
+		 * Add End function adds a node to the end of the linked list as a constant time operation
+		 * 
+		 * @param n Node to add to end of list.
+		 */
 		protected void addEnd(Node n){
 			if(tail==null){
 				head = n;
@@ -83,6 +90,11 @@ public abstract class Run {
 			}
 		}
 		
+		/**
+		 * addStart function inserts a node at the start of the linked list as a constant time operation
+		 * 
+		 * @param n Node to add to start of list.
+		 */
 		protected void addStart(Node n){
 			if(tail==null){
 				addEnd(n);
@@ -94,6 +106,12 @@ public abstract class Run {
 			}
 		}
 		
+		/**
+		 * This function removes the first node from the linked list whose racer matches the bib number supplied
+		 * 
+		 * @param bibNum: The bib number of the racer that is to be removed
+		 * @return True if the bibNum is found and removed, false otherwise
+		 */
 		protected boolean remove(int bibNum){
 			Node n = head;
 			while (n!=null){
