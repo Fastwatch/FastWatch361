@@ -119,6 +119,9 @@ public class PARGRP extends Run{
 			if(racers[i].getEndTime() != null|| racers[i].getDNF()) throw new IllegalStateException("Cannot cancel start after a racer has finished.");
 		}
 		startTime = null;
+		for(int i = 0; i < numOfRacers; i++){
+			racers[i].setStart(null);
+		}
 	}
 
 	/**
